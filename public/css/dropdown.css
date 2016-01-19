@@ -1,0 +1,100 @@
+.hosts-select-ul {
+	padding-top: .25em;
+  padding-left: 3em;
+}
+
+.hostselect {
+    /* Size and position */
+    position: relative; /* Enable absolute positionning for children and pseudo elements */
+    width: 12em;
+    padding: 8px;
+    margin: 0 auto;
+
+    /* Styles */
+    background: #10569C;
+    color: #fff;
+    outline: none;
+    cursor: pointer;
+
+    /* Font settings */
+    font-size: medium;
+}
+
+.hostselect:after {
+    content: "";
+    width: 0;
+    height: 0;
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    margin-top: -6px;
+    border-width: 6px 0 6px 6px;
+    border-style: solid;
+    border-color: transparent #fff;
+}
+
+.hostselect .dropdown {
+    /* Size & position */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    /* Styles */
+    background: #fff;
+    list-style: none;
+    font-weight: normal; /* Cancels previous font-weight: bold; */
+
+    /* Hiding */
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hostselect .dropdown li a {
+    display: block;
+    text-decoration: none;
+    color: #9e9e9e;
+    padding: 7px 20px;
+}
+
+/* Hover state */
+.hostselect .dropdown li:hover a {
+    background: #f3f8f8;
+}
+
+/* Active state */
+.hostselect.active .dropdown {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hostselect.active:after {
+    border-color: #10569C transparent;
+    border-width: 6px 6px 0 6px ;
+    margin-top: -3px;
+}
+
+.hostselect.active {
+  background: #10569C;
+  background: -moz-linear-gradient(left,  #10569C 0%, #10569C 78%, #ffffff 78%, #ffffff 100%);
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%,#10569C), color-stop(78%,#10569C), color-stop(78%,#ffffff), color-stop(100%,#ffffff));
+  background: -webkit-linear-gradient(left,  #10569C 0%,#10569C 78%,#ffffff 78%,#ffffff 100%);
+  background: -o-linear-gradient(left,  #10569C 0%,#10569C 78%,#ffffff 78%,#ffffff 100%);
+  background: -ms-linear-gradient(left,  #10569C 0%,#10569C 78%,#ffffff 78%,#ffffff 100%);
+  background: linear-gradient(to right,  #10569C 0%,#10569C 78%,#ffffff 78%,#ffffff 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#10569C', endColorstr='#ffffff',GradientType=1 );
+}
+
+/* No CSS3 support */
+
+.no-opacity       .hostselect .dropdown,
+.no-pointerevents .hostselect .dropdown {
+    display: none;
+    opacity: 1; /* If opacity support but no pointer-events support */
+    pointer-events: auto; /* If pointer-events support but no pointer-events support */
+}
+
+.no-opacity       .hostselect.active .dropdown,
+.no-pointerevents .hostselect.active .dropdown {
+    display: block;
+}
