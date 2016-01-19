@@ -34,6 +34,8 @@ function convertToClientFormat(config, esResponse) {
 }
 
 module.exports = function (server) {
+
+  //Search
   server.route({
     method: ['POST'],
     path: '/konsole/search',
@@ -97,6 +99,43 @@ module.exports = function (server) {
         reply({
           ok: true,
           resp: convertToClientFormat(config, resp)
+        });
+      }).catch(function (resp) {
+        console.log(resp);
+        reply({
+          ok: false,
+          resp: resp
+        });
+      });
+    }
+  });
+
+  //Get All Systems
+  server.route({
+    method: ['GET'],
+    path: '/konsole/hosts',
+    handler: function (request,reply) {
+      var config = require('../../konsole.json');
+      var callWithRequest = server.plugins.elasticsearch.callWithRequest;
+      var hostAggRequest = {
+        index: config.es.default_index,
+        size: config.max_buckets,
+        body : {
+          size: 0,
+          aggs: {
+            hosts: {
+              terms: {
+                field: 'syslog_hostname'
+              }
+            }
+          }
+        }
+      };
+      callWithRequest(request,'search',hostAggRequest).then(function (resp) {
+        console.log(resp.aggregations.hosts.buckets);
+        reply({
+          ok: true,
+          resp: resp.aggregations.hosts.buckets
         });
       }).catch(function (resp) {
         console.log(resp);

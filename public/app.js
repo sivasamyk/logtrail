@@ -7,6 +7,8 @@ var sugarDate = require('sugar-date');
 var moment = require('moment');
 
 require('plugins/konsole/css/main.css');
+require('plugins/konsole/css/dropdown.css');
+
 //require('plugins/konsole/less/main.less');
 
 var konsoleLogo = require('plugins/konsole/images/header.png');
@@ -27,7 +29,7 @@ require('ui/routes')
     template: require('plugins/konsole/templates/index.html')
   });
 
-app.controller('konsole', function ($scope, es, courier, $window, $interval, $http, $document) {
+app.controller('konsole', function ($scope, es, courier, $window, $interval, $http, $document, $compile) {
   $scope.title = 'Konsole';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
@@ -37,6 +39,7 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
   $scope.pickedDateTime = null;
   $scope.userDateTimeSeeked = null;
   $scope.liveTailStatus = null;
+  $scope.hosts = null;
   var tailTimer = null;
   var searchText = null;
   var lastExecutedTime = null;
@@ -45,6 +48,7 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
     checkElasticsearch();
     doSearch(false);
     startTailTimer();
+    setupHostsDropDown();
   };
 
   function checkElasticsearch() {
@@ -193,6 +197,23 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
     }
     tailTimer = null;
   };
+
+  function setupHostsDropDown() {
+    var hostDropdown = angular.element('<ul class="hosts-select-ul nav navbar-nav" \
+     id="hosts-select-id"><hosts-dropdown></hosts-dropdown></ul>');
+    var navDiv = angular.element('nav > div:eq(1)');
+    navDiv.append(hostDropdown);
+    $compile(hostDropdown)($scope);
+    $http.get('/konsole/hosts').then(function (resp) {
+      if (resp.data.ok) {
+        console.log(resp.data.resp);
+        $scope.hosts = resp.data.resp;
+      } else {
+        console.log('not good');
+      }
+    });
+  }
+
   init();
 });
 
@@ -204,6 +225,37 @@ modules.get('konsole').directive('onLastRepeat', function () {
       setTimeout(function () {
         scope.$emit('onRepeatLast', element, attrs);
       }, 1);
+    }
+  };
+});
+
+modules.get('konsole').directive('hostsDropdown', function ($document) {
+  return {
+    restrict: 'E',
+    template: require('plugins/konsole/templates/dropdown.html'),
+    link: function (scope,el,attr) {
+      var selectedHost;
+      el.on('click', function (e) {
+        $(e.target).toggleClass('active');
+        el.find('li').on('click', function (e) {
+          var host = $(e.target).text();
+          el.find('span').text(host);
+          el.children('div').removeClass('active');
+          if(host !== selectedHost) {
+            selectedHost = host;
+            if(selectedHost === 'All Systems') {
+              host = "*"
+            }
+            scope.search('syslog_hostname :' + host);
+          }
+          return false;
+        });
+        return false;
+      });
+
+      $document.on('click', function (e) {
+        el.children('div').removeClass('active');
+      });
     }
   };
 });

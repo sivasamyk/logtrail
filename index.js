@@ -9,6 +9,7 @@ module.exports = function (kibana) {
       app: {
         title: 'Konsole',
         description: 'Plugin to view, search & tail logs in Kibana',
+        icon: 'plugins/konsole/images/icon.png',
         main: 'plugins/konsole/app',
         injectVars: function (server, options) {
           let config = server.config();
