@@ -1,45 +1,39 @@
-var moment = require('moment');
-var chrome = require('ui/chrome');
-var routes = require('ui/routes');
-var modules = require('ui/modules');
-var angular = require('angular');
-var sugarDate = require('sugar-date');
-var moment = require('moment');
+import moment from 'moment';
+import chrome from 'ui/chrome';
+import uiModules from 'ui/modules';
+import uiRoutes from 'ui/routes';
+import angular from 'angular';
+import sugarDate from 'sugar-date';
 
-require('plugins/konsole/css/main.css');
-require('plugins/konsole/css/dropdown.css');
+import 'ui/autoload/styles';
+import './less/main.less';
+import 'plugins/konsole/css/main.css';
 
-//require('plugins/konsole/less/main.less');
+import template from './templates/index.html';
 
-var konsoleLogo = require('plugins/konsole/images/header.png');
+chrome.setNavBackground('#222222');
 
-chrome
-.setBrand({
-  logo: 'url(' + konsoleLogo + ') center no-repeat',
-  smallLogo: 'url(' + konsoleLogo + ') center no-repeat',
-})
-.setNavBackground('#03498f')
-.setTabDefaults({})
-.setTabs([]);
+var app = uiModules.get('app/konsole', []);
 
-var app = require('ui/modules').get('app/konsole', []);
+uiRoutes.enable();
+uiRoutes
+.when('/', {
+  template
+});
 
-require('ui/routes')
-  .when('/', {
-    template: require('plugins/konsole/templates/index.html')
-  });
-
-app.controller('konsole', function ($scope, es, courier, $window, $interval, $http, $document, $compile) {
+app.controller('konsole', function ($scope, $window, $interval, $http, $document, $compile) {
   $scope.title = 'Konsole';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
   $scope.events = [ ];
   $scope.datePickerVisible = false;
+  $scope.hostPickerVisible = false;
   $scope.userDateTime = null;
   $scope.pickedDateTime = null;
   $scope.userDateTimeSeeked = null;
-  $scope.liveTailStatus = null;
+  $scope.liveTailStatus = 'Live';
   $scope.hosts = null;
+  $scope.selectedHost = "All Systems";
   var tailTimer = null;
   var searchText = null;
   var lastExecutedTime = null;
@@ -48,11 +42,11 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
     checkElasticsearch();
     doSearch(false);
     startTailTimer();
-    setupHostsDropDown();
+    setupHostsList();
   };
 
   function checkElasticsearch() {
-    return $http.get('/konsole/validate/es').then(function (resp) {
+    return $http.get('../konsole/validate/es').then(function (resp) {
       if (resp.data.ok) {
         console.log(resp);
       } else {
@@ -78,7 +72,7 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
     };
     console.log(request);
 
-    return $http.post('/konsole/search', request).then(function (resp) {
+    return $http.post('../konsole/search', request).then(function (resp) {
       if (resp.data.ok) {
         updateEvents(resp.data.resp,fromLiveTail);
       } else {
@@ -120,6 +114,14 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
     $scope.datePickerVisible = false;
   };
 
+  $scope.showHostPicker = function () {
+    $scope.hostPickerVisible = true;
+  };
+
+  $scope.hideHostPicker = function () {
+    $scope.hostPickerVisible = false;
+  };
+
   $scope.onDateChange = function () {
     var date = Date.create();
     if ($scope.userDateTime !== '') {
@@ -148,17 +150,29 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
 
   $scope.toggleLiveTail = function () {
     if ($scope.liveTailStatus === 'Live') {
-      $scope.$apply(updateLiveTailStatus('Pause'));
+      updateLiveTailStatus('Pause');
     } else if ($scope.liveTailStatus === 'Pause') {
-      $scope.$apply(updateLiveTailStatus('Live'));
+      updateLiveTailStatus('Live');
     } else {
       angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
     }
   };
 
-  /*$scope.getTailStatus = function () {
-    return $scope.liveTail ? 'Pause' : 'Live'
-  }*/
+  $scope.onHostSelected = function (host) {
+    $scope.hideHostPicker();
+    $scope.selectedHost = host;
+    $scope.search("syslog_hostname: " + host);
+  };
+
+  $scope.getLiveTailStatus = function () {
+    if($scope.liveTailStatus === 'Live') {
+      return 'PAUSE';
+    } else if($scope.liveTailStatus === 'Pause') {
+      return 'LIVE';
+    } else {
+      return 'GO LIVE';
+    }
+  }
 
 	//Initialize scroll on launch
   $scope.$on('onRepeatLast', function () {
@@ -166,9 +180,11 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
   });
 
   angular.element($window).bind('scroll', function (event) {
-		//console.log(window.pageYOffset);
+		console.log("Ypageoffset" + window.pageYOffset);
+    console.log("LHS" + (angular.element($window).scrollTop() + angular.element($window).height()));
+    console.log("RHS" + angular.element($document).height());
     if (angular.element($window).scrollTop() + angular.element($window).height() === angular.element($document).height()) {
-      $scope.$apply(updateLiveTailStatus('Pause'));
+      $scope.$apply(updateLiveTailStatus('Live'));
     } else {
       $scope.$apply(updateLiveTailStatus('Go Live'));
     }
@@ -179,7 +195,7 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
   };
 
   function doTail() {
-    if ($scope.liveTailStatus === 'Pause') {
+    if ($scope.liveTailStatus === 'Live') {
       doSearch(true);
     }
   };
@@ -198,13 +214,8 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
     tailTimer = null;
   };
 
-  function setupHostsDropDown() {
-    var hostDropdown = angular.element('<ul class="hosts-select-ul nav navbar-nav" \
-     id="hosts-select-id"><hosts-dropdown></hosts-dropdown></ul>');
-    var navDiv = angular.element('nav > div:eq(1)');
-    navDiv.append(hostDropdown);
-    $compile(hostDropdown)($scope);
-    $http.get('/konsole/hosts').then(function (resp) {
+  function setupHostsList() {
+    $http.get('../konsole/hosts').then(function (resp) {
       if (resp.data.ok) {
         console.log(resp.data.resp);
         $scope.hosts = resp.data.resp;
@@ -219,7 +230,7 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
 
 
 //Directive to manage scroll during launch and on new events
-modules.get('konsole').directive('onLastRepeat', function () {
+uiModules.get('konsole').directive('onLastRepeat', function () {
   return function (scope, element, attrs) {
     if (scope.$last) {
       setTimeout(function () {
@@ -229,39 +240,8 @@ modules.get('konsole').directive('onLastRepeat', function () {
   };
 });
 
-modules.get('konsole').directive('hostsDropdown', function ($document) {
-  return {
-    restrict: 'E',
-    template: require('plugins/konsole/templates/dropdown.html'),
-    link: function (scope,el,attr) {
-      var selectedHost;
-      el.on('click', function (e) {
-        $(e.target).toggleClass('active');
-        el.find('li').on('click', function (e) {
-          var host = $(e.target).text();
-          el.find('span').text(host);
-          el.children('div').removeClass('active');
-          if(host !== selectedHost) {
-            selectedHost = host;
-            if(selectedHost === 'All Systems') {
-              host = "*"
-            }
-            scope.search('syslog_hostname :' + host);
-          }
-          return false;
-        });
-        return false;
-      });
-
-      $document.on('click', function (e) {
-        el.children('div').removeClass('active');
-      });
-    }
-  };
-});
-
 //Directive to manage date picker popup clicks
-modules.get('konsole').directive('clickOutside', function ($document) {
+uiModules.get('konsole').directive('clickOutside', function ($document) {
   return {
     restrict: 'A',
     scope: {
@@ -269,7 +249,8 @@ modules.get('konsole').directive('clickOutside', function ($document) {
     },
     link: function (scope, el, attr) {
       $document.on('click', function (e) {
-        if (el !== e.target && !el[0].contains(e.target) && e.target !== angular.element('#showDatePickerBtn')[0]) {
+        if (el !== e.target && !el[0].contains(e.target) && (e.target !== angular.element('#showDatePickerBtn')[0] &&
+                    e.target !== angular.element('#showHostPickerBtn')[0])) {
           scope.$apply(function () {
             scope.$eval(scope.clickOutside);
           });

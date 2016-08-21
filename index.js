@@ -1,15 +1,15 @@
-//var exampleRoute = require('./server/routes/example');
-var serverRoute = require('./server/routes/server');
-var validateEsRoute = require('./server/routes/validate_es');
-module.exports = function (kibana) {
+import exampleRoute from './server/routes/example';
+import serverRoute from './server/routes/server';
+import validateEsRoute from './server/routes/validate_es';
+
+export default function (kibana) {
   return new kibana.Plugin({
-    name: 'konsole',
-    require: ['kibana', 'elasticsearch'],
+    require: ['elasticsearch'],
+
     uiExports: {
       app: {
         title: 'Konsole',
         description: 'Plugin to view, search & tail logs in Kibana',
-        icon: 'plugins/konsole/images/icon.png',
         main: 'plugins/konsole/app',
         injectVars: function (server, options) {
           let config = server.config();
@@ -22,13 +22,13 @@ module.exports = function (kibana) {
       }
     },
 
-    config: function (Joi) {
+    config(Joi) {
       return Joi.object({
         enabled: Joi.boolean().default(true),
       }).default();
     },
 
-    init: function (server, options) {
+    init(server, options) {
       // Add server routes and initalize the plugin here
       serverRoute(server);
       validateEsRoute(server);

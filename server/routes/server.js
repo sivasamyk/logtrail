@@ -55,23 +55,16 @@ module.exports = function (server) {
         body : {
           sort : [{}],
           query : {
-            filtered : {
-              query : {
-                query_string : {
-                  analyze_wildcard: true,
-                  default_field : 'syslog_message',
-                  query : searchText
-                }
-              },
-              filter: {
-                bool: {
-                  must : [
-                    {
+              bool : {
+                must :{
+                    query_string : {
+                      analyze_wildcard: true,
+                      default_field : 'syslog_message',
+                      query : searchText
                     }
-                  ],
-                  must_not:[],
+                },
+                filter: {
                 }
-              }
             }
           }
         }
@@ -79,8 +72,8 @@ module.exports = function (server) {
 
       //If timestamps are present set ranges
       if (request.payload.timestamp != null) {
-        searchRequest.body.query.filtered.filter.bool.must[0].range = {};
-        var range = searchRequest.body.query.filtered.filter.bool.must[0].range;
+        searchRequest.body.query.bool.filter.range = {};
+        var range = searchRequest.body.query.bool.filter.range;
         range[config.es.timefield] = {};
         if (request.payload.liveTail) {
           range[config.es.timefield].gt = request.payload.timestamp;
@@ -125,14 +118,14 @@ module.exports = function (server) {
           aggs: {
             hosts: {
               terms: {
-                field: 'syslog_hostname'
+                field: 'syslog_hostname.raw'
               }
             }
           }
         }
       };
       callWithRequest(request,'search',hostAggRequest).then(function (resp) {
-        console.log(resp.aggregations.hosts.buckets);
+        console.log(resp.aggregations.hosts.buckets);        
         reply({
           ok: true,
           resp: resp.aggregations.hosts.buckets

@@ -2,7 +2,7 @@
   <ul class="events">
     <li ng-repeat="event in events" on-last-repeat infinite-scroll>
       <time>{{ event.syslog_timestamp }}</time>
-      <span class='host'><a href ng-click="search('syslog_hostname :' + event.syslog_hostname)">{{ event.syslog_hostname }}</a></span>
+      <span class='host'><a href ng-click="onHostSelected(event.syslog_hostname)">{{ event.syslog_hostname }}</a></span>
       <span class='program'><a ng-click="search('syslog_program :' + event.syslog_program)">{{ event.syslog_program }}:</a></span>
       {{ event.syslog_message }}
     </li>
@@ -13,7 +13,9 @@
         <input type="text" ng-model="userSearchText" class="search-box form-control flex-item-search"
             placeholder='Example: "access denied" 1.2.3.4 -sshd'></input>
         <button class="submit btn search-btn flex-item-search" >Search</button>
-        <button type="button" id="showDatePickerBtn" class="search-btn btn flex-item-search"
+        <button id="showHostPickerBtn" class="submit btn host-option-select-btn flex-item-search"
+          ng-click="showHostPicker()">{{selectedHost}}</button>
+        <button type="button" id="showDatePickerBtn" class="time-option-select-btn btn flex-item-search"
           ng-click="showDatePicker()">{{ isNullorEmpty(userDateTimeSeeked) ? 'Now' : userDateTimeSeeked }}</button>
       </div>
     </form>
@@ -31,6 +33,18 @@
         </div>
       </form>
     </div>
-    <div class="pull-right live-tail-button"><a href ng-click="toggleLiveTail()">{{ liveTailStatus }}</a></div>
+
+    <div class="host-picker" id="host-picker" ng-show="hostPickerVisible" click-outside="hideHostPicker()">
+      <ul class="host-picker-list">
+        <li ng-repeat="host in hosts"><a href ng-click="onHostSelected(host.key)">{{host.key}}</a></li>
+        <li> <a href ng-click="onHostSelected('*')"> [ All Systems ] </a></li>
+      </ul>
+    </div>
+    <!--div class="hosts-select"><hosts-dropdown></hosts-dropdown></div-->
+    <div class="pull-right live-tail-button">
+      <!--<a href ng-click="toggleLiveTail()"><img kbn-src="/plugins/konsole/images/{{getLiveTailIcon()}}"/>
+      {{getLiveTailStatus()}}</a>-->
+      <button class="tail-status-btn" ng-click="toggleLiveTail()" >{{getLiveTailStatus()}}</button>
+    </div>
 </div>
 </div>
