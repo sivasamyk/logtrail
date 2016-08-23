@@ -1,6 +1,10 @@
 {
   "name": "konsole",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "kibanas": [
+    "5.0.0-alpha4",
+    "5.0.0-alpha5"
+  ],
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "index.js",
   "scripts": {
@@ -12,7 +16,6 @@
     "postinstall": "plugin-helpers postinstall"
   },
   "dependencies": {
-    "elasticsearch": "^8.2.0",
     "sugar-date": "1.5.1"
   },
   "devDependencies": {

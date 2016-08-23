@@ -1,12 +1,13 @@
 function convertToClientFormat(config, esResponse) {
   var clientResponse = [];
   var hits = esResponse.hits.hits;
-  console.log(hits.length);
+  console.log(hits);
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
     var type = source.type;
 
+    event.id = hits[i]._id;
     var fields = [];
     var k;
     for (k = 0; k < config.fields.length; k++) {
@@ -69,23 +70,27 @@ module.exports = function (server) {
           }
         }
       };
+      //By default Set sorting column to timestamp
+      searchRequest.body.sort[0][config.es.timefield] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
       //If timestamps are present set ranges
       if (request.payload.timestamp != null) {
         searchRequest.body.query.bool.filter.range = {};
         var range = searchRequest.body.query.bool.filter.range;
         range[config.es.timefield] = {};
-        if (request.payload.liveTail) {
+        /*if (request.payload.liveTail) {
           range[config.es.timefield].gt = request.payload.timestamp;
         } else {
           range[config.es.timefield].gte = request.payload.timestamp;
-        }
+        }*/
+        range[config.es.timefield][request.payload.rangeType] = request.payload.timestamp;
         range[config.es.timefield].time_zone = config.es.timezone;
         //range[config.es.timefield]['lte'] = 'now';
         range[config.es.timefield].format = 'epoch_millis';
+
+        /*//Set sorting column to timestamp
+        searchRequest.body.sort[0][config.es.timefield] = {'order':'asc','unmapped_type': 'boolean'};*/
       }
-      //Set sorting column to timestamp
-      searchRequest.body.sort[0][config.es.timefield] = {'order':'asc','unmapped_type': 'boolean'};
 
       console.log(JSON.stringify(searchRequest));
       callWithRequest(request,'search',searchRequest).then(function (resp) {
@@ -112,7 +117,6 @@ module.exports = function (server) {
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
       var hostAggRequest = {
         index: config.es.default_index,
-        size: config.max_buckets,
         body : {
           size: 0,
           aggs: {
@@ -125,7 +129,7 @@ module.exports = function (server) {
         }
       };
       callWithRequest(request,'search',hostAggRequest).then(function (resp) {
-        console.log(resp.aggregations.hosts.buckets);        
+        console.log(resp.aggregations.hosts.buckets);
         reply({
           ok: true,
           resp: resp.aggregations.hosts.buckets

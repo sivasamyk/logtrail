@@ -36,11 +36,11 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   $scope.selectedHost = "All Systems";
   var tailTimer = null;
   var searchText = null;
-  var lastExecutedTime = null;
+  var lastEventTime = null;
 
   function init() {
     checkElasticsearch();
-    doSearch(false);
+    doSearch(null, 'desc', 'overwrite', null);
     startTailTimer();
     setupHostsList();
   };
@@ -55,52 +55,84 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
     });
   };
 
-  function doSearch(fromLiveTail) {
-    var timestamp = null;
+  /**
+    rangeType - gte or lte
+    action - whether to append new events to end or prepend or clear all events (overwrite)
+    timestamp - timestamp for range if available
+  **/
+  function doSearch(rangeType,order,action,timestamp) {
+    /*var timestamp = null;
     if ($scope.pickedDateTime != null)  {
       timestamp = Date.create($scope.pickedDateTime).getTime();
     }
 
     if (fromLiveTail) {
-      timestamp = lastExecutedTime;
-    }
+      timestamp = lastEventTime;
+    }*/
 
     var request = {
       searchText: searchText,
       timestamp: timestamp,
-      liveTail: fromLiveTail
+      rangeType: rangeType,
+      order: order
     };
-    console.log(request);
 
     return $http.post('../konsole/search', request).then(function (resp) {
       if (resp.data.ok) {
-        updateEvents(resp.data.resp,fromLiveTail);
+        updateEvents(resp.data.resp,action);
       } else {
-        console.log('not good');
+        console.log('Error while fetching events ' + resp);
       }
     });
   };
 
-  function updateEvents(events,fromLiveTail) {
-    if (!fromLiveTail) {
-      $scope.events = [];
-    }
-    angular.forEach(events, function (event) {
-      $scope.events.push(event);
-    });
+  //TODO :: Remove duplicate events in case of tail.
+  function removeDuplicates(newEventsFromServer) {
+    // angular.forEach(newEventsFromServer, function(newEvent) {
+    //   var alreadyPresent = false;
+    //   angular.forEach($scope.events, function(event) {
+    //     if(newEvent.id === event.id) {
+    //
+    //     }
+    //   });
+    // });
+  }
 
-    if (events.length > 0)   {
-      lastExecutedTime = Date.create(events[events.length - 1].received_at).getTime();
+  function updateEvents(events,action) {
+    //TODO : Fix this assumption
+    //Assuming in case of overwrite events will always be in descending order
+    if (action === 'overwrite') {
+      $scope.events = [];
+      events.reverse();
+      angular.forEach(events, function (event) {
+        $scope.events.push(event);
+      });
+    } else if(action === 'append') {
+      removeDuplicates(events);
+      angular.forEach(events, function (event) {
+        $scope.events.push(event);
+      });
+    } else if(action === 'prepend') {
+      //Need to move scrollbar to old loc
+      var firstEventId = $scope.events[0].id;
+      angular.forEach(events, function (event) {
+        $scope.events.unshift(event);
+      });
+      var firstEvent = document.getElementById(firstEventId);
+      var topPos = firstEvent.offsetTop;
+      angular.element('#kibana-body').scrollTop(400);
     }
-    //$scope.$apply();
+    if ($scope.events.length > 0)   {
+      lastEventTime = Date.create($scope.events[$scope.events.length - 1].received_at).getTime();
+    }
   };
 
-  $scope.search = function (string) {
+  $scope.onSearchClick = function (string) {
     if (string != null) {
       searchText = string;
       $scope.userSearchText = searchText;
     }
-    doSearch(false);
+    doSearch(null,'desc', 'overwrite',null);
   };
 
   $scope.showDatePicker = function () {
@@ -141,7 +173,8 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
       $scope.userDateTimeSeeked = null;
     }
     $scope.hideDatePicker();
-    doSearch(false);
+    var pickedTimestamp = Date.create($scope.pickedDateTime).getTime();
+    doSearch('gte', 'asc', 'overwrite', pickedTimestamp);
   };
 
   $scope.isNullorEmpty = function (string) {
@@ -161,7 +194,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   $scope.onHostSelected = function (host) {
     $scope.hideHostPicker();
     $scope.selectedHost = host;
-    $scope.search("syslog_hostname: " + host);
+    $scope.onSearchClick("syslog_hostname: " + host);
   };
 
   $scope.getLiveTailStatus = function () {
@@ -180,23 +213,33 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   });
 
   angular.element($window).bind('scroll', function (event) {
-		console.log("Ypageoffset" + window.pageYOffset);
-    console.log("LHS" + (angular.element($window).scrollTop() + angular.element($window).height()));
-    console.log("RHS" + angular.element($document).height());
+
+    //When scroll bar search bottom
     if (angular.element($window).scrollTop() + angular.element($window).height() === angular.element($document).height()) {
       $scope.$apply(updateLiveTailStatus('Live'));
     } else {
+      //When scroll bar is in middle
       $scope.$apply(updateLiveTailStatus('Go Live'));
+    }
+
+    //When scrollbar reaches top
+    if(window.pageYOffset == 0) {
+      var timestamp = Date.create($scope.events[0].received_at).getTime();
+      doSearch('lt', 'desc', 'prepend', timestamp);
     }
   });
 
   function updateLiveTailStatus(status) {
+    /*if(status === 'Live') {
+      doSearch(true);
+    }*/
     $scope.liveTailStatus = status;
   };
 
   function doTail() {
     if ($scope.liveTailStatus === 'Live') {
-      doSearch(true);
+      //TODO : RangeType should be gte and need to remove duplicates
+      doSearch('gt', 'asc', 'append', lastEventTime);
     }
   };
 

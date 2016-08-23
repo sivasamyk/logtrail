@@ -1,4 +1,3 @@
-import exampleRoute from './server/routes/example';
 import serverRoute from './server/routes/server';
 import validateEsRoute from './server/routes/validate_es';
 

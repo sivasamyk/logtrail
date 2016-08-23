@@ -5,7 +5,7 @@
     "allow_url_parameter": false,
     "timezone": "UTC"
   },
-  "max_buckets": 500,
+  "max_buckets": 100,
   "fields" : [
     {
       "type" : "syslog",
