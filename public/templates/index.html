@@ -1,4 +1,5 @@
 <div class="container-fluid console" ng-controller="konsole">
+  <div class='no-event-message' ng-show='lastEventReached'>Oldest event reached.</div>
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
       <time>{{ event.syslog_timestamp }}</time>

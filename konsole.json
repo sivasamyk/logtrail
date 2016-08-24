@@ -9,7 +9,7 @@
   "fields" : [
     {
       "type" : "syslog",
-      "fields": ["received_at","syslog_timestamp", "syslog_hostname", "syslog_program", "syslog_message"]
+      "fields": ["received_at","syslog_timestamp", "host", "program", "message"]
     }
   ]
 }

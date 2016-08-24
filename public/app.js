@@ -21,7 +21,7 @@ uiRoutes
   template
 });
 
-app.controller('konsole', function ($scope, $window, $interval, $http, $document, $compile) {
+app.controller('konsole', function ($scope, $window, $interval, $http, $document, $compile, $timeout) {
   $scope.title = 'Konsole';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
@@ -34,6 +34,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   $scope.liveTailStatus = 'Live';
   $scope.hosts = null;
   $scope.selectedHost = "All Systems";
+  $scope.lastEventReached = false;
   var tailTimer = null;
   var searchText = null;
   var lastEventTime = null;
@@ -79,7 +80,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
 
     return $http.post('../konsole/search', request).then(function (resp) {
       if (resp.data.ok) {
-        updateEvents(resp.data.resp,action);
+        updateEvents(resp.data.resp,action,order);
       } else {
         console.log('Error while fetching events ' + resp);
       }
@@ -98,14 +99,22 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
     // });
   }
 
-  function updateEvents(events,action) {
-    //TODO : Fix this assumption
-    //Assuming in case of overwrite events will always be in descending order
-    if (action === 'overwrite') {
-      $scope.events = [];
+  function updateEvents(events,action,order) {
+    //If events are order desc, the reverse the list
+    if(order === 'desc') {
       events.reverse();
+    }
+    if (action === 'overwrite') {
+      $scope.lastEventReached = false;
+      $scope.events = [];
       angular.forEach(events, function (event) {
         $scope.events.push(event);
+      });
+      $timeout(function () {
+        //If scrollbar not visible
+        if ($(document).height() <= $(window).height()) {
+          $scope.lastEventReached = true;
+        }
       });
     } else if(action === 'append') {
       removeDuplicates(events);
@@ -113,14 +122,22 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
         $scope.events.push(event);
       });
     } else if(action === 'prepend') {
-      //Need to move scrollbar to old loc
-      var firstEventId = $scope.events[0].id;
-      angular.forEach(events, function (event) {
-        $scope.events.unshift(event);
-      });
-      var firstEvent = document.getElementById(firstEventId);
-      var topPos = firstEvent.offsetTop;
-      angular.element('#kibana-body').scrollTop(400);
+      if(events.length > 0) {
+        //Need to move scrollbar to old event location
+        var firstEventId = $scope.events[0].id;
+        var message = $scope.events[0].syslog_message;
+        angular.forEach(events, function (event) {
+          $scope.events.unshift(event);
+        });
+        //Make sure the old top event in is still in view
+        $timeout(function() {
+          var firstEventElement = document.getElementById(firstEventId);
+          var topPos = firstEventElement.offsetTop;
+          firstEventElement.scrollIntoView();
+        });
+      } else {
+        $scope.lastEventReached = true;
+      }
     }
     if ($scope.events.length > 0)   {
       lastEventTime = Date.create($scope.events[$scope.events.length - 1].received_at).getTime();
@@ -210,6 +227,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
 	//Initialize scroll on launch
   $scope.$on('onRepeatLast', function () {
     angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
+    console.log("called");
   });
 
   angular.element($window).bind('scroll', function (event) {

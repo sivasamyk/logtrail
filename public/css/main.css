@@ -402,3 +402,10 @@ html,body {
 	text-decoration: none;
 	color: black;
 }
+
+.no-event-message {
+	text-align: center;
+  padding: 1em;
+  font-size: xx-large;
+  font-family: inherit;
+}
