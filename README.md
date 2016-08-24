@@ -15,3 +15,5 @@ Inspired by [PaperTrailApp](https://papertrailapp.com/)
 5. Saved search feature
 6. Host select option similar to current papertrailapp - done
 7. Some times when there are too many events being generated live tail will show duplicate log events
+8. show no events error message - done
+9. fix issue with searchbar going up when kibana sidebar is clicked

@@ -100,11 +100,11 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   }
 
   function updateEvents(events,action,order) {
-    //If events are order desc, the reverse the list
-    if(order === 'desc') {
-      events.reverse();
-    }
     if (action === 'overwrite') {
+      //If events are order desc, the reverse the list
+      if(order === 'desc') {
+        events.reverse();
+      }
       $scope.lastEventReached = false;
       $scope.events = [];
       angular.forEach(events, function (event) {
@@ -117,15 +117,22 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
         }
       });
     } else if(action === 'append') {
+      //If events are order desc, the reverse the list
+      if(order === 'desc') {
+        events.reverse();
+      }
       removeDuplicates(events);
       angular.forEach(events, function (event) {
         $scope.events.push(event);
       });
     } else if(action === 'prepend') {
+      //If events are order asc, the reverse the list
+      if(order === 'asc') {
+        events.reverse();
+      }
       if(events.length > 0) {
         //Need to move scrollbar to old event location
-        var firstEventId = $scope.events[0].id;
-        var message = $scope.events[0].syslog_message;
+        var firstEventId = $scope.events[0].id;        
         angular.forEach(events, function (event) {
           $scope.events.unshift(event);
         });
@@ -141,6 +148,8 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
     }
     if ($scope.events.length > 0)   {
       lastEventTime = Date.create($scope.events[$scope.events.length - 1].received_at).getTime();
+    } else {
+      lastEventTime = null;
     }
   };
 
@@ -211,7 +220,11 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   $scope.onHostSelected = function (host) {
     $scope.hideHostPicker();
     $scope.selectedHost = host;
-    $scope.onSearchClick("syslog_hostname: " + host);
+    $scope.onSearchClick("hostname:" + host);
+  };
+
+  $scope.onProgramClick = function (program) {
+    $scope.onSearchClick("program:" + program);
   };
 
   $scope.getLiveTailStatus = function () {
@@ -240,10 +253,13 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
       $scope.$apply(updateLiveTailStatus('Go Live'));
     }
 
-    //When scrollbar reaches top
+    //When scrollbar reaches top & if scroll bar is visible
     if(window.pageYOffset == 0) {
-      var timestamp = Date.create($scope.events[0].received_at).getTime();
-      doSearch('lt', 'desc', 'prepend', timestamp);
+    // && angular.element($document).height() > angular.element($window).height()) {
+        if($scope.events.length > 0) {
+          var timestamp = Date.create($scope.events[0].received_at).getTime();
+          doSearch('lt', 'desc', 'prepend', timestamp);
+        }
     }
   });
 

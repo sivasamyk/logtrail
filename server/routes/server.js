@@ -1,7 +1,7 @@
 function convertToClientFormat(config, esResponse) {
   var clientResponse = [];
   var hits = esResponse.hits.hits;
-  console.log(hits);
+  //console.log(hits);
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
@@ -122,7 +122,7 @@ module.exports = function (server) {
           aggs: {
             hosts: {
               terms: {
-                field: 'syslog_hostname.raw'
+                field: 'hostname.raw'
               }
             }
           }

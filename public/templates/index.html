@@ -1,10 +1,11 @@
 <div class="container-fluid console" ng-controller="konsole">
-  <div class='no-event-message' ng-show='lastEventReached'>Oldest event reached.</div>
+  <div class='no-event-message' ng-show='events.length != 0 && lastEventReached'>Oldest event reached.</div>
+  <div class='no-event-message' ng-show='events.length == 0'>No events found</div>
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
       <time>{{ event.syslog_timestamp }}</time>
-      <span class='host'><a href ng-click="onHostSelected(event.syslog_hostname)">{{ event.syslog_hostname }}</a></span>
-      <span class='program'><a ng-click="onSearchClick('syslog_program :' + event.syslog_program)">{{ event.syslog_program }}:</a></span>
+      <span class='host'><a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a></span>
+      <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}:</a></span>
       {{ event.syslog_message }}
     </li>
   </ul>
