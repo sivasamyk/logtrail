@@ -93,9 +93,12 @@ html,body {
 	color: #258CCD;
 }
 
-
 .program a:hover {
 	text-decoration: none;
+}
+
+.message {
+	color: #B0B0B0;
 }
 
 .flex-container-search {

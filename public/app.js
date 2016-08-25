@@ -80,7 +80,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
 
     return $http.post('../konsole/search', request).then(function (resp) {
       if (resp.data.ok) {
-        updateEvents(resp.data.resp,action,order);
+        updateEventView(resp.data.resp,action,order);
       } else {
         console.log('Error while fetching events ' + resp);
       }
@@ -99,7 +99,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
     // });
   }
 
-  function updateEvents(events,action,order) {
+  function updateEventView(events,action,order) {
     if (action === 'overwrite') {
       //If events are order desc, the reverse the list
       if(order === 'desc') {
@@ -132,7 +132,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
       }
       if(events.length > 0) {
         //Need to move scrollbar to old event location
-        var firstEventId = $scope.events[0].id;        
+        var firstEventId = $scope.events[0].id;
         angular.forEach(events, function (event) {
           $scope.events.unshift(event);
         });
@@ -212,8 +212,11 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
       updateLiveTailStatus('Pause');
     } else if ($scope.liveTailStatus === 'Pause') {
       updateLiveTailStatus('Live');
-    } else {
+      doTail();
+    } else { //Go Live
       angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
+      updateLiveTailStatus('Live');
+      doTail();
     }
   };
 
@@ -278,7 +281,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   };
 
   function startTailTimer() {
-    tailTimer = $interval(doTail,10000);
+    //tailTimer = $interval(doTail,10000);
     $scope.$on('$destroy', function () {
       stopTailTimer();
     });

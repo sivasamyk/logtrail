@@ -9,7 +9,7 @@ Inspired by [PaperTrailApp](https://papertrailapp.com/)
 ## TODO
 
 1. Hosts query in server.js returns all docs. It should return only aggregate result
-2. Add icons for pause and go-live
+2. Add icons for pause and go-live - not applicable - moved to buttons
 3. Add support for page scroll up - fix scroll bar issue
 4. Format multi-line logs
 5. Saved search feature

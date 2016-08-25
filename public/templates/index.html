@@ -6,7 +6,7 @@
       <time>{{ event.syslog_timestamp }}</time>
       <span class='host'><a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a></span>
       <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}:</a></span>
-      {{ event.syslog_message }}
+      <span class="message">{{ event.syslog_message }}</span>
     </li>
   </ul>
 <div class="footer">
