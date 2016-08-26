@@ -28,20 +28,21 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   $scope.events = [ ];
   $scope.datePickerVisible = false;
   $scope.hostPickerVisible = false;
-  $scope.userDateTime = null;
-  $scope.pickedDateTime = null;
-  $scope.userDateTimeSeeked = null;
+  $scope.userDateTime = null; // exact string typed by user like 'Aug 24 or last friday'
+  $scope.pickedDateTime = null; // UTC date used in search query.
+  $scope.userDateTimeSeeked = null; // exact string entered by user set after user clicks seek. User to show in search button
   $scope.liveTailStatus = 'Live';
   $scope.hosts = null;
   $scope.selectedHost = "All Systems";
-  $scope.lastEventReached = false;
+  $scope.firstEventReached = false;
+  var updateViewInProgress = false;
   var tailTimer = null;
   var searchText = null;
   var lastEventTime = null;
 
   function init() {
     checkElasticsearch();
-    doSearch(null, 'desc', 'overwrite', null);
+    doSearch(null, 'desc', ['overwrite','reverse'], null);
     startTailTimer();
     setupHostsList();
   };
@@ -61,7 +62,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
     action - whether to append new events to end or prepend or clear all events (overwrite)
     timestamp - timestamp for range if available
   **/
-  function doSearch(rangeType,order,action,timestamp) {
+  function doSearch(rangeType,order,actions,timestamp) {
     /*var timestamp = null;
     if ($scope.pickedDateTime != null)  {
       timestamp = Date.create($scope.pickedDateTime).getTime();
@@ -80,7 +81,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
 
     return $http.post('../konsole/search', request).then(function (resp) {
       if (resp.data.ok) {
-        updateEventView(resp.data.resp,action,order);
+        updateEventView(resp.data.resp,actions,order);
       } else {
         console.log('Error while fetching events ' + resp);
       }
@@ -99,13 +100,29 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
     // });
   }
 
-  function updateEventView(events,action,order) {
-    if (action === 'overwrite') {
+  /*
+    actions available
+    overwrite -
+    append -
+    prepend -
+    reverse -
+    scrollToTop -
+    scrollToView - in case of prepend,i.e scrollUp that old event should be visible
+    scrollToBottom - Default behavior, no need to pass
+  */
+
+  function updateEventView(events,actions,order) {
+
+    updateViewInProgress = true;
+    if (actions.indexOf('reverse') != -1) {
+      events.reverse();
+    }
+    if (actions.indexOf('overwrite') != -1) {
       //If events are order desc, the reverse the list
-      if(order === 'desc') {
+      /*if(order === 'desc') {
         events.reverse();
-      }
-      $scope.lastEventReached = false;
+      }*/
+      $scope.firstEventReached = false;
       $scope.events = [];
       angular.forEach(events, function (event) {
         $scope.events.push(event);
@@ -113,10 +130,11 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
       $timeout(function () {
         //If scrollbar not visible
         if ($(document).height() <= $(window).height()) {
-          $scope.lastEventReached = true;
+          $scope.firstEventReached = true;
         }
       });
-    } else if(action === 'append') {
+    }
+    if(actions.indexOf('append') != -1) {
       //If events are order desc, the reverse the list
       if(order === 'desc') {
         events.reverse();
@@ -125,32 +143,52 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
       angular.forEach(events, function (event) {
         $scope.events.push(event);
       });
-    } else if(action === 'prepend') {
-      //If events are order asc, the reverse the list
-      if(order === 'asc') {
-        events.reverse();
-      }
+    }
+    var firstEventId = null;
+    if(actions.indexOf('prepend') != -1) {
       if(events.length > 0) {
         //Need to move scrollbar to old event location
         var firstEventId = $scope.events[0].id;
         angular.forEach(events, function (event) {
           $scope.events.unshift(event);
         });
+      } else {
+        $scope.firstEventReached = true;
+      }
+    }
+
+    if(actions.indexOf('scrollToTop') != -1) {
+      $timeout(function() {
+        window.scrollTo(0,5);
+        console.log("scrollToTop called");
+      });
+    } else if(actions.indexOf('scrollToView') != -1) {
+      if(firstEventId != null) {
         //Make sure the old top event in is still in view
         $timeout(function() {
           var firstEventElement = document.getElementById(firstEventId);
           var topPos = firstEventElement.offsetTop;
           firstEventElement.scrollIntoView();
         });
-      } else {
-        $scope.lastEventReached = true;
       }
+    } else {
+      //Bring scroll to bottom
+      $timeout(function () {
+        console.log('scroll to bottom')
+        angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
+      })
+      //window.scrollTo(0,$(document).height());
     }
+
     if ($scope.events.length > 0)   {
       lastEventTime = Date.create($scope.events[$scope.events.length - 1].received_at).getTime();
     } else {
       lastEventTime = null;
     }
+
+    $timeout(function () {
+      updateViewInProgress = false;
+    })
   };
 
   $scope.onSearchClick = function (string) {
@@ -158,7 +196,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
       searchText = string;
       $scope.userSearchText = searchText;
     }
-    doSearch(null,'desc', 'overwrite',null);
+    doSearch(null,'desc', ['overwrite','reverse'],null);
   };
 
   $scope.showDatePicker = function () {
@@ -200,7 +238,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
     }
     $scope.hideDatePicker();
     var pickedTimestamp = Date.create($scope.pickedDateTime).getTime();
-    doSearch('gte', 'asc', 'overwrite', pickedTimestamp);
+    doSearch('gte', 'asc', ['overwrite','scrollToTop'], pickedTimestamp);
   };
 
   $scope.isNullorEmpty = function (string) {
@@ -213,10 +251,14 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
     } else if ($scope.liveTailStatus === 'Pause') {
       updateLiveTailStatus('Live');
       doTail();
-    } else { //Go Live
-      angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
+    } else { //Go Live - refresh whole view to launch view
+      //angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
+      $scope.pickedDateTime = null;
+      $scope.userDateTime = null;
+      $scope.userDateTimeSeeked = null;
       updateLiveTailStatus('Live');
-      doTail();
+      doSearch(null, 'desc', ['overwrite','reverse'], null);
+      //doTail();
     }
   };
 
@@ -242,27 +284,34 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
 
 	//Initialize scroll on launch
   $scope.$on('onRepeatLast', function () {
-    angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
-    console.log("called");
+    //angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
+    console.log("onRepeatLast called");
   });
 
   angular.element($window).bind('scroll', function (event) {
 
-    //When scroll bar search bottom
-    if (angular.element($window).scrollTop() + angular.element($window).height() === angular.element($document).height()) {
-      $scope.$apply(updateLiveTailStatus('Live'));
-    } else {
-      //When scroll bar is in middle
-      $scope.$apply(updateLiveTailStatus('Go Live'));
-    }
-
-    //When scrollbar reaches top & if scroll bar is visible
-    if(window.pageYOffset == 0) {
-    // && angular.element($document).height() > angular.element($window).height()) {
+    if(!updateViewInProgress) {
+      //When scroll bar search bottom
+      if (angular.element($window).scrollTop() + angular.element($window).height() === angular.element($document).height()) {
         if($scope.events.length > 0) {
-          var timestamp = Date.create($scope.events[0].received_at).getTime();
-          doSearch('lt', 'desc', 'prepend', timestamp);
+          console.log('scrollbar reaches buttons');
+          var timestamp = Date.create($scope.events[$scope.events.length-1].received_at).getTime();
+          doSearch('gt', 'asc', ['append','scrollToView'], timestamp);
         }
+        $scope.$apply(updateLiveTailStatus('Live'));
+      } else {
+        //When scroll bar is in middle
+        $scope.$apply(updateLiveTailStatus('Go Live'));
+      }
+
+      //When scrollbar reaches top & if scroll bar is visible
+      if(window.pageYOffset == 0) {
+      // && angular.element($document).height() > angular.element($window).height()) {
+          if($scope.events.length > 0) {
+            var timestamp = Date.create($scope.events[0].received_at).getTime();
+            doSearch('lt', 'desc', ['prepend','scrollToView'], timestamp);
+          }
+      }
     }
   });
 
@@ -276,7 +325,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   function doTail() {
     if ($scope.liveTailStatus === 'Live') {
       //TODO : RangeType should be gte and need to remove duplicates
-      doSearch('gt', 'asc', 'append', lastEventTime);
+      doSearch('gt', 'asc', ['append'], lastEventTime);
     }
   };
 
@@ -310,12 +359,12 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
 
 
 //Directive to manage scroll during launch and on new events
-uiModules.get('konsole').directive('onLastRepeat', function () {
+uiModules.get('konsole').directive('onLastRepeat', function ($timeout) {
   return function (scope, element, attrs) {
     if (scope.$last) {
-      setTimeout(function () {
+      $timeout(function () {
         scope.$emit('onRepeatLast', element, attrs);
-      }, 1);
+      });
     }
   };
 });

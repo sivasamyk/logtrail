@@ -1,5 +1,5 @@
 <div class="container-fluid console" ng-controller="konsole">
-  <div class='no-event-message' ng-show='events.length != 0 && lastEventReached'>Oldest event reached.</div>
+  <div class='no-event-message' ng-show='events.length != 0 && firstEventReached'>Oldest event reached.</div>
   <div class='no-event-message' ng-show='events.length == 0'>No events found</div>
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
@@ -16,7 +16,7 @@
             placeholder='Example: "access denied" 1.2.3.4 -sshd'></input>
         <button class="submit btn search-btn flex-item-search" >Search</button>
         <button id="showHostPickerBtn" class="submit btn host-option-select-btn flex-item-search"
-          ng-click="showHostPicker()">{{selectedHost}}</button>
+          ng-click="showHostPicker()">{{selectedHost === '*' ? 'All Systems' : selectedHost}}</button>
         <button type="button" id="showDatePickerBtn" class="time-option-select-btn btn flex-item-search"
           ng-click="showDatePicker()">{{ isNullorEmpty(userDateTimeSeeked) ? 'Now' : userDateTimeSeeked }}</button>
       </div>

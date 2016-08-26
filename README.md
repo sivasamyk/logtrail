@@ -17,4 +17,6 @@ Inspired by [PaperTrailApp](https://papertrailapp.com/)
 7. Some times when there are too many events being generated live tail will show duplicate log events
 8. show no events error message - done
 9. fix issue with searchbar going up when kibana sidebar is clicked
-10. fix issue with time search - need to move scrollbar to top
+10. fix issue with time search - need to move scrollbar to top - done
+11. fix issue with time search and scroll down - it should not result in continous searchs - fixed
+12. how to search for specific string in specific host / time
