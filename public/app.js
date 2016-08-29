@@ -4,6 +4,7 @@ import uiModules from 'ui/modules';
 import uiRoutes from 'ui/routes';
 import angular from 'angular';
 import sugarDate from 'sugar-date';
+import notify from 'ui/notify';
 
 import 'ui/autoload/styles';
 import './less/main.less';
@@ -25,7 +26,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   $scope.title = 'Konsole';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
-  $scope.events = [ ];
+  $scope.events = null;
   $scope.datePickerVisible = false;
   $scope.hostPickerVisible = false;
   $scope.userDateTime = null; // exact string typed by user like 'Aug 24 or last friday'
@@ -35,6 +36,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   $scope.hosts = null;
   $scope.selectedHost = null;
   $scope.firstEventReached = false;
+  $scope.errorMessage = null;
   var updateViewInProgress = false;
   var tailTimer = null;
   var searchText = null;
@@ -50,9 +52,10 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   function checkElasticsearch() {
     return $http.get('../konsole/validate/es').then(function (resp) {
       if (resp.data.ok) {
-        console.log(resp);
+        console.info("connection to elasticsearch successful");
       } else {
-        console.log('not good');
+        console.error('validate elasticsearch failed :' , resp);
+        $scope.errorMessage = "Cannot connect to elasticsearch : " + resp.data.resp.msg;
       }
     });
   };
@@ -84,7 +87,8 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
       if (resp.data.ok) {
         updateEventView(resp.data.resp,actions,order);
       } else {
-        console.log('Error while fetching events ' + resp);
+        console.error('Error while fetching events ' , resp);
+        $scope.errorMessage = " Exception while executing search query :" + resp.data.resp.msg;
       }
     });
   };
@@ -168,8 +172,10 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
         //Make sure the old top event in is still in view
         $timeout(function() {
           var firstEventElement = document.getElementById(firstEventId);
-          var topPos = firstEventElement.offsetTop;
-          firstEventElement.scrollIntoView();
+          if(firstEventElement != null) {
+            var topPos = firstEventElement.offsetTop;
+            firstEventElement.scrollIntoView();
+          }
         });
       }
     } else {
@@ -383,7 +389,8 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
         console.log(resp.data.resp);
         $scope.hosts = resp.data.resp;
       } else {
-        console.log('not good');
+        console.error("Error while fetching hosts : " , resp.data.resp.msg);
+        $scope.errorMessage = "Exception while fetching hosts : " + resp.data.resp.msg;
       }
     });
   }

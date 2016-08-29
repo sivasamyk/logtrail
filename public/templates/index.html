@@ -1,6 +1,10 @@
 <div class="container-fluid console" ng-controller="konsole">
+  <div class="alert alert-danger konsole-error" ng-show="errorMessage != null">
+    <a ng-click="errorMessage = null" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    <strong>Error! </strong> {{ errorMessage }}
+  </div>
   <div class='no-event-message' ng-show='events.length != 0 && firstEventReached'>Oldest event reached.</div>
-  <div class='no-event-message' ng-show='events.length == 0'>No events found</div>
+  <div class='no-event-message' ng-show='events != null && events.length == 0'>No events found</div>
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
       <time>{{ event.syslog_timestamp }}</time>
@@ -9,6 +13,7 @@
       <span class="message">{{ event.syslog_message }}</span>
     </li>
   </ul>
+
 <div class="footer">
     <form class="form-inline search-form" ng-submit="onSearchClick()">
       <div class="flex-container-search">
