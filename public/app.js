@@ -192,11 +192,27 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   };
 
   $scope.onSearchClick = function (string) {
-    if (string != null) {
-      searchText = string;
-      $scope.userSearchText = searchText;
+
+    searchText = '*';
+
+    if($scope.selectedHost != 'All Systems') {
+      searchText = 'hostname:' + $scope.selectedHost;
+
+      if($scope.userSearchText != null ) {
+        searchText = searchText + " and " + $scope.userSearchText;
+      }
+    } else if ($scope.userSearchText != null) {
+      searchText = $scope.userSearchText;
+      //$scope.userSearchText = searchText;
     }
-    doSearch(null,'desc', ['overwrite','reverse'],null);
+
+    if($scope.pickedDateTime != null) {
+      var timestamp = Date.create($scope.pickedDateTime).getTime();
+      doSearch('gt','asc', ['overwrite',"scrollToTop"],timestamp);
+    } else {
+      doSearch(null,'desc', ['overwrite','reverse'],null);
+    }
+    //doSearch(null,'desc', ['overwrite','reverse'],null);
   };
 
   $scope.showDatePicker = function () {
@@ -237,8 +253,9 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
       $scope.userDateTimeSeeked = null;
     }
     $scope.hideDatePicker();
-    var pickedTimestamp = Date.create($scope.pickedDateTime).getTime();
-    doSearch('gte', 'asc', ['overwrite','scrollToTop'], pickedTimestamp);
+    /*var pickedTimestamp = Date.create($scope.pickedDateTime).getTime();
+    doSearch('gte', 'asc', ['overwrite','scrollToTop'], pickedTimestamp);*/
+    $scope.onSearchClick();
   };
 
   $scope.isNullorEmpty = function (string) {
@@ -265,11 +282,23 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   $scope.onHostSelected = function (host) {
     $scope.hideHostPicker();
     $scope.selectedHost = host;
-    $scope.onSearchClick("hostname:" + host);
+    /*if($scope.userSearchText != null) {
+      searchText = $scope.userSearchText + " and hostname:" + host;
+    } else {
+      searchText = "hostname:" + host;
+    }
+    if($scope.pickedDateTime != null) {
+      doSearch(null,'asc', ['overwrite',"scrollToTop"],$scope.pickedDateTime);
+    } else {
+      doSearch(null,'desc', ['overwrite','reverse'],null);
+    }
+    //$scope.onSearchClick("hostname:" + host);*/
+    $scope.onSearchClick();
   };
 
   $scope.onProgramClick = function (program) {
-    $scope.onSearchClick("program:" + program);
+    $scope.userSearchText = "program: \"" + program + "\"";
+    $scope.onSearchClick();
   };
 
   $scope.getLiveTailStatus = function () {
@@ -330,7 +359,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   };
 
   function startTailTimer() {
-    //tailTimer = $interval(doTail,10000);
+    tailTimer = $interval(doTail,10000);
     $scope.$on('$destroy', function () {
       stopTailTimer();
     });
