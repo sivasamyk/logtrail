@@ -65,6 +65,10 @@ module.exports = function (server) {
                     }
                 },
                 filter: {
+                  bool : {
+                    must : [
+                    ]
+                  }
                 }
             }
           }
@@ -73,10 +77,24 @@ module.exports = function (server) {
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][config.es.timefield] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
+      //If hostname is present then term query.
+      if(request.payload.hostname != null) {
+        var termQuery = {
+          term : {
+            "hostname.raw" : request.payload.hostname
+          }
+        }
+        searchRequest.body.query.bool.filter.bool.must.push(termQuery);
+      }
+
       //If timestamps are present set ranges
       if (request.payload.timestamp != null) {
-        searchRequest.body.query.bool.filter.range = {};
-        var range = searchRequest.body.query.bool.filter.range;
+        var rangeQuery = {
+          range : {
+
+          }
+        }
+        var range = rangeQuery.range;
         range[config.es.timefield] = {};
         /*if (request.payload.liveTail) {
           range[config.es.timefield].gt = request.payload.timestamp;
@@ -87,6 +105,8 @@ module.exports = function (server) {
         range[config.es.timefield].time_zone = config.es.timezone;
         //range[config.es.timefield]['lte'] = 'now';
         range[config.es.timefield].format = 'epoch_millis';
+        searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
+        //var range = searchRequest.body.query.bool.filter.range;
 
         /*//Set sorting column to timestamp
         searchRequest.body.sort[0][config.es.timefield] = {'order':'asc','unmapped_type': 'boolean'};*/

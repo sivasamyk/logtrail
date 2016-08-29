@@ -33,7 +33,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   $scope.userDateTimeSeeked = null; // exact string entered by user set after user clicks seek. User to show in search button
   $scope.liveTailStatus = 'Live';
   $scope.hosts = null;
-  $scope.selectedHost = "All Systems";
+  $scope.selectedHost = null;
   $scope.firstEventReached = false;
   var updateViewInProgress = false;
   var tailTimer = null;
@@ -76,7 +76,8 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
       searchText: searchText,
       timestamp: timestamp,
       rangeType: rangeType,
-      order: order
+      order: order,
+      hostname: $scope.selectedHost
     };
 
     return $http.post('../konsole/search', request).then(function (resp) {
@@ -195,13 +196,13 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
 
     searchText = '*';
 
-    if($scope.selectedHost != 'All Systems') {
+    /*if($scope.selectedHost != 'All Systems') {
       searchText = 'hostname:' + $scope.selectedHost;
 
       if($scope.userSearchText != null ) {
         searchText = searchText + " and " + $scope.userSearchText;
       }
-    } else if ($scope.userSearchText != null) {
+    } else*/ if ($scope.userSearchText != null) {
       searchText = $scope.userSearchText;
       //$scope.userSearchText = searchText;
     }
@@ -281,7 +282,11 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
 
   $scope.onHostSelected = function (host) {
     $scope.hideHostPicker();
-    $scope.selectedHost = host;
+    if(host === '*') {
+      $scope.selectedHost = null;
+    } else {
+      $scope.selectedHost = host;
+    }
     /*if($scope.userSearchText != null) {
       searchText = $scope.userSearchText + " and hostname:" + host;
     } else {
@@ -359,7 +364,7 @@ app.controller('konsole', function ($scope, $window, $interval, $http, $document
   };
 
   function startTailTimer() {
-    tailTimer = $interval(doTail,10000);
+    //tailTimer = $interval(doTail,10000);
     $scope.$on('$destroy', function () {
       stopTailTimer();
     });

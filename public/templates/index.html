@@ -15,8 +15,8 @@
         <input type="text" ng-model="userSearchText" class="search-box form-control flex-item-search"
             placeholder='Example: "access denied" 1.2.3.4 -sshd'></input>
         <button class="submit btn search-btn flex-item-search" >Search</button>
-        <button id="showHostPickerBtn" class="btn host-option-select-btn flex-item-search"
-          ng-click="showHostPicker()">{{selectedHost === '*' ? 'All Systems' : selectedHost}}</button>
+        <button type="button" id="showHostPickerBtn" class="btn host-option-select-btn flex-item-search"
+          ng-click="showHostPicker()">{{selectedHost == null ? 'All Systems' : selectedHost}}</button>
         <button type="button" id="showDatePickerBtn" class="time-option-select-btn btn flex-item-search"
           ng-click="showDatePicker()">{{ isNullorEmpty(userDateTimeSeeked) ? 'Now' : userDateTimeSeeked }}</button>
       </div>

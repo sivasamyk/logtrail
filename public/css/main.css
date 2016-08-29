@@ -199,7 +199,7 @@ html,body {
 		color: #2F4F4F;
 		list-style-type: none;
 		margin: 0;
-		font-size: large;
+		font-size: medium;
 		padding: 0;
 	}
 
@@ -208,7 +208,7 @@ html,body {
 		text-align: center;
 	}
 
-	.host-picker-list > li:nth-child(odd) {
+	.host-picker-list > li:nth-child(even) {
 		background: #F0F0F0;
 	}
 
