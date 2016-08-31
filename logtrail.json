@@ -1,0 +1,16 @@
+{
+  "es": {
+    "timefield": "received_at",
+    "default_index": "logstash-*",
+    "allow_url_parameter": false,
+    "timezone": "UTC"
+  },
+  "tail_interval_in_seconds": 10, 
+  "max_buckets": 500,
+  "fields" : [
+    {
+      "type" : "syslog",
+      "fields": ["received_at","syslog_timestamp", "hostname", "program", "syslog_message"]
+    }
+  ]
+}
