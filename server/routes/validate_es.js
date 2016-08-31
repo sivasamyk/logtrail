@@ -1,14 +1,14 @@
 module.exports = function (server) {
   server.route({
     method: 'GET',
-    path: '/konsole/validate/es',
+    path: '/logtrail/validate/es',
     handler: function (request, reply) {
-      var config = require('../../konsole.json');
+      var config = require('../../logtrail.json');
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
 
       var body = {
         index: config.es.default_index,
-        fields: config.es.timefield
+        fields: config.es.timefield,
       };
 
       callWithRequest(request, 'fieldStats', body).then(function (resp) {
@@ -16,7 +16,8 @@ module.exports = function (server) {
           ok: true,
           field: config.es.timefield,
           min: resp.indices._all.fields[config.es.timefield].min_value,
-          max: resp.indices._all.fields[config.es.timefield].max_value
+          max: resp.indices._all.fields[config.es.timefield].max_value,
+          config: config
         });
       }).catch(function (resp) {
         console.error('Exception while validating ES',resp);

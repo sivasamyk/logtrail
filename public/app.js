@@ -6,15 +6,14 @@ var angular = require('angular');
 var sugarDate = require('sugar-date');
 var moment = require('moment');
 
-require('plugins/konsole/css/main.css');
-//require('plugins/konsole/less/main.less');
+require('plugins/logtrail/css/main.css');
 
-var konsoleLogo = require('plugins/konsole/images/header.png');
+var logtrailLogo = require('plugins/logtrail/images/header.png');
 
 chrome
 .setBrand({
-  logo: 'url(' + konsoleLogo + ') center no-repeat',
-  smallLogo: 'url(' + konsoleLogo + ') center no-repeat',
+  logo: 'url(' + logtrailLogo + ') center no-repeat',
+  smallLogo: 'url(' + logtrailLogo + ') center no-repeat',
 })
 .setNavBackground('#03498f')
 .setTabDefaults({})
@@ -26,11 +25,13 @@ require('ui/routes').enable();
 
 require('ui/routes')
 .when('/', {
-  template: require('plugins/konsole/templates/index.html')
+  template: require('plugins/logtrail/templates/index.html')
 });
 
-app.controller('konsole', function ($scope, es, courier, $window, $interval, $http, $document, $timeout) {
-  $scope.title = 'Konsole';
+document.title = 'LogTrail - Kibana';
+
+app.controller('logtrail', function ($scope, es, courier, $window, $interval, $http, $document, $timeout) {
+  $scope.title = 'LogTrail';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
   $scope.events = null;
@@ -48,18 +49,21 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
   var tailTimer = null;
   var searchText = null;
   var lastEventTime = null;
+  var config = null;
 
   function init() {
     checkElasticsearch();
-    doSearch(null, 'desc', ['overwrite','reverse'], null);
-    startTailTimer();
-    setupHostsList();
   };
 
   function checkElasticsearch() {
-    return $http.get('/konsole/validate/es').then(function (resp) {
+    return $http.get('/logtrail/validate/es').then(function (resp) {
       if (resp.data.ok) {
+        config = resp.data.config;
         console.info('connection to elasticsearch successful');
+        //Initialize app views
+        setupHostsList();
+        doSearch(null, 'desc', ['overwrite','reverse'], null);
+        startTailTimer();
       } else {
         console.error('validate elasticsearch failed :' , resp);
         $scope.errorMessage = 'Cannot connect to elasticsearch : ' + resp.data.resp.msg;
@@ -73,14 +77,6 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
   timestamp - timestamp for range if available
   **/
   function doSearch(rangeType,order,actions,timestamp) {
-    /*var timestamp = null;
-    if ($scope.pickedDateTime != null)  {
-    timestamp = Date.create($scope.pickedDateTime).getTime();
-  }
-
-  if (fromLiveTail) {
-  timestamp = lastEventTime;
-}*/
 
     var request = {
       searchText: searchText,
@@ -90,7 +86,7 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
       hostname: $scope.selectedHost
     };
 
-    return $http.post('../konsole/search', request).then(function (resp) {
+    return $http.post('/logtrail/search', request).then(function (resp) {
       if (resp.data.ok) {
         updateEventView(resp.data.resp,actions,order);
       } else {
@@ -121,6 +117,7 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
   scrollToTop -
   scrollToView - in case of prepend,i.e scrollUp that old event should be visible
   scrollToBottom - Default behavior, no need to pass
+  startTimer - start tail timer. Will be invoked duing initialization
   */
 
   function updateEventView(events,actions,order) {
@@ -377,10 +374,12 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
   };
 
   function startTailTimer() {
-    //tailTimer = $interval(doTail,10000);
-    $scope.$on('$destroy', function () {
-      stopTailTimer();
-    });
+    if (config != null) {
+      tailTimer = $interval(doTail,(config.tail_interval_in_seconds * 1000));
+      $scope.$on('$destroy', function () {
+        stopTailTimer();
+      });
+    }
   };
 
   function stopTailTimer() {
@@ -391,7 +390,7 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
   };
 
   function setupHostsList() {
-    $http.get('/konsole/hosts').then(function (resp) {
+    $http.get('/logtrail/hosts').then(function (resp) {
       if (resp.data.ok) {
         console.log(resp.data.resp);
         $scope.hosts = resp.data.resp;
@@ -407,7 +406,7 @@ app.controller('konsole', function ($scope, es, courier, $window, $interval, $ht
 
 
 //Directive to manage scroll during launch and on new events
-modules.get('konsole').directive('onLastRepeat', function () {
+modules.get('logtrail').directive('onLastRepeat', function () {
   return function (scope, element, attrs) {
     if (scope.$last) {
       setTimeout(function () {
@@ -417,7 +416,7 @@ modules.get('konsole').directive('onLastRepeat', function () {
   };
 });
 
-modules.get('konsole').directive('clickOutside', function ($document) {
+modules.get('logtrail').directive('clickOutside', function ($document) {
   return {
     restrict: 'A',
     scope: {

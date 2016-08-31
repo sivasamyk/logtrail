@@ -415,7 +415,7 @@ html,body {
   font-family: inherit;
 }
 
-.konsole-error {
+.logtrail-error {
 	position: fixed;
 	width: 97%;
 	top: 4em;

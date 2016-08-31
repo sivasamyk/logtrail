@@ -39,9 +39,9 @@ module.exports = function (server) {
   //Search
   server.route({
     method: ['POST'],
-    path: '/konsole/search',
+    path: '/logtrail/search',
     handler: function (request, reply) {
-      var config = require('../../konsole.json');
+      var config = require('../../logtrail.json');
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
 
       var searchText = request.payload.searchText;
@@ -83,9 +83,9 @@ module.exports = function (server) {
       if (request.payload.hostname != null) {
         var termQuery = {
           term : {
-            "hostname.raw" : request.payload.hostname
+            'hostname.raw' : request.payload.hostname
           }
-        }
+        };
         searchRequest.body.query.filtered.filter.bool.must.push(termQuery);
       }
 
@@ -95,7 +95,7 @@ module.exports = function (server) {
           range : {
 
           }
-        }
+        };
         var range = rangeQuery.range;
         range[config.es.timefield] = {};
         /*if (request.payload.liveTail) {
@@ -122,8 +122,8 @@ module.exports = function (server) {
       }).catch(function (resp) {
         console.log(resp);
         reply({
-            ok: false,
-            resp: resp
+          ok: false,
+          resp: resp
         });
       });
     }
@@ -132,9 +132,9 @@ module.exports = function (server) {
   //Get All Systems
   server.route({
     method: ['GET'],
-    path: '/konsole/hosts',
+    path: '/logtrail/hosts',
     handler: function (request,reply) {
-      var config = require('../../konsole.json');
+      var config = require('../../logtrail.json');
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
       var hostAggRequest = {
         index: config.es.default_index,

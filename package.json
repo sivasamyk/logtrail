@@ -1,5 +1,5 @@
 {
-  "name": "konsole",
+  "name": "logtrail",
   "version": "0.1.0",
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "gulpfile.js",

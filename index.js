@@ -3,14 +3,14 @@ var serverRoute = require('./server/routes/server');
 var validateEsRoute = require('./server/routes/validate_es');
 module.exports = function (kibana) {
   return new kibana.Plugin({
-    name: 'konsole',
+    name: 'logtrail',
     require: ['kibana', 'elasticsearch'],
     uiExports: {
       app: {
-        title: 'Konsole',
+        title: 'LogTrail',
         description: 'Plugin to view, search & tail logs in Kibana',
-        icon: 'plugins/konsole/images/icon.png',
-        main: 'plugins/konsole/app',
+        icon: 'plugins/logtrail/images/icon.png',
+        main: 'plugins/logtrail/app',
         injectVars: function (server, options) {
           let config = server.config();
           return {
