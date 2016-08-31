@@ -13,7 +13,9 @@ html,body {
 	height: 100%;
 	position: absolute;
 	color: #ddd;
-	padding: 0em;
+	padding-bottom: 5em;
+	padding-top: 5em;
+	padding-left: 0em;
 }
 
 .footer {
@@ -30,13 +32,27 @@ html,body {
 
 .search-btn {
 	padding: .6em;
+	margin-left: .2em;
+	font-weight: bold;
+	color: black;
+}
+
+.host-option-select-btn {
+	padding: .6em;
 	margin-left: 1em;
 	font-weight: bold;
 	color: black;
 }
 
+.time-option-select-btn {
+	padding: .6em;
+	margin-left: .3em;
+	font-weight: bold;
+	color: black;
+}
+
 .search-box.form-control {
-    padding: 1em;
+    padding: 1.1em;
     margin-left: 1em;
     border: 2px solid #ccc;
     font-size: 16px;
@@ -55,7 +71,7 @@ html,body {
 	list-style: none;
 	list-style-position: outside;
 	padding-bottom: 5em;
-	padding-top: 5em;
+	padding-top: .5em;
 }
 
 .host {
@@ -79,9 +95,12 @@ html,body {
 	color: #258CCD;
 }
 
-
 .program a:hover {
 	text-decoration: none;
+}
+
+.message {
+	color: #B0B0B0;
 }
 
 .flex-container-search {
@@ -142,16 +161,75 @@ html,body {
     align-self: auto;
   }
 
+	.host-picker {
+		position: absolute;
+		background: white;
+		border: 4px solid rgb(128,128,128);
+	  width: 16em;
+	  height: auto;
+	  border-radius: 6px;
+		bottom: 5.5em;
+		left: 63em;
+		padding: 0;
+	}
+
+	.host-picker:after, .host-picker:before {
+		top: 100%;
+		left: 50%;
+		border: solid transparent;
+		content: " ";
+		height: 0;
+		width: 0;
+		position: absolute;
+		pointer-events: none;
+	}
+
+	.host-picker:after {
+		border-color: rgb(128,128,128,0);
+		border-top-color: white;
+		border-width: 30px;
+		margin-left: -30px;
+	}
+	.host-picker:before {
+		border-color: rgb(128,128,128,0);
+		border-top-color: white;
+		border-width: 36px;
+		margin-left: -36px;
+	}
+
+	.host-picker-list {
+		color: #2F4F4F;
+		list-style-type: none;
+		margin: 0;
+		font-size: medium;
+		padding: 0;
+	}
+
+	.host-picker-list > li {
+		padding: .3em;
+		text-align: center;
+	}
+
+	.host-picker-list > li:nth-child(even) {
+		background: #F0F0F0;
+	}
+
+	.host-picker-list > li > a {
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+
 .date-picker {
-	position: relative;
+	position: absolute;
 	background: white;
 	border: 4px solid rgb(128,128,128);
 	padding: 1em;
-  width: 34em;
+  width: 26.5em;
   height: 7em;
   border-radius: 6px;
-	bottom: 7.5em;
-	left: -33em;
+	bottom: 5.5em;
+	left: 63em;
 }
 
 .date-picker:after, .date-picker:before {
@@ -285,4 +363,60 @@ html,body {
 
 .live-tail-button {
 	margin-right: 2em;
+	text-align: center;
+}
+
+/*.live-tail-button a {
+	color: rgb(184,184,184);
+}
+
+.live-tail-button a:hover {
+	text-decoration: none;
+	color: currentColor;
+}*/
+
+
+
+.hosts-select {
+	margin-right: 20em;
+}
+
+.btn:enabled:hover {
+	color: black;
+	background-color: white;
+}
+
+.btn:enabled:focus {
+	color: black;
+}
+
+.tail-status-btn {
+	color: black;
+	width: 6em;
+	text-align: center;
+	background: wheat;
+}
+
+.tail-status-btn:enabled:hover {
+	text-decoration: none;
+	color: black;
+	background-color: lightgoldenrodyellow;
+}
+
+.tail-status-btn:enabled:focus {
+	text-decoration: none;
+	color: black;
+}
+
+.no-event-message {
+	text-align: center;
+  padding: 1em;
+  font-size: xx-large;
+  font-family: inherit;
+}
+
+.konsole-error {
+	position: fixed;
+	width: 97%;
+	top: 4em;
 }

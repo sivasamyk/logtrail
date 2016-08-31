@@ -10,7 +10,6 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "elasticsearch": "^8.2.0",
     "sugar-date": "1.5.1"
   },
   "devDependencies": {

@@ -19,6 +19,7 @@ module.exports = function (server) {
           max: resp.indices._all.fields[config.es.timefield].max_value
         });
       }).catch(function (resp) {
+        console.error('Exception while validating ES',resp);
         reply({
           ok: false,
           resp: resp
