@@ -13,9 +13,7 @@ html,body {
 	height: 100%;
 	position: absolute;
 	color: #ddd;
-	padding-bottom: 5em;
-	padding-top: 5em;
-	padding-left: 0em;
+	padding: 0em;
 }
 
 .footer {
@@ -410,7 +408,8 @@ html,body {
 
 .no-event-message {
 	text-align: center;
-  padding: 1em;
+  padding-top: 2em;
+	padding-bottom: 1em;
   font-size: xx-large;
   font-family: inherit;
 }

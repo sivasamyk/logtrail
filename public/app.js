@@ -39,7 +39,7 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
   $scope.hostPickerVisible = false;
   $scope.userDateTime = null; // exact string typed by user like 'Aug 24 or last friday'
   $scope.pickedDateTime = null; // UTC date used in search query.
-  $scope.userDateTimeSeeked = null; // exact string entered by user set after user clicks seek. User to show in search button
+  $scope.userDateTimeSeeked = null; // exact string entered by user set after user clicks seek. Used to show in search button
   $scope.liveTailStatus = 'Live';
   $scope.hosts = null;
   $scope.selectedHost = null;
@@ -60,7 +60,7 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
       if (resp.data.ok) {
         config = resp.data.config;
         console.info('connection to elasticsearch successful');
-        //Initialize app views
+        //Initialize app views on validate successful
         setupHostsList();
         doSearch(null, 'desc', ['overwrite','reverse'], null);
         startTailTimer();
@@ -91,21 +91,51 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
         updateEventView(resp.data.resp,actions,order);
       } else {
         console.error('Error while fetching events ' , resp);
-        $scope.errorMessage = ' Exception while executing search query :' + resp.data.resp.msg;
+        $scope.errorMessage = 'Exception while executing search query :' + resp.data.resp.msg;
       }
     });
   };
 
-  //TODO :: Remove duplicate events in case of tail.
-  function removeDuplicates(newEventsFromServer) {
-    // angular.forEach(newEventsFromServer, function(newEvent) {
-    //   var alreadyPresent = false;
-    //   angular.forEach($scope.events, function(event) {
-    //     if (newEvent.id === event.id) {
-    //
-    //     }
-    //   });
-    // });
+  function removeDuplicatesForAppend(newEventsFromServer) {
+    var BreakException = {};
+    for (var i = newEventsFromServer.length - 1; i >= 0; i--) {
+      var newEvent = newEventsFromServer[i];
+      try {
+        for (var j = $scope.events.length - 1; j >= 0; j--) {
+          var event = $scope.events[j];
+          if (Date.parse(event.received_at) < Date.parse(newEvent.received_at)) {
+            throw BreakException;
+          }
+          if (newEvent.id === event.id) {
+            newEventsFromServer.splice(i,1);
+          }
+        }
+      }
+      catch (e) {
+        //ignore
+      }
+    }
+  }
+
+  function removeDuplicatesForPrepend(newEventsFromServer) {
+    var BreakException = {};
+    for (var i = newEventsFromServer.length - 1; i >= 0; i--) {
+      var newEvent = newEventsFromServer[i];
+      try {
+        for (var j = 0; j < $scope.events.length; j++) {
+          var event = $scope.events[j];
+          if (Date.parse(event.received_at) > Date.parse(newEvent.received_at)) {
+            throw BreakException;
+          }
+          if (newEvent.id === event.id) {
+            newEventsFromServer.splice(i,1);
+          }
+        }
+      }
+      catch (e) {
+        //ignore
+      }
+    }
   }
 
   /*
@@ -148,7 +178,7 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
       if (order === 'desc') {
         events.reverse();
       }
-      removeDuplicates(events);
+      removeDuplicatesForAppend(events);
       angular.forEach(events, function (event) {
         $scope.events.push(event);
       });
@@ -157,6 +187,7 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
     if (actions.indexOf('prepend') !== -1) {
       if (events.length > 0) {
         //Need to move scrollbar to old event location
+        removeDuplicatesForPrepend(events);
         firstEventId = $scope.events[0].id;
         angular.forEach(events, function (event) {
           $scope.events.unshift(event);
@@ -204,17 +235,8 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
   $scope.onSearchClick = function (string) {
 
     searchText = '*';
-
-      /*if ($scope.selectedHost !== 'All Systems') {
-      searchText = 'hostname:' + $scope.selectedHost;
-
-      if ($scope.userSearchText !== null ) {
-      searchText = searchText + ' and ' + $scope.userSearchText;
-    }
-    } else*/
     if ($scope.userSearchText !== null) {
       searchText = $scope.userSearchText;
-    //$scope.userSearchText = searchText;
     }
 
     if ($scope.pickedDateTime !== null) {
@@ -223,7 +245,6 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
     } else {
       doSearch(null,'desc', ['overwrite','reverse'],null);
     }
-  //doSearch(null,'desc', ['overwrite','reverse'],null);
   };
 
   $scope.showDatePicker = function () {
@@ -280,13 +301,11 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
       updateLiveTailStatus('Live');
       doTail();
     } else { //Go Live - refresh whole view to launch view
-      //angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
       $scope.pickedDateTime = null;
       $scope.userDateTime = null;
       $scope.userDateTimeSeeked = null;
       updateLiveTailStatus('Live');
       doSearch(null, 'desc', ['overwrite','reverse'], null);
-      //doTail();
     }
   };
 
@@ -297,17 +316,6 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
     } else {
       $scope.selectedHost = host;
     }
-    /*if ($scope.userSearchText != null) {
-    searchText = $scope.userSearchText + ' and hostname:' + host;
-  } else {
-  searchText = 'hostname:' + host;
-  }
-  if ($scope.pickedDateTime != null) {
-  doSearch(null,'asc', ['overwrite','scrollToTop'],$scope.pickedDateTime);
-  } else {
-  doSearch(null,'desc', ['overwrite','reverse'],null);
-  }
-  //$scope.onSearchClick('hostname:' + host);*/
     $scope.onSearchClick();
   };
 
@@ -360,16 +368,13 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
   });
 
   function updateLiveTailStatus(status) {
-    /*if (status === 'Live') {
-    doSearch(true);
-  }*/
     $scope.liveTailStatus = status;
   };
 
   function doTail() {
     if ($scope.liveTailStatus === 'Live') {
       //TODO : RangeType should be gte and need to remove duplicates
-      doSearch('gt', 'asc', ['append'], lastEventTime);
+      doSearch('gte', 'asc', ['append'], lastEventTime);
     }
   };
 
