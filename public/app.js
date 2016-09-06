@@ -267,11 +267,11 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
   };
 
   $scope.onDateChange = function () {
-    var date = Date.create();
+    var date = null;//Date.create();
     if ($scope.userDateTime !== '') {
       date = Date.create($scope.userDateTime);
     }
-    if (date.isValid()) {
+    if (date !== null && date.isValid()) {
       $scope.pickedDateTime = date.full();
     } else {
       $scope.pickedDateTime = null;

@@ -17,8 +17,6 @@ To install logtrail plugin in your kibana instance execute
  - Kibana 4.5 : `./bin/kibana plugin -i logtail http...`
  - Kibana 5.0
 ###Configure rsyslog
-
 ###Configure logstash
 ###Customize logtrail plugin
-
 ##TODO
