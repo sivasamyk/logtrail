@@ -8,6 +8,8 @@ LogTrail is a plugin for Kibana to view, analyze, search and tail logs in realti
  - Filter aggregated logs by hosts and program
  - Quickly seek to logs based on time
  - Supports all logs shipped in syslog format
+##Screenshot
+![Events](https://raw.githubusercontent.com/sivasamyk/logtrail/master/screenshot.png)
 ##Setup
 ###Prerequisites
  - Download and install Elasticsearch , Logstash and Kibana
