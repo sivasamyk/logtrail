@@ -5,6 +5,7 @@
     "allow_url_parameter": false,
     "timezone": "UTC"
   },
+  "tail_interval_in_seconds": 10,
   "max_buckets": 100,
   "fields" : [
     {

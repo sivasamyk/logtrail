@@ -1,5 +1,5 @@
 {
-  "name": "konsole",
+  "name": "logtrail",
   "version": "0.1.0",
   "kibanas": [
     "5.0.0-alpha4",

@@ -3,13 +3,14 @@ import validateEsRoute from './server/routes/validate_es';
 
 export default function (kibana) {
   return new kibana.Plugin({
-    require: ['elasticsearch'],
-
+    name: 'logtrail',
+    require: ['kibana', 'elasticsearch'],
     uiExports: {
       app: {
-        title: 'Konsole',
+        title: 'LogTrail',
         description: 'Plugin to view, search & tail logs in Kibana',
-        main: 'plugins/konsole/app',
+        main: 'plugins/logtrail/app',        
+        url: '/logtrail',
         injectVars: function (server, options) {
           let config = server.config();
           return {

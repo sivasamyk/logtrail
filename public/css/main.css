@@ -163,11 +163,11 @@ html,body {
 		position: absolute;
 		background: white;
 		border: 4px solid rgb(128,128,128);
-	  width: 15em;
+	  width: 16em;
 	  height: auto;
 	  border-radius: 6px;
 		bottom: 5.5em;
-		left: 58em;
+		left: 63em;
 		padding: 0;
 	}
 
@@ -199,7 +199,7 @@ html,body {
 		color: #2F4F4F;
 		list-style-type: none;
 		margin: 0;
-		font-size: large;
+		font-size: medium;
 		padding: 0;
 	}
 
@@ -208,7 +208,7 @@ html,body {
 		text-align: center;
 	}
 
-	.host-picker-list > li:nth-child(odd) {
+	.host-picker-list > li:nth-child(even) {
 		background: #F0F0F0;
 	}
 
@@ -223,11 +223,11 @@ html,body {
 	background: white;
 	border: 4px solid rgb(128,128,128);
 	padding: 1em;
-  width: 25em;
+  width: 26.5em;
   height: 7em;
   border-radius: 6px;
 	bottom: 5.5em;
-	left: 60em;
+	left: 63em;
 }
 
 .date-picker:after, .date-picker:before {
@@ -360,7 +360,7 @@ html,body {
   }
 
 .live-tail-button {
-	margin-right: 4em;
+	margin-right: 2em;
 	text-align: center;
 }
 
@@ -408,7 +408,14 @@ html,body {
 
 .no-event-message {
 	text-align: center;
-  padding: 1em;
+  padding-top: 2em;
+	padding-bottom: 1em;
   font-size: xx-large;
   font-family: inherit;
+}
+
+.logtrail-error {
+	position: fixed;
+	width: 97%;
+	top: 4em;
 }

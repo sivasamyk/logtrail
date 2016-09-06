@@ -39,9 +39,9 @@ module.exports = function (server) {
   //Search
   server.route({
     method: ['POST'],
-    path: '/konsole/search',
+    path: '/logtrail/search',
     handler: function (request, reply) {
-      var config = require('../../konsole.json');
+      var config = require('../../logtrail.json');
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
 
       var searchText = request.payload.searchText;
@@ -56,15 +56,19 @@ module.exports = function (server) {
         body : {
           sort : [{}],
           query : {
-              bool : {
-                must :{
-                    query_string : {
-                      analyze_wildcard: true,
-                      default_field : 'syslog_message',
-                      query : searchText
-                    }
-                },
-                filter: {
+            filtered : {
+              query : {
+                query_string : {
+                  analyze_wildcard: true,
+                  default_field : 'syslog_message',
+                  query : searchText
+                }
+              },
+              filter: {
+                bool: {
+                  must : [
+                  ],
+                  must_not:[],
                 }
             }
           }
@@ -73,10 +77,27 @@ module.exports = function (server) {
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][config.es.timefield] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
+      //By default Set sorting column to timestamp
+      searchRequest.body.sort[0][config.es.timefield] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
+
+      //If hostname is present then term query.
+      if (request.payload.hostname != null) {
+        var termQuery = {
+          term : {
+            'hostname.raw' : request.payload.hostname
+          }
+        };
+        searchRequest.body.query.filtered.filter.bool.must.push(termQuery);
+      }
+
       //If timestamps are present set ranges
       if (request.payload.timestamp != null) {
-        searchRequest.body.query.bool.filter.range = {};
-        var range = searchRequest.body.query.bool.filter.range;
+        var rangeQuery = {
+          range : {
+
+          }
+        };
+        var range = rangeQuery.range;
         range[config.es.timefield] = {};
         /*if (request.payload.liveTail) {
           range[config.es.timefield].gt = request.payload.timestamp;
@@ -87,11 +108,12 @@ module.exports = function (server) {
         range[config.es.timefield].time_zone = config.es.timezone;
         //range[config.es.timefield]['lte'] = 'now';
         range[config.es.timefield].format = 'epoch_millis';
+        searchRequest.body.query.filtered.filter.bool.must.push(rangeQuery);
+        //var range = searchRequest.body.query.bool.filter.range;
 
         /*//Set sorting column to timestamp
         searchRequest.body.sort[0][config.es.timefield] = {'order':'asc','unmapped_type': 'boolean'};*/
       }
-
       console.log(JSON.stringify(searchRequest));
       callWithRequest(request,'search',searchRequest).then(function (resp) {
         reply({
@@ -111,9 +133,9 @@ module.exports = function (server) {
   //Get All Systems
   server.route({
     method: ['GET'],
-    path: '/konsole/hosts',
+    path: '/logtrail/hosts',
     handler: function (request,reply) {
-      var config = require('../../konsole.json');
+      var config = require('../../logtrail.json');
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
       var hostAggRequest = {
         index: config.es.default_index,

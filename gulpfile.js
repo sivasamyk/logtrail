@@ -28,7 +28,7 @@ var kibanaPluginDir = path.resolve(__dirname, pathToKibana, 'installedPlugins', 
 
 var include = [
   'package.json',
-  'konsole.json',
+  'logtrail.json',
   'index.js',
   'node_modules',
   'public',
