@@ -361,7 +361,7 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
         // && angular.element($document).height() > angular.element($window).height()) {
         if ($scope.events.length > 0) {
           var timestamp = Date.create($scope.events[0].received_at).getTime();
-          doSearch('lt', 'desc', ['prepend','scrollToView'], timestamp);
+          doSearch('lte', 'desc', ['prepend','scrollToView'], timestamp);
         }
       }
     }
@@ -372,8 +372,7 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
   };
 
   function doTail() {
-    if ($scope.liveTailStatus === 'Live') {
-      //TODO : RangeType should be gte and need to remove duplicates
+    if ($scope.liveTailStatus === 'Live' && !updateViewInProgress) {
       doSearch('gte', 'asc', ['append'], lastEventTime);
     }
   };
