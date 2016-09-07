@@ -70,12 +70,11 @@ module.exports = function (server) {
                   ],
                   must_not:[],
                 }
+              }
             }
           }
         }
       };
-      //By default Set sorting column to timestamp
-      searchRequest.body.sort[0][config.es.timefield] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][config.es.timefield] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
@@ -139,6 +138,7 @@ module.exports = function (server) {
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
       var hostAggRequest = {
         index: config.es.default_index,
+        size: config.max_buckets,
         body : {
           size: 0,
           aggs: {
