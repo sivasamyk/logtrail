@@ -64,3 +64,5 @@ Setup
       ```
   - Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
   - For more configuration options refer to [Papertrail Configuration Help](http://help.papertrailapp.com/).
+- Configure logtrail plugin
+  - After plugin installation, the tail refresh interval and total events fetched per request can be configured in `logtrail.json` located at installaedPlugins/logtrail directory.
