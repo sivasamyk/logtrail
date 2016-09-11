@@ -14,8 +14,8 @@ Features
  - Quickly seek to logs based on time
  - Supports all logs shipped in syslog format
 
-Setup
------
+Installation
+------------
 - Prerequisites
  - Download and install Elasticsearch , Logstash and Kibana
  - Logtrail is supported and tested with Kibana 4.x [ support for 5.x coming soon! ]
