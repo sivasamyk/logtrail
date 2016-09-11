@@ -68,4 +68,4 @@ Setup
   - After plugin installation, the tail refresh interval (default every 10 seconds) and max events fetched per request (default 500) can be configured in `logtrail.json` located at installaedPlugins/logtrail directory.
 - Event format : Each line displayed in the events view is of format:
   `syslog_timestamp syslog_hostname syslog_program:syslog_message`
-- Switching back to Kibana main view from logtrail will not work (known bug).
+- Switching back to Kibana main view from logtrail will not work (known bug). Workaround: Please change the URL directly in address bar.
