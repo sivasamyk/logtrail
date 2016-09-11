@@ -20,7 +20,7 @@ Setup
  - Download and install Elasticsearch , Logstash and Kibana
  - Logtrail is supported and tested with Kibana 4.x [ support for 5.x coming soon! ]
 - Install logtrail plugin
- - Kibana 4.x : `./bin/kibana plugin -i logtail http...`
+ - Kibana 4.x : `./bin/kibana plugin -i logtrail -u `
 - Configure logstash to receive syslog events
  - Start logstash agent with following configuration to recieve syslog events.
   ```
@@ -65,4 +65,7 @@ Setup
   - Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
   - For more configuration options refer to [Papertrail Configuration Help](http://help.papertrailapp.com/).
 - Configure logtrail plugin
-  - After plugin installation, the tail refresh interval and total events fetched per request can be configured in `logtrail.json` located at installaedPlugins/logtrail directory.
+  - After plugin installation, the tail refresh interval (default every 10 seconds) and max events fetched per request (default 500) can be configured in `logtrail.json` located at installaedPlugins/logtrail directory.
+- Event format : Each line displayed in the events view is of format:
+  `syslog_timestamp syslog_hostname syslog_program:syslog_message`
+- Switching back to Kibana main view from logtrail will not work (known bug).

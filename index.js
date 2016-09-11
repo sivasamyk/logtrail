@@ -9,8 +9,8 @@ module.exports = function (kibana) {
       app: {
         title: 'LogTrail',
         description: 'Plugin to view, search & tail logs in Kibana',
-        main: 'plugins/logtrail/app',        
-        url: '/logtrail',
+        main: 'plugins/logtrail/app',
+        url: '/app/logtrail',
         injectVars: function (server, options) {
           let config = server.config();
           return {

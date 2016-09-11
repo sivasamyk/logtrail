@@ -113,7 +113,7 @@ module.exports = function (server) {
         /*//Set sorting column to timestamp
         searchRequest.body.sort[0][config.es.timefield] = {'order':'asc','unmapped_type': 'boolean'};*/
       }
-      console.log(JSON.stringify(searchRequest));
+      //console.log(JSON.stringify(searchRequest));
       callWithRequest(request,'search',searchRequest).then(function (resp) {
         reply({
           ok: true,
@@ -151,7 +151,7 @@ module.exports = function (server) {
         }
       };
       callWithRequest(request,'search',hostAggRequest).then(function (resp) {
-        console.log(resp.aggregations.hosts.buckets);
+        //console.log(resp.aggregations.hosts.buckets);
         reply({
           ok: true,
           resp: resp.aggregations.hosts.buckets

@@ -30,7 +30,7 @@ require('ui/routes')
 
 document.title = 'LogTrail - Kibana';
 
-app.controller('logtrail', function ($scope, es, courier, $window, $interval, $http, $document, $timeout) {
+app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $interval, $http, $document, $timeout) {
   $scope.title = 'LogTrail';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
@@ -52,6 +52,7 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
   var config = null;
 
   function init() {
+    kbnUrl.change('');
     checkElasticsearch();
   };
 
@@ -185,9 +186,10 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
     }
     var firstEventId = null;
     if (actions.indexOf('prepend') !== -1) {
+      removeDuplicatesForPrepend(events);
       if (events.length > 0) {
-        //Need to move scrollbar to old event location
-        removeDuplicatesForPrepend(events);
+        //Need to move scrollbar to old event location,
+        //so note down its id of before model update
         firstEventId = $scope.events[0].id;
         angular.forEach(events, function (event) {
           $scope.events.unshift(event);
@@ -200,9 +202,9 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
     if (actions.indexOf('scrollToTop') !== -1) {
       $timeout(function () {
         window.scrollTo(0,5);
-        console.log('scrollToTop called');
       });
     } else if (actions.indexOf('scrollToView') !== -1) {
+
       if (firstEventId !== null) {
         //Make sure the old top event in is still in view
         $timeout(function () {
@@ -216,7 +218,6 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
     } else {
       //Bring scroll to bottom
       $timeout(function () {
-        console.log('scroll to bottom');
         angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
       });
       //window.scrollTo(0,$(document).height());
@@ -334,19 +335,12 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
     }
   };
 
-  //Initialize scroll on launch
-  $scope.$on('onRepeatLast', function () {
-    //angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
-    console.log('onRepeatLast called');
-  });
-
   angular.element($window).bind('scroll', function (event) {
 
     if (!updateViewInProgress) {
       //When scroll bar search bottom
       if (angular.element($window).scrollTop() + angular.element($window).height() === angular.element($document).height()) {
         if ($scope.events.length > 0) {
-          console.log('scrollbar reaches buttons');
           var lastestEventTimestamp = Date.create($scope.events[$scope.events.length - 1].received_at).getTime();
           doSearch('gt', 'asc', ['append','scrollToView'], lastestEventTimestamp);
         }
@@ -396,7 +390,6 @@ app.controller('logtrail', function ($scope, es, courier, $window, $interval, $h
   function setupHostsList() {
     $http.get('/logtrail/hosts').then(function (resp) {
       if (resp.data.ok) {
-        console.log(resp.data.resp);
         $scope.hosts = resp.data.resp;
       } else {
         console.error('Error while fetching hosts : ' , resp.data.resp.msg);
