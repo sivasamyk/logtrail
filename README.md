@@ -36,13 +36,15 @@ Configuration
 	  - program - program that generated this event.
 	  - message - actual event message. This field will be used by search.
  - Example:  If you event fields name are @timestamp, 	host, process, message the mapping should be
- ```"mapping" : {
+ ```
+ "mapping" : {
         "timestamp" : "@timestamp",
         "display_timestamp" : "@timestamp",
         "hostname" : "host",
         "program": "process",
         "message": "message"
-    }```
+    }
+```
 - Each line displayed in the events view is of format:
   `display_timestamp hostname program:message`
 - Any changes in `logtrail.json` requires restart of Kibana
