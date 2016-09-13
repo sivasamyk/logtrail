@@ -104,7 +104,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
       try {
         for (var j = $scope.events.length - 1; j >= 0; j--) {
           var event = $scope.events[j];
-          if (Date.parse(event.received_at) < Date.parse(newEvent.received_at)) {
+          if (Date.parse(event.timestamp) < Date.parse(newEvent.timestamp)) {
             throw BreakException;
           }
           if (newEvent.id === event.id) {
@@ -125,7 +125,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
       try {
         for (var j = 0; j < $scope.events.length; j++) {
           var event = $scope.events[j];
-          if (Date.parse(event.received_at) > Date.parse(newEvent.received_at)) {
+          if (Date.parse(event.timestamp) > Date.parse(newEvent.timestamp)) {
             throw BreakException;
           }
           if (newEvent.id === event.id) {
@@ -224,7 +224,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
     }
 
     if ($scope.events.length > 0)   {
-      lastEventTime = Date.create($scope.events[$scope.events.length - 1].received_at).getTime();
+      lastEventTime = Date.create($scope.events[$scope.events.length - 1].timestamp).getTime();
     } else {
       lastEventTime = null;
     }
@@ -341,7 +341,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
       //When scroll bar search bottom
       if (angular.element($window).scrollTop() + angular.element($window).height() === angular.element($document).height()) {
         if ($scope.events.length > 0) {
-          var lastestEventTimestamp = Date.create($scope.events[$scope.events.length - 1].received_at).getTime();
+          var lastestEventTimestamp = Date.create($scope.events[$scope.events.length - 1].timestamp).getTime();
           doSearch('gt', 'asc', ['append','scrollToView'], lastestEventTimestamp);
         }
         $scope.$apply(updateLiveTailStatus('Live'));
@@ -354,7 +354,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
       if (window.pageYOffset === 0) {
         // && angular.element($document).height() > angular.element($window).height()) {
         if ($scope.events.length > 0) {
-          var timestamp = Date.create($scope.events[0].received_at).getTime();
+          var timestamp = Date.create($scope.events[0].timestamp).getTime();
           doSearch('lte', 'desc', ['prepend','scrollToView'], timestamp);
         }
       }
