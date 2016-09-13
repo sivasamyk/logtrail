@@ -8,7 +8,7 @@
   "max_buckets": 500,
   "fields" : {
     "mapping" : {
-        "timestamp" : "received_at",
+        "timestamp" : "@timestamp",
         "display_timestamp" : "syslog_timestamp",
         "hostname" : "hostname",
         "program": "program",
