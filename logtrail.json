@@ -6,7 +6,7 @@
   },
   "tail_interval_in_seconds": 10,
   "max_buckets": 500,
-  "fields" : {    
+  "fields" : {
     "mapping" : {
         "timestamp" : "received_at",
         "display_timestamp" : "syslog_timestamp",
