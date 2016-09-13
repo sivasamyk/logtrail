@@ -113,7 +113,6 @@ module.exports = function (server) {
       var rawHostField = config.fields.mapping.hostname + ".raw";
       var hostAggRequest = {
         index: config.es.default_index,
-        size: config.max_buckets,
         body : {
           size: 0,
           aggs: {
@@ -126,7 +125,7 @@ module.exports = function (server) {
         }
       };
       callWithRequest(request,'search',hostAggRequest).then(function (resp) {
-        //console.log(resp.aggregations.hosts.buckets);
+        //console.log(resp);//.aggregations.hosts.buckets);
         reply({
           ok: true,
           resp: resp.aggregations.hosts.buckets

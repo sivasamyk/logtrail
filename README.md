@@ -28,6 +28,7 @@ Configuration
 - If you have already setup logging infrastructure, you need map the events fields in ES to logtrail specific fields. This can by done by editing
 `logtrail.json` file located inside`./installedPlugins/logtrail` directory. Edit the following fields:
 	- default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
+  - While using an index name other than `logstash-*`, make sure required .raw fields are created in ES index.
 	- fields - This parameter should be edited to map the event fields in ES to logtrail fields
 	  - timestamp - maps to @timestamp field inserted by logstash. This will be used for querying internally
 	  - display_timestamp - the formatted timestamp displayed in the events view. Can be mapped to @timestamp
