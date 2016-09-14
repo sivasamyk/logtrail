@@ -1,14 +1,14 @@
-# LogTrail - Syslog Viewer plugin for Kibana
+# LogTrail - Log Viewer plugin for Kibana
 
 Introduction
 ------------
-LogTrail is a plugin for Kibana to view, analyze, search and tail syslog events in realtime with a developer/sysadmin friendly interface inspired by [Papertrail](https://papertrailapp.com/).
+LogTrail is a plugin for Kibana to view, analyze, search and tail log events in realtime with a developer/sysadmin friendly interface inspired by [Papertrail](https://papertrailapp.com/).
 
 ![Events](https://raw.githubusercontent.com/sivasamyk/logtrail/master/screenshot.png)
 
 Features
 --------
- - View, analyze and search syslog events from a centralized, developer and sysadmin friendly interface
+ - View, analyze and search log events from a centralized, developer and sysadmin friendly interface
  - Live tail
  - Filter aggregated logs by hosts and program
  - Quickly seek to logs based on time
@@ -26,7 +26,7 @@ Configuration
 -------------
 ### If you are already shipping logs/events to Elasticsearch
 - If you have already setup logging infrastructure with events getting indexed in ES,
-you need to map the cuurent event fields in ES to logtrail specific fields. This can by done by editing
+you need to map the current event fields in ES to logtrail specific fields. This can by done by editing
 `logtrail.json` file located inside`./installedPlugins/logtrail` directory. Edit the following fields:
 	- default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
 	    - While using an index name other than `logstash-*`, make sure respective .raw fields are created in ES index.
@@ -53,7 +53,7 @@ you need to map the cuurent event fields in ES to logtrail specific fields. This
 ### If you are starting fresh
 - Before using the plugin make sure there are events indexed in Elasticsearch
 - Configure logstash to receive syslog events
- - Start logstash agent with following configuration to recieve syslog events.
+ - Start logstash agent with following configuration to receive syslog events.
   ```
   input {
     tcp {
