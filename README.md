@@ -24,7 +24,7 @@ Installation
 
 Configuration
 -------------
-### Exiting logging infrastructure
+### I am already shipping logs/events to Elasticsearch
 - If you have already setup logging infrastructure with events getting indexed in ES,
 you need to map the cuurent event fields in ES to logtrail specific fields. This can by done by editing
 `logtrail.json` file located inside`./installedPlugins/logtrail` directory. Edit the following fields:
@@ -49,14 +49,9 @@ you need to map the cuurent event fields in ES to logtrail specific fields. This
 - Each line displayed in the events view is of format:
   `display_timestamp hostname program:message`
 - Any changes in `logtrail.json` requires restart of Kibana
-- You can also use Beats/Fluentd to ship events to ES and map the field properly using `fields` parameter in `logtrail.json`
 
-### Fresh setup
-- Configure logtrail plugin: Following paramters can be configured from the `logtrail.json` file located inside `./installedPlugins/logtrail` directory
-    - tail_interval_in_seconds - tail refresh interval (default: 10 seconds)
-    - max_buckets -  max events fetched per request (default: 500)
-    - default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
-    - Any changes in `logtrail.json` requires restart of Kibana
+### I am starting fresh
+- Before using the plugin make sure there are events indexed in Elasticsearch
 - Configure logstash to receive syslog events
  - Start logstash agent with following configuration to recieve syslog events.
   ```
@@ -98,4 +93,5 @@ you need to map the cuurent event fields in ES to logtrail specific fields. This
 	      ```
   - Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
   - For more configuration options refer to [Papertrail Configuration Help](http://help.papertrailapp.com/).
+- Beats/Fluentd can also be used to ship events to ES and fields can be mapped using `fields` parameter in `logtrail.json`
 - Switching back to Kibana main view from logtrail will not work (known bug). Workaround: Please change the URL directly in address bar.
