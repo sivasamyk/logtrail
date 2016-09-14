@@ -24,7 +24,7 @@ Installation
 
 Configuration
 -------------
-### I am already shipping logs/events to Elasticsearch
+### If you are already shipping logs/events to Elasticsearch
 - If you have already setup logging infrastructure with events getting indexed in ES,
 you need to map the cuurent event fields in ES to logtrail specific fields. This can by done by editing
 `logtrail.json` file located inside`./installedPlugins/logtrail` directory. Edit the following fields:
@@ -50,7 +50,7 @@ you need to map the cuurent event fields in ES to logtrail specific fields. This
   `display_timestamp hostname program:message`
 - Any changes in `logtrail.json` requires restart of Kibana
 
-### I am starting fresh
+### If you are starting fresh
 - Before using the plugin make sure there are events indexed in Elasticsearch
 - Configure logstash to receive syslog events
  - Start logstash agent with following configuration to recieve syslog events.
