@@ -321,7 +321,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
   };
 
   $scope.onProgramClick = function (program) {
-    $scope.userSearchText = 'program: \'' + program + '\'';
+    $scope.userSearchText = config.fields.mapping['program'] + ': \'' + program + '\'';
     $scope.onSearchClick();
   };
 
