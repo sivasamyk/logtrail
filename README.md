@@ -12,7 +12,6 @@ Features
  - Live tail
  - Filter aggregated logs by hosts and program
  - Quickly seek to logs based on time
- - Supports all logs shipped in syslog format
 
 Installation
 ------------
