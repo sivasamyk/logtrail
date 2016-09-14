@@ -24,12 +24,13 @@ Installation
 
 Configuration
 -------------
-### For existing log data in elasticsearch
-- If you have already setup logging infrastructure, you need map the events fields in ES to logtrail specific fields. This can by done by editing
+### Exiting logging infrastructure
+- If you have already setup logging infrastructure with events getting indexed in ES,
+you need to map the cuurent event fields in ES to logtrail specific fields. This can by done by editing
 `logtrail.json` file located inside`./installedPlugins/logtrail` directory. Edit the following fields:
 	- default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
-	    - While using an index name other than `logstash-*`, make sure required .raw fields are created in ES index.
-	- fields - This parameter should be edited to map the event fields in ES to logtrail fields
+	    - While using an index name other than `logstash-*`, make sure respective .raw fields are created in ES index.
+	- fields - Edit this parameter to map the event fields in ES to logtrail fields
 	  - timestamp - maps to @timestamp field inserted by logstash. This will be used for querying internally
 	  - display_timestamp - the formatted timestamp displayed in the events view. Can be mapped to @timestamp
 	  - hostname - hostname from where the events were received. Also used by hostname filter
@@ -48,6 +49,7 @@ Configuration
 - Each line displayed in the events view is of format:
   `display_timestamp hostname program:message`
 - Any changes in `logtrail.json` requires restart of Kibana
+- You can also use Beats/Fluentd to ship events to ES and map the field properly using `fields` parameter in `logtrail.json`
 
 ### Fresh setup
 - Configure logtrail plugin: Following paramters can be configured from the `logtrail.json` file located inside `./installedPlugins/logtrail` directory
