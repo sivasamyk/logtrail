@@ -2,13 +2,14 @@
 
 Introduction
 ------------
-LogTrail is a plugin for Kibana to view, analyze, search and tail log events in realtime with a developer/sysadmin friendly interface inspired by [Papertrail](https://papertrailapp.com/).
+LogTrail is a plugin for Kibana to view, analyze, search and tail log events from multiple hosts in realtime with devops friendly interface inspired by [Papertrail](https://papertrailapp.com/).
 
 ![Events](https://raw.githubusercontent.com/sivasamyk/logtrail/master/screenshot.png)
 
 Features
 --------
- - View, analyze and search log events from a centralized, developer and sysadmin friendly interface
+ - View, analyze and search log events from a centralized interface
+ - Clean & simple devops friendly interface
  - Live tail
  - Filter aggregated logs by hosts and program
  - Quickly seek to logs based on time
