@@ -52,7 +52,8 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
   var config = null;
 
   function init() {
-    kbnUrl.change('');
+    //TODO : need to fix url
+    //kbnUrl.change(''); - Commenting this since it is causing controller init again.
     checkElasticsearch();
   };
 
@@ -67,7 +68,11 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
         startTailTimer();
       } else {
         console.error('validate elasticsearch failed :' , resp);
-        $scope.errorMessage = 'Cannot connect to elasticsearch : ' + resp.data.resp.msg;
+        if (resp.data.resp.message) {
+          $scope.errorMessage = resp.data.resp.message;
+        } else {
+          $scope.errorMessage = 'ES Validation failed : ' + resp.data.resp;
+        }
       }
     });
   };

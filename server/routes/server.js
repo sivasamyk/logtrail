@@ -94,11 +94,15 @@ module.exports = function (server) {
           resp: convertToClientFormat(config, resp)
         });
       }).catch(function (resp) {
-        console.log(resp);
-        reply({
-          ok: false,
-          resp: resp
-        });
+        if (resp.isBoom) {
+          reply(resp);
+        } else {
+          console.error("Error while executing search",resp);
+          reply({
+            ok: false,
+            resp: resp
+          });
+        }
       });
     }
   });
@@ -131,11 +135,15 @@ module.exports = function (server) {
           resp: resp.aggregations.hosts.buckets
         });
       }).catch(function (resp) {
-        console.log(resp);
-        reply({
-          ok: false,
-          resp: resp
-        });
+        if(resp.isBoom) {
+          reply(resp);
+        } else {
+          console.error("Error while fetching hosts",resp);
+          reply({
+            ok: false,
+            resp: resp
+          });
+        }
       });
     }
   });

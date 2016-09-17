@@ -12,7 +12,7 @@ module.exports = function (kibana) {
         main: 'plugins/logtrail/app',
         url: '/app/logtrail',
         injectVars: function (server, options) {
-          let config = server.config();
+          var config = server.config();
           return {
             kbnIndex: config.get('kibana.index'),
             esShardTimeout: config.get('elasticsearch.shardTimeout'),
@@ -20,14 +20,7 @@ module.exports = function (kibana) {
           };
         }
       }
-    },
-
-    config: function (Joi) {
-      return Joi.object({
-        enabled: Joi.boolean().default(true),
-      }).default();
-    },
-
+    },    
     init: function (server, options) {
       // Add server routes and initalize the plugin here
       serverRoute(server);
