@@ -58,7 +58,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
   };
 
   function checkElasticsearch() {
-    return $http.get('/logtrail/validate/es').then(function (resp) {
+    return $http.get(chrome.addBasePath('/logtrail/validate/es')).then(function (resp) {
       if (resp.data.ok) {
         config = resp.data.config;
         console.info('connection to elasticsearch successful');
@@ -92,7 +92,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
       hostname: $scope.selectedHost
     };
 
-    return $http.post('/logtrail/search', request).then(function (resp) {
+    return $http.post(chrome.addBasePath('/logtrail/search'), request).then(function (resp) {
       if (resp.data.ok) {
         updateEventView(resp.data.resp,actions,order);
       } else {
@@ -393,7 +393,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
   };
 
   function setupHostsList() {
-    $http.get('/logtrail/hosts').then(function (resp) {
+    $http.get(chrome.addBasePath('/logtrail/hosts')).then(function (resp) {
       if (resp.data.ok) {
         $scope.hosts = resp.data.resp;
       } else {
