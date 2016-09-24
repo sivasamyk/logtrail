@@ -1,4 +1,3 @@
-var moment = require('moment');
 var chrome = require('ui/chrome');
 var routes = require('ui/routes');
 var modules = require('ui/modules');
@@ -45,6 +44,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
   $scope.selectedHost = null;
   $scope.firstEventReached = false;
   $scope.errorMessage = null;
+  $scope.noEventErrorStartTime = null;
   var updateViewInProgress = false;
   var tailTimer = null;
   var searchText = null;
@@ -237,7 +237,22 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
     $timeout(function () {
       updateViewInProgress = false;
     });
+
+    if ($scope.events != null && $scope.events.length === 0) {
+      if ($scope.pickedDateTime != null) {
+        var timestamp = Date.create($scope.pickedDateTime).getTime();
+        $scope.noEventErrorStartTime = moment(timestamp).format('MMMM Do YYYY, h:mm:ss a');
+      } else {
+        if (config.default_time_range_in_days !== 0) {
+          $scope.noEventErrorStartTime = moment().subtract(
+            config.default_time_range_in_days,'days').startOf('day').format('MMMM Do YYYY, h:mm:ss a');
+        } else {          
+          $scope.noEventErrorStartTime = 'Beginning of time';
+        }
+      }
+    }
   };
+
   $scope.onSearchClick = function (string) {
 
     searchText = '*';

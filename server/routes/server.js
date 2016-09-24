@@ -7,6 +7,10 @@ function convertToClientFormat(config, esResponse) {
     var source =  hits[i]._source;
 
     event.id = hits[i]._id;
+    if(config.nested_objects) {
+      var flatten = require('flat');
+      source = flatten(source);
+    }
     event['timestamp'] = source[config.fields.mapping['timestamp']];
     event['display_timestamp'] = source[config.fields.mapping['display_timestamp']];
     event['hostname'] = source[config.fields.mapping['hostname']];
@@ -73,8 +77,20 @@ module.exports = function (server) {
         searchRequest.body.query.filtered.filter.bool.must.push(termQuery);
       }
 
+      //If no time range is present get events based on default config
+      var timestamp = request.payload.timestamp;
+      var rangeType = request.payload.rangeType;
+      if (timestamp == null) {
+        if (config.default_time_range_in_days !== 0) {
+          var moment = require('moment');
+          timestamp = moment().subtract(
+            config.default_time_range_in_days,'days').startOf('day').valueOf();
+          rangeType = 'gte';
+        }
+      }
+
       //If timestamps are present set ranges
-      if (request.payload.timestamp != null) {
+      if (timestamp != null) {
         var rangeQuery = {
           range : {
 
@@ -82,7 +98,7 @@ module.exports = function (server) {
         };
         var range = rangeQuery.range;
         range[config.fields.mapping.timestamp] = {};
-        range[config.fields.mapping.timestamp][request.payload.rangeType] = request.payload.timestamp;
+        range[config.fields.mapping.timestamp][rangeType] = timestamp;
         range[config.fields.mapping.timestamp].time_zone = config.es.timezone;
         range[config.fields.mapping.timestamp].format = 'epoch_millis';
         searchRequest.body.query.filtered.filter.bool.must.push(rangeQuery);
@@ -128,6 +144,31 @@ module.exports = function (server) {
           }
         }
       };
+
+      //NOT YET TESTED!!
+      if (config.nested_objects) {
+        var parentIndex = config.fields.mapping.hostname.lastIndexOf(".");
+        var hostPath = config.fields.mapping.hostname.substr(0,parentIndex);
+        hostAggRequest = {
+          index: config.es.default_index,
+          body : {
+            size: 0,
+            aggs: {
+              nested: {
+                path: hostPath
+              },
+              aggs: {
+                hosts: {
+                  terms: {
+                    field: rawHostField
+                  }
+                }
+              }
+            }
+          }
+        };
+      }
+
       callWithRequest(request,'search',hostAggRequest).then(function (resp) {
         //console.log(resp);//.aggregations.hosts.buckets);
         reply({

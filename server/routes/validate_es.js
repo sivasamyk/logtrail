@@ -13,7 +13,7 @@ module.exports = function (server) {
         fields: timestampField
       };
       callWithRequest(request, 'fieldStats', body).then(function (resp) {
-        if(resp.indices._all) {
+        if (resp.indices._all) {
           reply({
             ok: true,
             field: timestampField,
@@ -25,19 +25,19 @@ module.exports = function (server) {
           reply({
             ok: false,
             resp: {
-              message: "Cannot find index " + config.es.default_index + " in ES"
+              message: 'Cannot find index ' + config.es.default_index + ' in ES'
             }
           });
         }
       }).catch(function (resp) {
-        if(resp.isBoom) {
+        if (resp.isBoom) {
           reply(resp);
         } else {
-          console.error("Error while validating ES", resp);
+          console.error('Error while validating ES', resp);
           reply({
-           ok: false,
-           resp: resp
-         });
+            ok: false,
+            resp: resp
+          });
         }
       });
 
