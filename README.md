@@ -31,8 +31,13 @@ you need to map the current event fields in ES to logtrail specific fields. This
 	- default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
 	    - While using an index name other than `logstash-*`, make sure respective .raw fields are created in ES index.
   - default_time_range_in_days - Default time range in days to search when time is not specified using Seek button.
+<<<<<<< HEAD
     Example: Value of 30 means logtrail will search only in logs from last 30 days, unless time is specified using Seek button.
     Value of 0 means logtrail will search in all available logs by default.
+=======
+  Example: Value of 30 means logtrail will search only in logs from last 30 days, unless time is specified using Seek button.
+  Value of 0 means logtrail will search in all available logs by default.
+>>>>>>> 88439269df34042aeb386701b22cd0218d869fdc
   - fields - Edit this parameter to map the event fields in ES to logtrail fields
 	  - timestamp - maps to @timestamp field inserted by logstash. This will be used for querying internally
 	  - display_timestamp - the formatted timestamp displayed in the events view. Can be mapped to @timestamp
