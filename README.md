@@ -20,7 +20,7 @@ Installation
  - Download and install Elasticsearch , Logstash and Kibana
  - Logtrail is supported and tested with Kibana 4.x [ support for 5.x coming soon! ]
 - Install logtrail plugin (requires restart of Kibana after install)
- - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/v4.x-0.1.2/logtrail-4.x-0.1.2.tar.gz`
+ - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/0.1.3/logtrail-4.x-0.1.3.tar.gz`
 
 Configuration
 -------------
@@ -31,9 +31,9 @@ you need to map the current event fields in ES to logtrail specific fields. This
 	- default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
 	    - While using an index name other than `logstash-*`, make sure respective .raw fields are created in ES index.
   - default_time_range_in_days - Default time range in days to search when time is not specified using Seek button.
-  Example: Value of 30 means logtrail will search only in logs from last 30 days, unless time is specified using Seek button.
-  Value of 0 means logtrail will search in all available logs by default.
-	- fields - Edit this parameter to map the event fields in ES to logtrail fields
+    Example: Value of 30 means logtrail will search only in logs from last 30 days, unless time is specified using Seek button.
+    Value of 0 means logtrail will search in all available logs by default.
+  - fields - Edit this parameter to map the event fields in ES to logtrail fields
 	  - timestamp - maps to @timestamp field inserted by logstash. This will be used for querying internally
 	  - display_timestamp - the formatted timestamp displayed in the events view. Can be mapped to @timestamp
 	  - hostname - hostname from where the events were received. Also used by hostname filter
