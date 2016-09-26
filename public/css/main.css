@@ -414,6 +414,10 @@ html,body {
   font-family: inherit;
 }
 
+.no-event-message > .time-range {
+	font-size: x-large;
+}
+
 .logtrail-error {
 	position: fixed;
 	width: 97%;

@@ -246,11 +246,13 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
         if (config.default_time_range_in_days !== 0) {
           $scope.noEventErrorStartTime = moment().subtract(
             config.default_time_range_in_days,'days').startOf('day').format('MMMM Do YYYY, h:mm:ss a');
-        } else {          
-          $scope.noEventErrorStartTime = 'Beginning of time';
         }
       }
     }
+  };
+
+  $scope.isTimeRangeSearch = function () {
+    return config.default_time_range_in_days !== 0 || $scope.pickedDateTime != null;
   };
 
   $scope.onSearchClick = function (string) {
