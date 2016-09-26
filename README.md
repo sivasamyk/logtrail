@@ -33,7 +33,7 @@ you need to map the current event fields in ES to logtrail specific fields. This
   - default_time_range_in_days - Default time range in days to search when time is not specified using Seek button.
   Example: Value of 30 means logtrail will search only in logs from last 30 days, unless time is specified using Seek button.
   Value of 0 means logtrail will search in all available logs by default.
-	- fields - Edit this parameter to map the event fields in ES to logtrail fields
+  - fields - Edit this parameter to map the event fields in ES to logtrail fields
 	  - timestamp - maps to @timestamp field inserted by logstash. This will be used for querying internally
 	  - display_timestamp - the formatted timestamp displayed in the events view. Can be mapped to @timestamp
 	  - hostname - hostname from where the events were received. Also used by hostname filter
