@@ -24,16 +24,18 @@ require('ui/routes').enable();
 
 require('ui/routes')
 .when('/', {
-  template: require('plugins/logtrail/templates/index.html')
+  template: require('plugins/logtrail/templates/index.html'),
+  reloadOnSearch: false
 });
 
 document.title = 'LogTrail - Kibana';
 
-app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $interval, $http, $document, $timeout) {
+app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, courier,
+   $window, $interval, $http, $document, $timeout, $location) {
   $scope.title = 'LogTrail';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
-  $scope.events = null;
+  $scope.events = [];
   $scope.datePickerVisible = false;
   $scope.hostPickerVisible = false;
   $scope.userDateTime = null; // exact string typed by user like 'Aug 24 or last friday'
@@ -45,6 +47,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
   $scope.firstEventReached = false;
   $scope.errorMessage = null;
   $scope.noEventErrorStartTime = null;
+  $scope.showNoEventsMessage = false;
   var updateViewInProgress = false;
   var tailTimer = null;
   var searchText = null;
@@ -52,8 +55,26 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
   var config = null;
 
   function init() {
-    //TODO : need to fix url
-    //kbnUrl.change(''); - Commenting this since it is causing controller init again.
+    //init scope vars from get params if available
+    if ($routeParams.q) {
+      $scope.userSearchText = $routeParams.q === '*' ? null : $routeParams.q;
+      searchText = $routeParams.q;
+    }
+
+    if ($routeParams.h) {
+      $scope.selectedHost = $routeParams.h === 'All' ? null : $routeParams.h;
+    }
+
+    if ($routeParams.t) {
+      if ($routeParams.t === 'Now' || $routeParams.t == null) {
+        $scope.pickedDateTime = null;
+        $scope.userDateTime = null;
+      } else {
+        $scope.pickedDateTime = convertStringToDate($routeParams.t);
+        $scope.userDateTimeSeeked = $routeParams.t;
+      }
+    }
+
     checkElasticsearch();
   };
 
@@ -64,7 +85,12 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
         console.info('connection to elasticsearch successful');
         //Initialize app views on validate successful
         setupHostsList();
-        doSearch(null, 'desc', ['overwrite','reverse'], null);
+        if ($scope.pickedDateTime == null) {
+          doSearch(null, 'desc', ['overwrite','reverse'], null);
+        } else {
+          var timestamp = Date.create($scope.pickedDateTime).getTime();
+          doSearch('gt','asc', ['overwrite','scrollToTop'],timestamp);
+        }
         startTailTimer();
       } else {
         console.error('validate elasticsearch failed :' , resp);
@@ -159,14 +185,12 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
   function updateEventView(events,actions,order) {
 
     updateViewInProgress = true;
+    $scope.showNoEventsMessage = false;
+
     if (actions.indexOf('reverse') !== -1) {
       events.reverse();
     }
     if (actions.indexOf('overwrite') !== -1) {
-      //If events are order desc, the reverse the list
-      /*if (order === 'desc') {
-      events.reverse();
-    }*/
       $scope.firstEventReached = false;
       $scope.events = [];
       angular.forEach(events, function (event) {
@@ -239,6 +263,7 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
     });
 
     if ($scope.events != null && $scope.events.length === 0) {
+      $scope.showNoEventsMessage = true;
       if ($scope.pickedDateTime != null) {
         var timestamp = Date.create($scope.pickedDateTime).getTime();
         $scope.noEventErrorStartTime = moment(timestamp).format('MMMM Do YYYY, h:mm:ss a');
@@ -252,17 +277,28 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
   };
 
   $scope.isTimeRangeSearch = function () {
-    return config.default_time_range_in_days !== 0 || $scope.pickedDateTime != null;
+    return (config != null && config.default_time_range_in_days !== 0) || $scope.pickedDateTime != null;
   };
 
-  $scope.onSearchClick = function (string) {
-
+  $scope.onSearchClick = function () {
     searchText = '*';
-    if ($scope.userSearchText !== null) {
+    if ($scope.userSearchText != null) {
       searchText = $scope.userSearchText;
     }
 
-    if ($scope.pickedDateTime !== null) {
+    var host = $scope.selectedHost;
+    if (host == null) {
+      host = 'All';
+    }
+
+    var time = $scope.userDateTimeSeeked;
+    if (time == null) {
+      time = 'Now';
+    }
+
+    $location.path('/').search({q: searchText, h: host, t:time});
+
+    if ($scope.pickedDateTime != null) {
       var timestamp = Date.create($scope.pickedDateTime).getTime();
       doSearch('gt','asc', ['overwrite','scrollToTop'],timestamp);
     } else {
@@ -290,16 +326,22 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
   };
 
   $scope.onDateChange = function () {
-    var date = null;//Date.create();
-    if ($scope.userDateTime !== '') {
-      date = Date.create($scope.userDateTime);
+    $scope.pickedDateTime = convertStringToDate($scope.userDateTime);
+  };
+
+  function convertStringToDate(string) {
+    var date = null;
+    var retDate = null;
+    if (string !== '') {
+      date = Date.create(string);
     }
     if (date !== null && date.isValid()) {
-      $scope.pickedDateTime = date.full();
+      retDate = date.full();
     } else {
-      $scope.pickedDateTime = null;
+      retDate = null;
     }
-  };
+    return retDate;
+  }
 
   $scope.seekAndSearch = function () {
     if ($scope.pickedDateTime != null) {
@@ -308,8 +350,6 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
       $scope.userDateTimeSeeked = null;
     }
     $scope.hideDatePicker();
-    /*var pickedTimestamp = Date.create($scope.pickedDateTime).getTime();
-    doSearch('gte', 'asc', ['overwrite','scrollToTop'], pickedTimestamp);*/
     $scope.onSearchClick();
   };
 
@@ -404,9 +444,8 @@ app.controller('logtrail', function ($scope, kbnUrl, es, courier, $window, $inte
 
   function stopTailTimer() {
     if (tailTimer) {
-      $interval.stop(tailTimer);
+      $interval.cancel(tailTimer);
     }
-    tailTimer = null;
   };
 
   function setupHostsList() {
