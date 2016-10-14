@@ -7,11 +7,12 @@ export default function (kibana) {
 
     uiExports: {
       app: {
-        title: 'Konsole',
+        title: 'LogTrail',
         description: 'Plugin to view, search & tail logs in Kibana',
-        main: 'plugins/konsole/app',
+        main: 'plugins/logtrail/app',
+        url: '/app/logtrail',
         injectVars: function (server, options) {
-          let config = server.config();
+          var config = server.config();
           return {
             kbnIndex: config.get('kibana.index'),
             esShardTimeout: config.get('elasticsearch.shardTimeout'),

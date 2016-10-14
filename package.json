@@ -1,10 +1,7 @@
 {
-  "name": "konsole",
-  "version": "0.1.0",
-  "kibanas": [
-    "5.0.0-alpha4",
-    "5.0.0-alpha5"
-  ],
+  "name": "logtrail",
+  "version": "0.1.4",
+  "kibana.version": "5.0.0-rc1",
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "index.js",
   "scripts": {
@@ -16,7 +13,8 @@
     "postinstall": "plugin-helpers postinstall"
   },
   "dependencies": {
-    "sugar-date": "1.5.1"
+    "sugar-date": "1.5.1",
+    "flat" : "2.0.1"
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "0.0.2",

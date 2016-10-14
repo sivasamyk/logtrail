@@ -1,16 +1,18 @@
-<div class="container-fluid console" ng-controller="konsole">
-  <div class="alert alert-danger konsole-error" ng-show="errorMessage != null">
+<div class="container-fluid console" ng-controller="logtrail">
+  <div class="alert alert-danger logtrail-error" ng-show="errorMessage != null">
     <a ng-click="errorMessage = null" class="close" data-dismiss="alert" aria-label="close">&times;</a>
     <strong>Error! </strong> {{ errorMessage }}
   </div>
-  <div class='no-event-message' ng-show='events.length != 0 && firstEventReached'>Oldest event reached.</div>
-  <div class='no-event-message' ng-show='events != null && events.length == 0'>No events found</div>
+  <div class='no-event-message' ng-show='events.length !== 0 && firstEventReached'>Oldest event reached.</div>
+  <div class='no-event-message' ng-show='showNoEventsMessage'>No events found.<br>
+    <div ng-show="isTimeRangeSearch()" class='time-range'>Time range searched: {{ noEventErrorStartTime }} to Now </div>
+  </div>
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
-      <time>{{ event.syslog_timestamp }}</time>
+      <time>{{ event.display_timestamp }}</time>
       <span class='host'><a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a></span>
       <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}:</a></span>
-      <span class="message">{{ event.syslog_message }}</span>
+      <span class="message">{{ event.message }}</span>
     </li>
   </ul>
 
@@ -47,10 +49,7 @@
         <li> <a href ng-click="onHostSelected('*')"> [ All Systems ] </a></li>
       </ul>
     </div>
-    <!--div class="hosts-select"><hosts-dropdown></hosts-dropdown></div-->
     <div class="pull-right live-tail-button">
-      <!--<a href ng-click="toggleLiveTail()"><img kbn-src="/plugins/konsole/images/{{getLiveTailIcon()}}"/>
-      {{getLiveTailStatus()}}</a>-->
       <button class="tail-status-btn" ng-click="toggleLiveTail()" >{{getLiveTailStatus()}}</button>
     </div>
 </div>

@@ -5,30 +5,17 @@ function convertToClientFormat(config, esResponse) {
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
-    var type = source.type;
 
     event.id = hits[i]._id;
-    var fields = [];
-    var k;
-    for (k = 0; k < config.fields.length; k++) {
-      if (config.fields[k].type === type) {
-        fields = config.fields[k].fields;
-        break;
-      }
+    if(config.nested_objects) {
+      var flatten = require('flat');
+      source = flatten(source);
     }
-
-    if (fields.length > 0) {
-      var j;
-      for (j = 0; j < fields.length; j++) {
-        event[fields[j]] = source[fields[j]];
-      }
-    } else {
-      event = source;
-    }
-    /*event.timestamp = source['syslog_timestamp'];
-    event.message = source['syslog_message'];
-    event.host = source['syslog_hostname'];
-    event.program = source['syslog_program'];*/
+    event['timestamp'] = source[config.fields.mapping['timestamp']];
+    event['display_timestamp'] = source[config.fields.mapping['display_timestamp']];
+    event['hostname'] = source[config.fields.mapping['hostname']];
+    event['message'] = source[config.fields.mapping['message']];
+    event['program'] = source[config.fields.mapping['program']];
     clientResponse.push(event);
   }
   return clientResponse;
@@ -39,9 +26,9 @@ module.exports = function (server) {
   //Search
   server.route({
     method: ['POST'],
-    path: '/konsole/search',
+    path: '/logtrail/search',
     handler: function (request, reply) {
-      var config = require('../../konsole.json');
+      var config = require('../../logtrail.json');
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
 
       var searchText = request.payload.searchText;
@@ -60,14 +47,15 @@ module.exports = function (server) {
                 must :{
                     query_string : {
                       analyze_wildcard: true,
-                      default_field : 'syslog_message',
+                      default_field : config.fields.mapping['message'],
                       query : searchText
                     }
                 },
                 filter: {
                   bool : {
                     must : [
-                    ]
+                    ],
+	                  must_not:[],
                   }
                 }
             }
@@ -75,41 +63,44 @@ module.exports = function (server) {
         }
       };
       //By default Set sorting column to timestamp
-      searchRequest.body.sort[0][config.es.timefield] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
+      searchRequest.body.sort[0][config.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
       //If hostname is present then term query.
-      if(request.payload.hostname != null) {
+      if (request.payload.hostname != null) {
         var termQuery = {
           term : {
-            "hostname.raw" : request.payload.hostname
           }
-        }
+        };
+        var rawHostField = config.fields.mapping.hostname + ".raw";
+        termQuery.term[rawHostField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
       }
 
+      //If no time range is present get events based on default config
+      var timestamp = request.payload.timestamp;
+      var rangeType = request.payload.rangeType;
+      if (timestamp == null) {
+        if (config.default_time_range_in_days !== 0) {
+          var moment = require('moment');
+          timestamp = moment().subtract(
+            config.default_time_range_in_days,'days').startOf('day').valueOf();
+          rangeType = 'gte';
+        }
+      }
+
       //If timestamps are present set ranges
-      if (request.payload.timestamp != null) {
+      if (timestamp != null) {
         var rangeQuery = {
           range : {
 
           }
-        }
+        };
         var range = rangeQuery.range;
-        range[config.es.timefield] = {};
-        /*if (request.payload.liveTail) {
-          range[config.es.timefield].gt = request.payload.timestamp;
-        } else {
-          range[config.es.timefield].gte = request.payload.timestamp;
-        }*/
-        range[config.es.timefield][request.payload.rangeType] = request.payload.timestamp;
-        range[config.es.timefield].time_zone = config.es.timezone;
-        //range[config.es.timefield]['lte'] = 'now';
-        range[config.es.timefield].format = 'epoch_millis';
+        range[config.fields.mapping.timestamp] = {};
+        range[config.fields.mapping.timestamp][rangeType] = timestamp;
+        range[config.fields.mapping.timestamp].time_zone = config.es.timezone;
+        range[config.fields.mapping.timestamp].format = 'epoch_millis';
         searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
-        //var range = searchRequest.body.query.bool.filter.range;
-
-        /*//Set sorting column to timestamp
-        searchRequest.body.sort[0][config.es.timefield] = {'order':'asc','unmapped_type': 'boolean'};*/
       }
       console.log(JSON.stringify(searchRequest));
       callWithRequest(request,'search',searchRequest).then(function (resp) {
@@ -118,22 +109,27 @@ module.exports = function (server) {
           resp: convertToClientFormat(config, resp)
         });
       }).catch(function (resp) {
-        console.log(resp);
-        reply({
-          ok: false,
-          resp: resp
-        });
+        if (resp.isBoom) {
+          reply(resp);
+        } else {
+          console.error("Error while executing search",resp);
+          reply({
+            ok: false,
+            resp: resp
+          });
+        }
       });
     }
   });
 
-  //Get All unique hosts
+  //Get All Systems
   server.route({
     method: ['GET'],
-    path: '/konsole/hosts',
+    path: '/logtrail/hosts',
     handler: function (request,reply) {
-      var config = require('../../konsole.json');
+      var config = require('../../logtrail.json');
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
+      var rawHostField = config.fields.mapping.hostname + ".raw";
       var hostAggRequest = {
         index: config.es.default_index,
         body : {
@@ -141,23 +137,53 @@ module.exports = function (server) {
           aggs: {
             hosts: {
               terms: {
-                field: 'hostname.raw'
+                field: rawHostField
               }
             }
           }
         }
       };
+
+      //NOT YET TESTED!!
+      if (config.nested_objects) {
+        var parentIndex = config.fields.mapping.hostname.lastIndexOf(".");
+        var hostPath = config.fields.mapping.hostname.substr(0,parentIndex);
+        hostAggRequest = {
+          index: config.es.default_index,
+          body : {
+            size: 0,
+            aggs: {
+              nested: {
+                path: hostPath
+              },
+              aggs: {
+                hosts: {
+                  terms: {
+                    field: rawHostField
+                  }
+                }
+              }
+            }
+          }
+        };
+      }
+
       callWithRequest(request,'search',hostAggRequest).then(function (resp) {
+        //console.log(resp);//.aggregations.hosts.buckets);
         reply({
           ok: true,
           resp: resp.aggregations.hosts.buckets
         });
       }).catch(function (resp) {
-        console.log(resp);
-        reply({
-          ok: false,
-          resp: resp
-        });
+        if(resp.isBoom) {
+          reply(resp);
+        } else {
+          console.error("Error while fetching hosts",resp);
+          reply({
+            ok: false,
+            resp: resp
+          });
+        }
       });
     }
   });
