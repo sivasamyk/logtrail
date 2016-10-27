@@ -71,8 +71,8 @@ module.exports = function (server) {
           term : {
           }
         };
-        var rawHostField = config.fields.mapping.hostname + ".raw";
-        termQuery.term[rawHostField] = request.payload.hostname;
+        var hostKeywordField = config.fields.mapping.hostname + '.keyword';
+        termQuery.term[hostKeywordField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
       }
 
@@ -102,7 +102,7 @@ module.exports = function (server) {
         range[config.fields.mapping.timestamp].format = 'epoch_millis';
         searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
       }
-      console.log(JSON.stringify(searchRequest));
+      //console.log(JSON.stringify(searchRequest));
       callWithRequest(request,'search',searchRequest).then(function (resp) {
         reply({
           ok: true,
@@ -129,7 +129,7 @@ module.exports = function (server) {
     handler: function (request,reply) {
       var config = require('../../logtrail.json');
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
-      var rawHostField = config.fields.mapping.hostname + ".raw";
+      var hostKeywordField = config.fields.mapping.hostname + '.keyword';
       var hostAggRequest = {
         index: config.es.default_index,
         body : {
@@ -137,7 +137,7 @@ module.exports = function (server) {
           aggs: {
             hosts: {
               terms: {
-                field: rawHostField
+                field: hostKeywordField
               }
             }
           }
@@ -159,7 +159,7 @@ module.exports = function (server) {
               aggs: {
                 hosts: {
                   terms: {
-                    field: rawHostField
+                    field: hostKeywordField
                   }
                 }
               }
