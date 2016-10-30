@@ -247,9 +247,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
     } else {
       //Bring scroll to bottom
       $timeout(function () {
-        angular.element('#kibana-body').scrollTop(angular.element('#kibana-body')[0].scrollHeight);
+        window.scrollTo(0,$(document).height());
       });
-      //window.scrollTo(0,$(document).height());
     }
 
     if ($scope.events.length > 0)   {
