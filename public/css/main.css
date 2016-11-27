@@ -100,6 +100,9 @@ html,body {
 
 .message {
 	color: #B0B0B0;
+	word-break: break-all;
+    word-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 .flex-container-search {
@@ -160,63 +163,63 @@ html,body {
     align-self: auto;
   }
 
-	.host-picker {
-		position: absolute;
-		background: white;
-		border: 4px solid rgb(128,128,128);
-	  width: 16em;
-	  height: auto;
-	  border-radius: 6px;
-		bottom: 5.5em;
-		left: 63em;
-		padding: 0;
-	}
+.host-picker {
+	position: absolute;
+	background: white;
+	border: 4px solid rgb(128,128,128);
+  width: 16em;
+  height: auto;
+  border-radius: 6px;
+	bottom: 5.5em;
+	left: 63em;
+	padding: 0;
+}
 
-	.host-picker:after, .host-picker:before {
-		top: 100%;
-		left: 50%;
-		border: solid transparent;
-		content: " ";
-		height: 0;
-		width: 0;
-		position: absolute;
-		pointer-events: none;
-	}
+.host-picker:after, .host-picker:before {
+	top: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
 
-	.host-picker:after {
-		border-color: rgb(128,128,128,0);
-		border-top-color: white;
-		border-width: 30px;
-		margin-left: -30px;
-	}
-	.host-picker:before {
-		border-color: rgb(128,128,128,0);
-		border-top-color: white;
-		border-width: 36px;
-		margin-left: -36px;
-	}
+.host-picker:after {
+	border-color: rgb(128,128,128,0);
+	border-top-color: white;
+	border-width: 30px;
+	margin-left: -30px;
+}
+.host-picker:before {
+	border-color: rgb(128,128,128,0);
+	border-top-color: white;
+	border-width: 36px;
+	margin-left: -36px;
+}
 
-	.host-picker-list {
-		color: #2F4F4F;
-		list-style-type: none;
-		margin: 0;
-		font-size: medium;
-		padding: 0;
-	}
+.host-picker-list {
+	color: #2F4F4F;
+	list-style-type: none;
+	margin: 0;
+	font-size: medium;
+	padding: 0;
+}
 
-	.host-picker-list > li {
-		padding: .3em;
-		text-align: center;
-	}
+.host-picker-list > li {
+	padding: .3em;
+	text-align: center;
+}
 
-	.host-picker-list > li:nth-child(even) {
-		background: #F0F0F0;
-	}
+.host-picker-list > li:nth-child(even) {
+	background: #F0F0F0;
+}
 
-	.host-picker-list > li > a {
-		text-decoration: underline;
-		cursor: pointer;
-	}
+.host-picker-list > li > a {
+	text-decoration: underline;
+	cursor: pointer;
+}
 
 
 .date-picker {
@@ -224,9 +227,9 @@ html,body {
 	background: white;
 	border: 4px solid rgb(128,128,128);
 	padding: 1em;
-  width: 26.5em;
-  height: 7em;
-  border-radius: 6px;
+	width: 26.5em;
+	height: 7em;
+ 	border-radius: 6px;
 	bottom: 5.5em;
 	left: 63em;
 }

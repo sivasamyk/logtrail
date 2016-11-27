@@ -1,6 +1,6 @@
 {
   "name": "logtrail",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "gulpfile.js",
   "scripts": {

@@ -247,7 +247,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
     } else {
       //Bring scroll to bottom
       $timeout(function () {
-        window.scrollTo(0,$(document).height());
+        window.scrollTo(0,$document.height());
       });
     }
 
@@ -382,7 +382,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
   };
 
   $scope.onProgramClick = function (program) {
-    $scope.userSearchText = config.fields.mapping['program'] + ': \'' + program + '\'';
+    $scope.userSearchText = config.fields.mapping['program'] + '.raw: "' + program + '"';
     $scope.onSearchClick();
   };
 
