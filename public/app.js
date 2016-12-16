@@ -376,7 +376,12 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.onProgramClick = function (program) {
-    $scope.userSearchText = config.fields.mapping['program'] + '.keyword: "' + program + '"';
+    var use_raw_fields = config.use_raw_fields == null ? true : config.use_raw_fields;
+    var programField = config.fields.mapping['program'];
+    if (use_raw_fields) {
+      programField = config.fields.mapping['program'] + '.keyword';
+    }
+    $scope.userSearchText = programField +': "' + program + '"';
     $scope.onSearchClick();
   };
 

@@ -71,8 +71,12 @@ module.exports = function (server) {
           term : {
           }
         };
-        var hostKeywordField = config.fields.mapping.hostname + '.keyword';
-        termQuery.term[hostKeywordField] = request.payload.hostname;
+        var hostField = config.fields.mapping.hostname;
+        var use_raw_fields = config.use_raw_fields == null ? true : config.use_raw_fields;
+        if (use_raw_fields) {
+           hostField = config.fields.mapping.hostname + '.keyword';
+        }
+        termQuery.term[hostField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
       }
 
@@ -129,7 +133,11 @@ module.exports = function (server) {
     handler: function (request,reply) {
       var config = require('../../logtrail.json');
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
-      var hostKeywordField = config.fields.mapping.hostname + '.keyword';
+      var use_raw_fields = config.use_raw_fields == null ? true : config.use_raw_fields;        
+      var hostField = config.fields.mapping.hostname;
+      if (use_raw_fields) {
+        hostField = config.fields.mapping.hostname + '.keyword';
+      }
       var hostAggRequest = {
         index: config.es.default_index,
         body : {
@@ -137,7 +145,7 @@ module.exports = function (server) {
           aggs: {
             hosts: {
               terms: {
-                field: hostKeywordField
+                field: hostField
               }
             }
           }
@@ -159,7 +167,7 @@ module.exports = function (server) {
               aggs: {
                 hosts: {
                   terms: {
-                    field: hostKeywordField
+                    field: hostField
                   }
                 }
               }
