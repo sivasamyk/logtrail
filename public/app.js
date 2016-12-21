@@ -32,6 +32,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   $scope.events = [];
   $scope.datePickerVisible = false;
   $scope.hostPickerVisible = false;
+  $scope.settingsVisible = false;
   $scope.userDateTime = null; // exact string typed by user like 'Aug 24 or last friday'
   $scope.pickedDateTime = null; // UTC date used in search query.
   $scope.userDateTimeSeeked = null; // exact string entered by user set after user clicks seek. Used to show in search button
@@ -42,11 +43,13 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   $scope.errorMessage = null;
   $scope.noEventErrorStartTime = null;
   $scope.showNoEventsMessage = false;
+  $scope.index_patterns = [];
+  $scope.selected_index_pattern = null;
   var updateViewInProgress = false;
   var tailTimer = null;
   var searchText = null;
   var lastEventTime = null;
-  var config,selected_index_config = null;  
+  var config,selected_index_config = null;
 
   function init() {
     //init scope vars from get params if available
@@ -72,19 +75,27 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       if (resp.data.ok) {
         config = resp.data.config;
       }
-      if($routeParams.i) {
 
-      } else {
+      //populate index_patterns
+      for (var i = config.index_patterns.length - 1; i >= 0; i--) {          
+        $scope.index_patterns.push(config.index_patterns[i].es.default_index);          
+      }
+      if($routeParams.i) {
+        for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+          if (config.index_patterns[i].es.default_index === $routeParams.i) {
+            selected_index_config = config.index_patterns[i];
+            break;
+          }
+        }
+      }
+      if (selected_index_config === null) {
         selected_index_config = config.index_patterns[0];
       }
+      $scope.selected_index_pattern = selected_index_config.es.default_index;
       checkElasticsearch();
     });        
   };
-
-  function getConfig() {
-    
-  }
-
+  
   function checkElasticsearch() {    
     var params = {
       index: selected_index_config.es.default_index
@@ -286,7 +297,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.isTimeRangeSearch = function () {
-    return (config != null && selected_index_config.default_time_range_in_days !== 0) || $scope.pickedDateTime != null;
+    return (selected_index_config != null && selected_index_config.default_time_range_in_days !== 0) || $scope.pickedDateTime != null;
   };
 
   $scope.onSearchClick = function () {
@@ -305,7 +316,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       time = 'Now';
     }
 
-    $location.path('/').search({q: searchText, h: host, t:time});
+    $location.path('/').search({q: searchText, h: host, t:time, i:selected_index_config.es.default_index});
 
     if ($scope.pickedDateTime != null) {
       var timestamp = Date.create($scope.pickedDateTime).getTime();
@@ -332,6 +343,14 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   $scope.hideHostPicker = function () {
     $scope.hostPickerVisible = false;
+  };
+
+  $scope.showSettings = function () {
+    $scope.settingsVisible = true;
+  };
+
+  $scope.hideSettings = function () {
+    $scope.settingsVisible = false;
   };
 
   $scope.onDateChange = function () {
@@ -361,6 +380,19 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $scope.hideDatePicker();
     $scope.onSearchClick();
   };
+
+  $scope.onSettingsChange = function () {
+    if ($scope.selected_index_pattern !== selected_index_config.es.default_index) {
+      for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+        if (config.index_patterns[i].es.default_index === $scope.selected_index_pattern) {
+          selected_index_config = config.index_patterns[i];
+          break;
+        }
+      }
+    }
+    $scope.hideSettings();
+    $scope.onSearchClick();
+  }
 
   $scope.isNullorEmpty = function (string) {
     return string == null || string === '';
@@ -495,7 +527,7 @@ uiModules.get('logtrail').directive('clickOutside', function ($document) {
     link: function (scope, el, attr) {
       $document.on('click', function (e) {
         if (el !== e.target && !el[0].contains(e.target) && (e.target !== angular.element('#showDatePickerBtn')[0] &&
-        e.target !== angular.element('#showHostPickerBtn')[0])) {
+        e.target !== angular.element('#showHostPickerBtn')[0] && e.target !== angular.element('#showSettingsBtn')[0])) {
           scope.$apply(function () {
             scope.$eval(scope.clickOutside);
           });
