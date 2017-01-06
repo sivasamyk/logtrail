@@ -21,7 +21,7 @@ Installation
  - Logtrail is supported and tested with Kibana 4.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
  - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/0.1.5/logtrail-4.x-0.1.5.tar.gz`
- - Kibana 5.x : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/0.1.5/logtrail-5.x-0.1.5.zip`
+ - Kibana 5.x : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/0.1.6/logtrail-5.x-0.1.6.zip`
 
 Configuration
 -------------
@@ -73,7 +73,7 @@ you need to map the current event fields in ES to logtrail specific fields. This
   filter {
     if [type] == "syslog" {
       grok {
-        match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:hostname} %{DATA:program}(?:\[%{POSINT:pid}\])?: %{GREEDYDATA:syslog_message}" }      
+        match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:hostname} %{DATA:program}(?:\[%{POSINT:pid}\])?: %{GREEDYDATA:syslog_message}" }
       }
       date {
         match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
