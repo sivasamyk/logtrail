@@ -26,6 +26,8 @@
           ng-click="showHostPicker()">{{selectedHost == null ? 'All Systems' : selectedHost}}</button>
         <button type="button" id="showDatePickerBtn" class="time-option-select-btn btn flex-item-search"
           ng-click="showDatePicker()">{{ isNullorEmpty(userDateTimeSeeked) ? 'Now' : userDateTimeSeeked }}</button>
+        <button type="button" id="showSettingsBtn" class="settings-select-btn btn flex-item-search"
+          ng-click="showSettings()">Settings</button>
       </div>
     </form>
     <div class="date-picker" id="date-picker" ng-show="datePickerVisible" click-outside="hideDatePicker()">
@@ -48,6 +50,19 @@
         <li> <a href ng-click="onHostSelected('*')"> [ All Systems ] </a></li>
       </ul>
     </div>
+
+    <div class="settings" id="settings" ng-show="settingsVisible" click-outside="hideSettings()"> 
+      <form class="form-inline" ng-submit="onSettingsChange()">
+        <div class="flex-container-settings">
+          <label class="flex-item-settings">Index Pattern</label>
+          <select class="flex-item-settings" ng-model="selected_index_pattern">
+            <option ng-repeat="index in index_patterns" ng-value="index">{{index}}</option>
+          </select>
+          <button class="flex-item-settings submit">Ok</button>          
+        </div>
+      </form>
+    </div>
+
     <div class="pull-right live-tail-button">
       <button class="tail-status-btn" ng-click="toggleLiveTail()" >{{getLiveTailStatus()}}</button>
     </div>

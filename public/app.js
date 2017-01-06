@@ -32,6 +32,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   $scope.events = [];
   $scope.datePickerVisible = false;
   $scope.hostPickerVisible = false;
+  $scope.settingsVisible = false;
   $scope.userDateTime = null; // exact string typed by user like 'Aug 24 or last friday'
   $scope.pickedDateTime = null; // UTC date used in search query.
   $scope.userDateTimeSeeked = null; // exact string entered by user set after user clicks seek. Used to show in search button
@@ -42,11 +43,13 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   $scope.errorMessage = null;
   $scope.noEventErrorStartTime = null;
   $scope.showNoEventsMessage = false;
+  $scope.index_patterns = [];
+  $scope.selected_index_pattern = null;
   var updateViewInProgress = false;
   var tailTimer = null;
   var searchText = null;
   var lastEventTime = null;
-  var config = null;
+  var config,selected_index_config = null;
 
   function init() {
     //init scope vars from get params if available
@@ -68,14 +71,37 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         $scope.userDateTimeSeeked = $routeParams.t;
       }
     }
-
-    checkElasticsearch();
-  };
-
-  function checkElasticsearch() {
-    return $http.get(chrome.addBasePath('/logtrail/validate/es')).then(function (resp) {
+    $http.get(chrome.addBasePath('/logtrail/config')).then(function (resp) {
       if (resp.data.ok) {
         config = resp.data.config;
+      }
+
+      //populate index_patterns
+      for (var i = config.index_patterns.length - 1; i >= 0; i--) {          
+        $scope.index_patterns.push(config.index_patterns[i].es.default_index);          
+      }
+      if($routeParams.i) {
+        for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+          if (config.index_patterns[i].es.default_index === $routeParams.i) {
+            selected_index_config = config.index_patterns[i];
+            break;
+          }
+        }
+      }
+      if (selected_index_config === null) {
+        selected_index_config = config.index_patterns[0];
+      }
+      $scope.selected_index_pattern = selected_index_config.es.default_index;
+      checkElasticsearch();
+    });        
+  };
+  
+  function checkElasticsearch() {    
+    var params = {
+      index: selected_index_config.es.default_index
+    };
+    return $http.post(chrome.addBasePath('/logtrail/validate/es'), params).then(function (resp) {
+      if (resp.data.ok) {        
         console.info('connection to elasticsearch successful');
         //Initialize app views on validate successful
         setupHostsList();
@@ -109,7 +135,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       timestamp: timestamp,
       rangeType: rangeType,
       order: order,
-      hostname: $scope.selectedHost
+      hostname: $scope.selectedHost,      
+      index: selected_index_config.es.default_index
     };
 
     return $http.post(chrome.addBasePath('/logtrail/search'), request).then(function (resp) {
@@ -261,16 +288,16 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         var timestamp = Date.create($scope.pickedDateTime).getTime();
         $scope.noEventErrorStartTime = moment(timestamp).format('MMMM Do YYYY, h:mm:ss a');
       } else {
-        if (config.default_time_range_in_days !== 0) {
+        if (selected_index_config.default_time_range_in_days !== 0) {
           $scope.noEventErrorStartTime = moment().subtract(
-            config.default_time_range_in_days,'days').startOf('day').format('MMMM Do YYYY, h:mm:ss a');
+            selected_index_config.default_time_range_in_days,'days').startOf('day').format('MMMM Do YYYY, h:mm:ss a');
         }
       }
     }
   };
 
   $scope.isTimeRangeSearch = function () {
-    return (config != null && config.default_time_range_in_days !== 0) || $scope.pickedDateTime != null;
+    return (selected_index_config != null && selected_index_config.default_time_range_in_days !== 0) || $scope.pickedDateTime != null;
   };
 
   $scope.onSearchClick = function () {
@@ -289,7 +316,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       time = 'Now';
     }
 
-    $location.path('/').search({q: searchText, h: host, t:time});
+    $location.path('/').search({q: searchText, h: host, t:time, i:selected_index_config.es.default_index});
 
     if ($scope.pickedDateTime != null) {
       var timestamp = Date.create($scope.pickedDateTime).getTime();
@@ -316,6 +343,14 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   $scope.hideHostPicker = function () {
     $scope.hostPickerVisible = false;
+  };
+
+  $scope.showSettings = function () {
+    $scope.settingsVisible = true;
+  };
+
+  $scope.hideSettings = function () {
+    $scope.settingsVisible = false;
   };
 
   $scope.onDateChange = function () {
@@ -345,6 +380,19 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $scope.hideDatePicker();
     $scope.onSearchClick();
   };
+
+  $scope.onSettingsChange = function () {
+    if ($scope.selected_index_pattern !== selected_index_config.es.default_index) {
+      for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+        if (config.index_patterns[i].es.default_index === $scope.selected_index_pattern) {
+          selected_index_config = config.index_patterns[i];
+          break;
+        }
+      }
+    }
+    $scope.hideSettings();
+    $scope.onSearchClick();
+  }
 
   $scope.isNullorEmpty = function (string) {
     return string == null || string === '';
@@ -376,7 +424,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.onProgramClick = function (program) {
-    $scope.userSearchText = config.fields.mapping['program'] + '.keyword: "' + program + '"';
+    $scope.userSearchText = selected_index_config.fields.mapping['program'] + '.keyword: "' + program + '"';
     $scope.onSearchClick();
   };
 
@@ -428,7 +476,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   function startTailTimer() {
     if (config != null) {
-      tailTimer = $interval(doTail,(config.tail_interval_in_seconds * 1000));
+      tailTimer = $interval(doTail,(selected_index_config.tail_interval_in_seconds * 1000));
       $scope.$on('$destroy', function () {
         stopTailTimer();
       });
@@ -442,7 +490,10 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   function setupHostsList() {
-    $http.get(chrome.addBasePath('/logtrail/hosts')).then(function (resp) {
+    var params = {
+      index: selected_index_config.es.default_index
+    };
+    $http.get(chrome.addBasePath('/logtrail/hosts'),params).then(function (resp) {
       if (resp.data.ok) {
         $scope.hosts = resp.data.resp;
       } else {
@@ -476,7 +527,7 @@ uiModules.get('logtrail').directive('clickOutside', function ($document) {
     link: function (scope, el, attr) {
       $document.on('click', function (e) {
         if (el !== e.target && !el[0].contains(e.target) && (e.target !== angular.element('#showDatePickerBtn')[0] &&
-        e.target !== angular.element('#showHostPickerBtn')[0])) {
+        e.target !== angular.element('#showHostPickerBtn')[0] && e.target !== angular.element('#showSettingsBtn')[0])) {
           scope.$apply(function () {
             scope.$eval(scope.clickOutside);
           });

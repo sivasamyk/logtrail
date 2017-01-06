@@ -1,15 +1,24 @@
 module.exports = function (server) {
   server.route({
-    method: 'GET',
+    method: 'POST',
     path: '/logtrail/validate/es',
     handler: function (request, reply) {
-      var config = require('../../logtrail.json');
-      //console.log(config);
+      var config = require('../../logtrail.json');      
+      var index = request.params.index;
+      var selected_config = config.index_patterns[0];
+      if (index) {        
+        for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+          if (config.index_patterns[i].es.default_index === index) {
+            selected_config = config.index_patterns[i];
+            break;
+          }
+        }
+      }
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
-      var timestampField = config.fields.mapping.timestamp;
+      var timestampField = selected_config.fields.mapping.timestamp;
 
       var body = {
-        index: config.es.default_index,
+        index: selected_config.es.default_index,
         fields: timestampField
       };
 
@@ -26,7 +35,7 @@ module.exports = function (server) {
           reply({
             ok: false,
             resp: {
-              message: 'Cannot find index ' + config.es.default_index + ' in ES'
+              message: 'Cannot find index ' + selected_config.es.default_index + ' in ES'
             }
           });
         }
@@ -41,7 +50,6 @@ module.exports = function (server) {
           });
         }
       });
-
     }
-  });
+  });  
 };
