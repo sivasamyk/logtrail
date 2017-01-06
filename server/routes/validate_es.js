@@ -11,9 +11,9 @@ module.exports = function (server) {
           if (config.index_patterns[i].es.default_index === index) {
             selected_config = config.index_patterns[i];
             break;
-          }          
-        }        
-      } 
+          }
+        }
+      }
       var callWithRequest = server.plugins.elasticsearch.callWithRequest;
       var timestampField = selected_config.fields.mapping.timestamp;
 
