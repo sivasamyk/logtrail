@@ -13,6 +13,7 @@ Features
  - Live tail
  - Filter aggregated logs by hosts and program
  - Quickly seek to logs based on time
+ - Supports multiple Elasticsearch indexes with different schemas
 
 Installation
 ------------
@@ -90,8 +91,12 @@ you need to map the current event fields in ES to logtrail specific fields. This
 - Configure rsyslog to send data to logstash
   - In Ubuntu
 	    - As root, edit /etc/rsyslog.conf or /etc/syslog.conf to include following line at the end
-	      ```*.*                       @<logstash-agent-ip>:<port>
-	      ```
+              - To send syslog events using TCP
+                ```*.*                       @@<logstash-agent-ip>:<port>
+                ```
+              - To send syslog events using UDP
+                ```*.*                       @<logstash-agent-ip>:<port>
+                ```
 	    - Restart rsyslog to activate the changes
 	      ```sudo service rsyslog restart
 	      ```
