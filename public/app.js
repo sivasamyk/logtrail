@@ -200,12 +200,12 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
 
   //formats display_timestamp based on configured timezone and format
   function addParsedTimestamp(event) {
-    if (selected_index_config.format_timestamp != null){      
+    if (selected_index_config.display_timestamp_format != null) {
       var display_timestamp = moment(event['display_timestamp']);
-      if (selected_index_config.display_timezone != null){
+      if (selected_index_config.display_timezone != null) {
         display_timestamp = display_timestamp.tz(selected_index_config.display_timezone);
       }
-      event['display_timestamp'] = display_timestamp.format(selected_index_config.format_timestamp);
+      event['display_timestamp'] = display_timestamp.format(selected_index_config.display_timestamp_format);
     }
   }
 
