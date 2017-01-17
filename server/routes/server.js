@@ -107,9 +107,11 @@ module.exports = function (server) {
         if (selected_config.default_time_range_in_days !== 0) {
           var moment = require('moment');
           timestamp = moment().subtract(
-            selected_config.default_time_range_in_days,'days').startOf('day').valueOf();
+            selected_config.default_time_range_in_days,'days').startOf('day').toISOString();
           rangeType = 'gte';
         }
+      } else {
+        timestamp = moment(timestamp).toISOString();
       }
       //If timestamps are present set ranges
       if (timestamp != null) {
@@ -122,7 +124,7 @@ module.exports = function (server) {
         range[selected_config.fields.mapping.timestamp] = {};
         range[selected_config.fields.mapping.timestamp][rangeType] = timestamp;
         range[selected_config.fields.mapping.timestamp].time_zone = selected_config.es.timezone;
-        range[selected_config.fields.mapping.timestamp].format = 'epoch_millis';
+        range[selected_config.fields.mapping.timestamp].format = 'strict_date_optional_time';
         searchRequest.body.query.filtered.filter.bool.must.push(rangeQuery);
       }
       //console.log(JSON.stringify(searchRequest));
