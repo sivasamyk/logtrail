@@ -11,8 +11,20 @@ function convertToClientFormat(selected_config, esResponse) {
       var flatten = require('flat');
       source = flatten(source);
     }
+    
+    var display = source[selected_config.fields.mapping['display_timestamp']];
+    
+    if (selected_config.format_timestamp != null){
+      var moment = require('moment-timezone');
+      display = moment(display);
+      if (selected_config.es.timezone != null){
+        display = display.tz(selected_config.es.timezone);
+      }
+      display = display.format(selected_config.format_timestamp);
+    }
+    
+    event['display_timestamp'] = display;
     event['timestamp'] = source[selected_config.fields.mapping['timestamp']];
-    event['display_timestamp'] = source[selected_config.fields.mapping['display_timestamp']];
     event['hostname'] = source[selected_config.fields.mapping['hostname']];
     event['message'] = source[selected_config.fields.mapping['message']];
     event['program'] = source[selected_config.fields.mapping['program']];
