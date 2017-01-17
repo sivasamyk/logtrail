@@ -4,6 +4,7 @@ var modules = require('ui/modules');
 var angular = require('angular');
 var sugarDate = require('sugar-date');
 var moment = require('moment');
+var momentTimezone = require('moment-timezone');
 
 require('plugins/logtrail/css/main.css');
 
@@ -146,7 +147,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
     };
 
     return $http.post(chrome.addBasePath('/logtrail/search'), request).then(function (resp) {
-      if (resp.data.ok) {
+      if (resp.data.ok) {       
         updateEventView(resp.data.resp,actions,order);
       } else {
         console.error('Error while fetching events ' , resp);
@@ -197,6 +198,17 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
     }
   }
 
+  //formats display_timestamp based on configured timezone and format
+  function addParsedTimestamp(event) {
+    if (selected_index_config.format_timestamp != null){      
+      var display_timestamp = moment(event['display_timestamp']);
+      if (selected_index_config.display_timezone != null){
+        display_timestamp = display_timestamp.tz(selected_index_config.display_timezone);
+      }
+      event['display_timestamp'] = display_timestamp.format(selected_index_config.format_timestamp);
+    }
+  }
+
   /*
   actions available
   overwrite -
@@ -214,13 +226,18 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
     updateViewInProgress = true;
     $scope.showNoEventsMessage = false;
 
+    // Add parsed timestamp to all events
+    for (var i = events.length - 1; i >= 0; i--) {
+      addParsedTimestamp(events[i]);
+    }
+
     if (actions.indexOf('reverse') !== -1) {
       events.reverse();
     }
     if (actions.indexOf('overwrite') !== -1) {
       $scope.firstEventReached = false;
       $scope.events = [];
-      angular.forEach(events, function (event) {
+      angular.forEach(events, function (event) {        
         $scope.events.push(event);
       });
       $timeout(function () {
@@ -476,7 +493,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
 
   function doTail() {
     if ($scope.liveTailStatus === 'Live' && !updateViewInProgress) {
-      doSearch('gte', 'asc', ['append'], lastEventTime);
+      doSearch('gte', 'asc', ['append'], lastEventTime - ( selected_index_config.es_index_margin_in_seconds * 1000 ));
     }
   };
 
