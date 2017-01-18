@@ -57,6 +57,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
   var searchText = null;
   var lastEventTime = null;
   var config,selected_index_config = null;
+  //Backup for event, with only event Ids as keys
+  var eventIds = new Set();
 
   function init() {
     //init scope vars from get params if available
@@ -99,8 +101,10 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
         selected_index_config = config.index_patterns[0];
       }
       $scope.selected_index_pattern = selected_index_config.es.default_index;
-      checkElasticsearch();
+      checkElasticsearch();    
     });
+
+    $scope.$watch('events', );
   };
 
   function checkElasticsearch() {
@@ -156,47 +160,15 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
     });
   };
 
-  function removeDuplicatesForAppend(newEventsFromServer) {
+  function removeDuplicates(newEventsFromServer) {    
     var BreakException = {};
     for (var i = newEventsFromServer.length - 1; i >= 0; i--) {
-      var newEvent = newEventsFromServer[i];
-      try {
-        for (var j = $scope.events.length - 1; j >= 0; j--) {
-          var event = $scope.events[j];
-          if (Date.parse(event.timestamp) < Date.parse(newEvent.timestamp)) {
-            throw BreakException;
-          }
-          if (newEvent.id === event.id) {
-            newEventsFromServer.splice(i,1);
-          }
-        }
-      }
-      catch (e) {
-        //ignore
+      var newEvent = newEventsFromServer[i];      
+      if (eventIds.has(newEvent.id)) {
+        newEventsFromServer.splice(i,1);
       }
     }
-  }
-
-  function removeDuplicatesForPrepend(newEventsFromServer) {
-    var BreakException = {};
-    for (var i = newEventsFromServer.length - 1; i >= 0; i--) {
-      var newEvent = newEventsFromServer[i];
-      try {
-        for (var j = 0; j < $scope.events.length; j++) {
-          var event = $scope.events[j];
-          if (Date.parse(event.timestamp) > Date.parse(newEvent.timestamp)) {
-            throw BreakException;
-          }
-          if (newEvent.id === event.id) {
-            newEventsFromServer.splice(i,1);
-          }
-        }
-      }
-      catch (e) {
-        //ignore
-      }
-    }
-  }
+  }  
 
   //formats display_timestamp based on configured timezone and format
   function addParsedTimestamp(event) {
@@ -237,8 +209,10 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
     if (actions.indexOf('overwrite') !== -1) {
       $scope.firstEventReached = false;
       $scope.events = [];
+      eventIds.clear();
       angular.forEach(events, function (event) {        
         $scope.events.push(event);
+        eventIds.add(event.id);
       });
       $timeout(function () {
         //If scrollbar not visible
@@ -252,14 +226,15 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
       if (order === 'desc') {
         events.reverse();
       }
-      removeDuplicatesForAppend(events);
+      removeDuplicates(events);
       angular.forEach(events, function (event) {
         $scope.events.push(event);
+        eventIds.add(event.id);
       });
     }
     var firstEventId = null;
     if (actions.indexOf('prepend') !== -1) {
-      removeDuplicatesForPrepend(events);
+      removeDuplicates(events);
       if (events.length > 0) {
         //Need to move scrollbar to old event location,
         //so note down its id of before model update
@@ -493,7 +468,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
 
   function doTail() {
     if ($scope.liveTailStatus === 'Live' && !updateViewInProgress) {
-      doSearch('gte', 'asc', ['append'], lastEventTime - ( selected_index_config.es_index_margin_in_seconds * 1000 ));
+      doSearch('gte', 'asc', ['append'], lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 ));
     }
   };
 
