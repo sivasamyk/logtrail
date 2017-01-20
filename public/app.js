@@ -3,8 +3,7 @@ var routes = require('ui/routes');
 var modules = require('ui/modules');
 var angular = require('angular');
 var sugarDate = require('sugar-date');
-var moment = require('moment');
-var momentTimezone = require('moment-timezone');
+var moment = require('moment-timezone');
 
 require('plugins/logtrail/css/main.css');
 
