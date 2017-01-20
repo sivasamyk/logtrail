@@ -108,7 +108,6 @@ module.exports = function (server) {
         var range = rangeQuery.range;
         range[selected_config.fields.mapping.timestamp] = {};
         range[selected_config.fields.mapping.timestamp][rangeType] = timestamp;
-        range[selected_config.fields.mapping.timestamp].time_zone = selected_config.es.timezone;
         range[selected_config.fields.mapping.timestamp].format = 'epoch_millis';
         searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
       }
