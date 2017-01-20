@@ -35,13 +35,15 @@ you need to map the current event fields in ES to logtrail specific fields. This
   - default_time_range_in_days - Default time range in days to search when time is not specified using Seek button.
     Example: Value of 30 means logtrail will search only in logs from last 30 days, unless time is specified using Seek button.
     Value of 0 means logtrail will search in all available logs by default.
+  - display_timezone - Timezone to display the timestamp in Event Viewer. e.g. `America/Los_Angeles`. Default value of `local` will use the timezone of browser. The time specified in `Seek To` popup will always use browser timezone.
+  - display_timestamp_format - Format to display the timestamp in Event Viewer. For list of valid value refer [here](http://momentjs.com/docs/#/displaying/)
   - fields - Edit this parameter to map the event fields in ES to logtrail fields
-	  - timestamp - maps to @timestamp field inserted by logstash. This will be used for querying internally
-	  - display_timestamp - the formatted timestamp displayed in the events view. Can be mapped to @timestamp
+	  - timestamp - maps to @timestamp field inserted by logstash. This will be used for querying internally. Logtrail recommends @timestamp to be stored in UTC in ES.
+	  - display_timestamp - the formatted timestamp displayed in the events view. By default mapped to @timestamp
 	  - hostname - hostname from where the events were received. Also used by hostname filter
 	  - program - program that generated this event.
 	  - message - actual event message. This field will be used by search.
- - Example:  If you event fields name are @timestamp, 	host, process, message the mapping should be
+ - Example:  If the event fields names are @timestamp, host, process, message the mapping should be
  ```
  "mapping" : {
         "timestamp" : "@timestamp",
@@ -90,7 +92,7 @@ you need to map the current event fields in ES to logtrail specific fields. This
   ```
 - Configure rsyslog to send data to logstash
   - In Ubuntu
-	    - As root, edit /etc/rsyslog.conf or /etc/syslog.conf to include following line at the end	    
+	    - As root, edit /etc/rsyslog.conf or /etc/syslog.conf to include following line at the end
 		  - To send syslog events using TCP `*.*	@@<logstash-agent-ip>:<port>`
 		  - To send syslog events using UDP `*.*        @<logstash-agent-ip>:<port>`
 	    - Restart rsyslog to activate the changes

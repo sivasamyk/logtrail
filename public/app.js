@@ -174,7 +174,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
   function addParsedTimestamp(event) {
     if (selected_index_config.display_timestamp_format != null) {
       var display_timestamp = moment(event['display_timestamp']);
-      if (selected_index_config.display_timezone != null) {
+      if (selected_index_config.display_timezone !== 'local') {
         display_timestamp = display_timestamp.tz(selected_index_config.display_timezone);
       }
       event['display_timestamp'] = display_timestamp.format(selected_index_config.display_timestamp_format);
