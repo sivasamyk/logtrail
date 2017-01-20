@@ -191,6 +191,17 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
   }
 
+  //formats display_timestamp based on configured timezone and format
+  function addParsedTimestamp(event) {
+    if (selected_index_config.display_timestamp_format != null) {
+      var display_timestamp = moment(event['display_timestamp']);
+      if (selected_index_config.display_timezone !== 'local') {
+        display_timestamp = display_timestamp.tz(selected_index_config.display_timezone);
+      }
+      event['display_timestamp'] = display_timestamp.format(selected_index_config.display_timestamp_format);
+    }
+  }
+
   /*
   actions available
   overwrite -
@@ -207,6 +218,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
     updateViewInProgress = true;
     $scope.showNoEventsMessage = false;
+
+    // Add parsed timestamp to all events
+    for (var i = events.length - 1; i >= 0; i--) {
+      addParsedTimestamp(events[i]);
+    }
 
     if (actions.indexOf('reverse') !== -1) {
       events.reverse();
@@ -259,7 +275,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         //Make sure the old top event in is still in view
         $timeout(function () {
           var firstEventElement = document.getElementById(firstEventId);
-          if (firstEventElement != null) {
+          if (firstEventElement !== null) {
             var topPos = firstEventElement.offsetTop;
             firstEventElement.scrollIntoView();
           }
@@ -470,7 +486,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   function doTail() {
     if ($scope.liveTailStatus === 'Live' && !updateViewInProgress) {
-      doSearch('gte', 'asc', ['append'], lastEventTime);
+      doSearch('gte', 'asc', ['append'], lastEventTime - ( selected_index_config.es_index_margin_in_seconds * 1000 ));
     }
   };
 
