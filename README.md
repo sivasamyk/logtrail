@@ -29,7 +29,7 @@ Configuration
 ### If you are already shipping logs/events to Elasticsearch
 - If you have already setup logging infrastructure with events getting indexed in ES,
 you need to map the current event fields in ES to logtrail specific fields. This can by done by editing
-`logtrail.json` file located inside`./installedPlugins/logtrail` directory. Edit the following fields:
+`logtrail.json` file located inside`./plugins/logtrail` directory. Edit the following fields:
 	- default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
 	    - While using an index name other than `logstash-*`, make sure respective .raw fields are created in ES index.
   - default_time_range_in_days - Default time range in days to search when time is not specified using Seek button.
