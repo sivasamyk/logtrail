@@ -102,8 +102,6 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
       $scope.selected_index_pattern = selected_index_config.es.default_index;
       checkElasticsearch();    
     });
-
-    $scope.$watch('events', );
   };
 
   function checkElasticsearch() {
@@ -149,6 +147,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
       index: selected_index_config.es.default_index
     };
 
+    console.debug("sending search request with params " + JSON.stringify(request));
     return $http.post(chrome.addBasePath('/logtrail/search'), request).then(function (resp) {
       if (resp.data.ok) {       
         updateEventView(resp.data.resp,actions,order);
@@ -441,8 +440,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
       //When scroll bar search bottom
       if (angular.element($window).scrollTop() + angular.element($window).height() === angular.element($document).height()) {
         if ($scope.events.length > 0) {
-          var lastestEventTimestamp = Date.create($scope.events[$scope.events.length - 1].timestamp).getTime();
-          doSearch('gt', 'asc', ['append','scrollToView'], lastestEventTimestamp);
+          doSearch('gte', 'asc', ['append','scrollToView'], lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 ));
         }
         $scope.$apply(updateLiveTailStatus('Live'));
       } else {
