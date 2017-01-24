@@ -57,11 +57,10 @@ html,body {
 }
 
 .search-box.form-control {
-    padding: .5em;
+    height: 2.4em;
     margin-left: 1em;
     border: 2px solid #ccc;
     font-size: 16px;
-    height: 100%;
 }
 
 .search-form {
@@ -273,7 +272,7 @@ html,body {
 }
 
 .date-picker-box.form-control {
-    padding: 1em;
+    height: 2.3em;
     margin-left: .2em;
     border: 2px solid #ccc;
     font-size: 16px;

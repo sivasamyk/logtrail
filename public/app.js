@@ -1,10 +1,10 @@
-import moment from 'moment';
 import chrome from 'ui/chrome';
 import uiModules from 'ui/modules';
 import uiRoutes from 'ui/routes';
 import angular from 'angular';
 import sugarDate from 'sugar-date';
 import notify from 'ui/notify';
+import moment from 'moment-timezone';
 
 import 'ui/autoload/styles';
 import 'plugins/logtrail/css/main.css';
@@ -50,6 +50,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   var searchText = null;
   var lastEventTime = null;
   var config,selected_index_config = null;
+  //Backup for event, with only event Ids as keys
+  var eventIds = new Set();
 
   function init() {
     //init scope vars from get params if available
@@ -139,6 +141,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       index: selected_index_config.es.default_index
     };
 
+    console.debug("sending search request with params " + JSON.stringify(request));
     return $http.post(chrome.addBasePath('/logtrail/search'), request).then(function (resp) {
       if (resp.data.ok) {
         updateEventView(resp.data.resp,actions,order);
@@ -149,44 +152,12 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     });
   };
 
-  function removeDuplicatesForAppend(newEventsFromServer) {
+  function removeDuplicates(newEventsFromServer) {
     var BreakException = {};
     for (var i = newEventsFromServer.length - 1; i >= 0; i--) {
       var newEvent = newEventsFromServer[i];
-      try {
-        for (var j = $scope.events.length - 1; j >= 0; j--) {
-          var event = $scope.events[j];
-          if (Date.parse(event.timestamp) < Date.parse(newEvent.timestamp)) {
-            throw BreakException;
-          }
-          if (newEvent.id === event.id) {
-            newEventsFromServer.splice(i,1);
-          }
-        }
-      }
-      catch (e) {
-        //ignore
-      }
-    }
-  }
-
-  function removeDuplicatesForPrepend(newEventsFromServer) {
-    var BreakException = {};
-    for (var i = newEventsFromServer.length - 1; i >= 0; i--) {
-      var newEvent = newEventsFromServer[i];
-      try {
-        for (var j = 0; j < $scope.events.length; j++) {
-          var event = $scope.events[j];
-          if (Date.parse(event.timestamp) > Date.parse(newEvent.timestamp)) {
-            throw BreakException;
-          }
-          if (newEvent.id === event.id) {
-            newEventsFromServer.splice(i,1);
-          }
-        }
-      }
-      catch (e) {
-        //ignore
+      if (eventIds.has(newEvent.id)) {
+        newEventsFromServer.splice(i,1);
       }
     }
   }
@@ -230,8 +201,10 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     if (actions.indexOf('overwrite') !== -1) {
       $scope.firstEventReached = false;
       $scope.events = [];
+      eventIds.clear();
       angular.forEach(events, function (event) {
         $scope.events.push(event);
+        eventIds.add(event.id);
       });
       $timeout(function () {
         //If scrollbar not visible
@@ -245,14 +218,15 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       if (order === 'desc') {
         events.reverse();
       }
-      removeDuplicatesForAppend(events);
+      removeDuplicates(events);
       angular.forEach(events, function (event) {
         $scope.events.push(event);
+        eventIds.add(event.id);
       });
     }
     var firstEventId = null;
     if (actions.indexOf('prepend') !== -1) {
-      removeDuplicatesForPrepend(events);
+      removeDuplicates(events);
       if (events.length > 0) {
         //Need to move scrollbar to old event location,
         //so note down its id of before model update
@@ -288,7 +262,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       });
     }
 
-    if ($scope.events.length > 0)   {
+    if ($scope.events.length > 0) {
       lastEventTime = Date.create($scope.events[$scope.events.length - 1].timestamp).getTime();
     } else {
       lastEventTime = null;
@@ -408,7 +382,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
     $scope.hideSettings();
     $scope.onSearchClick();
-  }
+  };
 
   $scope.isNullorEmpty = function (string) {
     return string == null || string === '';
@@ -440,7 +414,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.onProgramClick = function (program) {
-    $scope.userSearchText = selected_index_config.fields.mapping['program'] + '.keyword: "' + program + '"';
+    $scope.userSearchText = selected_index_config.fields.mapping['program'] + '.raw: "' + program + '"';
     $scope.onSearchClick();
   };
 
@@ -460,8 +434,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       //When scroll bar search bottom
       if (angular.element($window).scrollTop() + angular.element($window).height() === angular.element($document).height()) {
         if ($scope.events.length > 0) {
-          var lastestEventTimestamp = Date.create($scope.events[$scope.events.length - 1].timestamp).getTime();
-          doSearch('gt', 'asc', ['append','scrollToView'], lastestEventTimestamp);
+          doSearch('gte', 'asc', ['append','scrollToView'], lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 ));
         }
         $scope.$apply(updateLiveTailStatus('Live'));
       } else {
@@ -486,7 +459,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   function doTail() {
     if ($scope.liveTailStatus === 'Live' && !updateViewInProgress) {
-      doSearch('gte', 'asc', ['append'], lastEventTime - ( selected_index_config.es_index_margin_in_seconds * 1000 ));
+      doSearch('gte', 'asc', ['append'], lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 ));
     }
   };
 

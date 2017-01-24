@@ -81,7 +81,7 @@ module.exports = function (server) {
           term : {
           }
         };
-        var hostKeywordField = selected_config.fields.mapping.hostname + '.keyword';
+        var hostKeywordField = selected_config.fields.mapping.hostname + '.raw';
         termQuery.term[hostKeywordField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
       }
@@ -149,7 +149,7 @@ module.exports = function (server) {
         }        
       }
 
-      var hostKeywordField = selected_config.fields.mapping.hostname + '.keyword';
+      var hostKeywordField = selected_config.fields.mapping.hostname + '.raw';
       var hostAggRequest = {
         index: selected_config.es.default_index,
         body : {
