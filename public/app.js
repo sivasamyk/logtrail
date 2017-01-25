@@ -484,7 +484,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     };
     $http.get(chrome.addBasePath('/logtrail/hosts'),params).then(function (resp) {
       if (resp.data.ok) {
-        $scope.hosts = resp.data.resp;
+        $scope.hosts = [];
+        for (var i = resp.data.resp.length - 1; i >= 0; i--) {
+          $scope.hosts.push(resp.data.resp[i].key);
+        }
+        $scope.hosts.sort();
       } else {
         console.error('Error while fetching hosts : ' , resp.data.resp.msg);
         $scope.errorMessage = 'Exception while fetching hosts : ' + resp.data.resp.msg;
