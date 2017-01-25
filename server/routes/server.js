@@ -158,7 +158,8 @@ module.exports = function (server) {
           aggs: {
             hosts: {
               terms: {
-                field: rawHostField
+                field: rawHostField,
+                size: selected_config.max_hosts
               }
             }
           }
@@ -180,7 +181,8 @@ module.exports = function (server) {
               aggs: {
                 hosts: {
                   terms: {
-                    field: rawHostField
+                    field: rawHostField,
+                    size: selected_config.max_hosts
                   }
                 }
               }
