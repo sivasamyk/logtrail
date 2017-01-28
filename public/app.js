@@ -268,6 +268,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       lastEventTime = null;
     }
 
+    trimEvents();
+
     $timeout(function () {
       updateViewInProgress = false;
     });
@@ -285,6 +287,26 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
     }
   };
+
+  function trimEvents() {
+    var eventCount = $scope.events.length;
+    if (eventCount > selected_index_config.max_events_to_keep_in_viewer) {
+        var noOfItemsToDelete = eventCount - selected_index_config.max_events_to_keep_in_viewer;
+        $scope.events.splice(0, noOfItemsToDelete);
+        var count = noOfItemsToDelete;
+        try {
+          eventIds.forEach(function (eventId) {
+            eventIds.delete(eventId);
+            count--;
+            if(count == 0) {
+              throw "Exception";
+            }
+          });
+        } catch (e) {
+          //Ignore
+        }
+    }
+  }
 
   $scope.isTimeRangeSearch = function () {
     return (selected_index_config != null && selected_index_config.default_time_range_in_days !== 0) || $scope.pickedDateTime != null;
