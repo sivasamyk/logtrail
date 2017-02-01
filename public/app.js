@@ -202,6 +202,13 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
   }
 
+  function addParsedMessage(event) {
+    for (replacementdef of selected_index_config.text_pattern_replacements) {
+      if (replacementdef.pattern != null && replacementdef.replace != null)
+        event['message'] = event['message'].replace(replacementdef.pattern, replacementdef.replace);
+    }
+  }
+
   /*
   actions available
   overwrite -
@@ -222,6 +229,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     // Add parsed timestamp to all events
     for (var i = events.length - 1; i >= 0; i--) {
       addParsedTimestamp(events[i]);
+    }
+
+    // Add parsed messages to all events
+    for (var i = events.length - 1; i >= 0; i--) {
+      addParsedMessage(events[i]);
     }
 
     if (actions.indexOf('reverse') !== -1) {
@@ -441,6 +453,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   $scope.onProgramClick = function (program) {
     $scope.userSearchText = selected_index_config.fields.mapping['program'] + '.keyword: "' + program + '"';
+    $scope.onSearchClick();
+  };
+
+  $scope.onPatternClick = function (searchtext) {
+    $scope.userSearchText = searchtext;
     $scope.onSearchClick();
   };
 
