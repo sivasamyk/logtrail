@@ -1,26 +1,54 @@
 {
-  "index_patterns" : [
-    {      
+  "index_patterns": [{
       "es": {
-        "default_index": "logstash-*",
-        "allow_url_parameter": false
+        "default_index": "log",
+        "allow_url_parameter": false,
+        "timezone": "CET"
       },
       "tail_interval_in_seconds": 10,
-      "es_index_margin_in_seconds": 0,
-      "display_timezone": "local",
-      "display_timestamp_format": "MMM DD HH:mm:ss",
       "max_buckets": 500,
-      "nested_objects" : false,
-      "default_time_range_in_days" : 0,
-      "fields" : {
-        "mapping" : {
-            "timestamp" : "@timestamp",
-            "display_timestamp" : "@timestamp",
-            "hostname" : "hostname",
-            "program": "program",
-            "message": "syslog_message"
+      "nested_objects": false,
+      "default_time_range_in_days": 0,
+      "text_pattern_replacements": [{
+          "field": "display_timestamp",
+          "pattern": "/(.*)/",
+          "replace": "<span><a target=\"es\" href=\"http://ss-log01:9200/log/carweb/_search?pretty=true&q=_id:{{event.id}}\">$1</a></span>"
+        },
+        {
+          "field": "message",
+          "pattern": "/([0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12})/g",
+          "replace": "<a ng-click=\"onPatternClick('&quot;$1&quot;')\">$1</a>"
+        }
+      ],
+      "fields": {
+        "mapping": {
+          "timestamp": "@timestamp",
+          "display_timestamp": "@timestamp",
+          "hostname": "hostname",
+          "program": "source",
+          "message": "message"
         }
       }
-    }  
+    },
+    {
+      "es": {
+        "default_index": "message",
+        "allow_url_parameter": false,
+        "timezone": "CET"
+      },
+      "tail_interval_in_seconds": 10,
+      "max_buckets": 500,
+      "nested_objects": false,
+      "default_time_range_in_days": 0,
+      "fields": {
+        "mapping": {
+          "timestamp": "@timestamp",
+          "display_timestamp": "@timestamp",
+          "hostname": "sender",
+          "program": "contentType",
+          "message": "message"
+        }
+      }
+    }
   ]
 }

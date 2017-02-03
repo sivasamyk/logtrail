@@ -4,15 +4,16 @@
     <strong>Error! </strong> {{ errorMessage }}
   </div>
   <div class='no-event-message' ng-show='events.length !== 0 && firstEventReached'>Oldest event reached.</div>
+  <div class='function-export' ng-show='false' ng-click='onPatternClick("test")'></div>
   <div class='no-event-message' ng-show='showNoEventsMessage'>No events found.<br>
     <div ng-show="isTimeRangeSearch()" class='time-range'>Time range searched: {{ noEventErrorStartTime }} to Now </div>
   </div>
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
-      <time>{{ event.display_timestamp }}</time>
+      <time compile="event.display_timestamp | decorateTimestamp"></time>
       <span class='host'><a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a></span>
       <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}:</a></span>
-      <span class="message">{{ event.message }}</span>
+      <span class="message" compile="event.message | decorateMessage"></span>
     </li>
   </ul>
 

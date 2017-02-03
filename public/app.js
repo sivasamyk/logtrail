@@ -24,8 +24,8 @@ uiRoutes
 
 document.title = 'LogTrail - Kibana';
 
-app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
-   $window, $interval, $http, $document, $timeout, $location) {
+app.controller('logtrail', ['$scope', 'kbnUrl', '$route', '$routeParams', '$window', '$interval', '$http', '$document', '$timeout', '$location', '$sce', 
+    function ($scope, kbnUrl, $route, $routeParams, $window, $interval, $http, $document, $timeout, $location, $sce) {
   $scope.title = 'LogTrail';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
@@ -202,11 +202,10 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
   }
 
-  function addParsedMessage(event) {
-    for (replacementdef of selected_index_config.text_pattern_replacements) {
-      if (replacementdef.pattern != null && replacementdef.replace != null)
-        event['message'] = event['message'].replace(replacementdef.pattern, replacementdef.replace);
-    }
+  function escapeHTML(html) {
+      var escape = document.createElement('textarea');
+      escape.textContent = html;
+      return escape.innerHTML;
   }
 
   /*
@@ -229,11 +228,6 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     // Add parsed timestamp to all events
     for (var i = events.length - 1; i >= 0; i--) {
       addParsedTimestamp(events[i]);
-    }
-
-    // Add parsed messages to all events
-    for (var i = events.length - 1; i >= 0; i--) {
-      addParsedMessage(events[i]);
     }
 
     if (actions.indexOf('reverse') !== -1) {
@@ -452,13 +446,18 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.onProgramClick = function (program) {
+    console.log("entered onProgramClick(" + program + ")");
     $scope.userSearchText = selected_index_config.fields.mapping['program'] + '.keyword: "' + program + '"';
+    console.log("$scope.userSearchText = " + $scope.userSearchText);
     $scope.onSearchClick();
   };
 
   $scope.onPatternClick = function (searchtext) {
+    console.log("entered onPatternClick(" + searchtext + ")");
     $scope.userSearchText = searchtext;
+    console.log("$scope.userSearchText = " + $scope.userSearchText);
     $scope.onSearchClick();
+    console.log("$scope.onSearchClick() clicked.");
   };
 
   $scope.getLiveTailStatus = function () {
@@ -537,35 +536,97 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   }
 
   init();
-});
+}]);
 
+uiModules.get('logtrail')
+  .filter('decorateTimestamp', ['$scope', function ($scope) {
+    return function(input) {
+      var toDecorate = escapeHTML(input);
 
-//Directive to manage scroll during launch and on new events
-uiModules.get('logtrail').directive('onLastRepeat', function () {
-  return function (scope, element, attrs) {
-    if (scope.$last) {
-      setTimeout(function () {
-        scope.$emit('onRepeatLast', element, attrs);
-      }, 1);
-    }
-  };
-});
+      if (typeof(selected_index_config.text_pattern_replacements) == 'undefined')
+        return toDecorate;
 
-uiModules.get('logtrail').directive('clickOutside', function ($document) {
-  return {
-    restrict: 'A',
-    scope: {
-      clickOutside: '&'
-    },
-    link: function (scope, el, attr) {
-      $document.on('click', function (e) {
-        if (el !== e.target && !el[0].contains(e.target) && (e.target !== angular.element('#showDatePickerBtn')[0] &&
-        e.target !== angular.element('#showHostPickerBtn')[0] && e.target !== angular.element('#showSettingsBtn')[0])) {
-          scope.$apply(function () {
-            scope.$eval(scope.clickOutside);
-          });
+      for (var replacementdef of selected_index_config.text_pattern_replacements) {
+        if (replacementdef.pattern != null && replacementdef.replace != null && replacementdef.field != null && replacementdef.field == "display_timestamp")
+        {
+          var modifiers = replacementdef.pattern.replace(/.*\/([a-zA-Z]*)$/, "$1");
+          var pattern = replacementdef.pattern.replace(/^\/(.*)\/[a-zA-Z]*$/, "$1");
+          var regex = new RegExp(pattern, modifiers)
+          toDecorate = toDecorate.replace(/\{\{event.id\}\}/g, event.id);
+          toDecorate = toDecorate.replace(/\{\{event.display_timestamp\}\}/g, event.display_timestamp);
+          toDecorate = toDecorate.replace(/\{\{event.timestamp\}\}/g, event.timestamp);
+          toDecorate = toDecorate.replace(/\{\{event.program\}\}/g, event.program);
+          toDecorate = toDecorate.replace(/\{\{event.host\}\}/g, event.host);
+          toDecorate = toDecorate.replace(regex, replacementdef.replace);
         }
-      });
+      }
+
+      return toDecorate;
+
+      // for (var field in event)
+      //   event[field] = $sce.trustAsHtml(event[field]);
     }
-  };
-});
+}])
+  .filter('decorateMessage', ['$scope', function ($scope) {
+    return function(input) {
+      var toDecorate = escapeHTML(input);
+
+      console.log("1");
+      if (typeof(selected_index_config.text_pattern_replacements) == 'undefined')
+        return toDecorate;
+
+      console.log("2");
+      for (var replacementdef of selected_index_config.text_pattern_replacements) {
+        if (replacementdef.pattern != null && replacementdef.replace != null && replacementdef.field != null && replacementdef.field == "message")
+        {
+          var modifiers = replacementdef.pattern.replace(/.*\/([a-zA-Z]*)$/, "$1");
+          var pattern = replacementdef.pattern.replace(/^\/(.*)\/[a-zA-Z]*$/, "$1");
+          var regex = new RegExp(pattern, modifiers)
+          toDecorate = toDecorate.replace(/\{\{event.id\}\}/g, event.id);
+          toDecorate = toDecorate.replace(/\{\{event.display_timestamp\}\}/g, event.display_timestamp);
+          toDecorate = toDecorate.replace(/\{\{event.timestamp\}\}/g, event.timestamp);
+          toDecorate = toDecorate.replace(/\{\{event.program\}\}/g, event.program);
+          toDecorate = toDecorate.replace(/\{\{event.host\}\}/g, event.host);
+          toDecorate = toDecorate.replace(regex, replacementdef.replace);
+        }
+      }
+
+      console.log("3");
+      return toDecorate;
+
+      // for (var field in event)
+      //   event[field] = $sce.trustAsHtml(event[field]);
+    }
+}])
+  .directive('compile', function($compile) {
+    // directive factory creates a link function
+    return function(scope, element, attrs) {
+      scope.$watch(
+        function(scope) {
+           // watch the 'compile' expression for changes
+          return scope.$eval(attrs.compile);
+        },
+        function(value) {
+          // when the 'compile' expression changes
+          // assign it into the current DOM
+          element.html(value);
+          console.log("Value: " + value);
+
+          // compile the new DOM and link it to the current
+          // scope.
+          // NOTE: we only compile .childNodes so that
+          // we don't get into infinite loop compiling ourselves
+          $compile(element.contents())(scope);
+        }
+      );
+    };
+})
+  .directive('onLastRepeat', function () {
+    return function (scope, element, attrs) {
+      if (scope.$last) {
+        setTimeout(function () {
+          scope.$emit('onRepeatLast', element, attrs);
+        }, 1);
+      }
+    };
+  });
