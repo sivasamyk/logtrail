@@ -1,25 +1,25 @@
 <div class="container-fluid console" ng-controller="logtrail">
-  <div class="alert alert-danger logtrail-error" ng-show="errorMessage != null">
-    <a ng-click="errorMessage = null" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-    <strong>Error! </strong> {{ errorMessage }}
-  </div>
-  <div class='no-event-message' ng-show='events.length !== 0 && firstEventReached'>Oldest event reached.</div>
-  <div class='function-export' ng-show='false' ng-click='onPatternClick("test")'></div>
-  <div class='no-event-message' ng-show='showNoEventsMessage'>No events found.<br>
-    <div ng-show="isTimeRangeSearch()" class='time-range'>Time range searched: {{ noEventErrorStartTime }} to Now </div>
-  </div>
-  <ul class="events">
-    <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
-      <time compile="event.display_timestamp | decorateTimestamp"></time>
-      <span class='host'><a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a></span>
-      <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}:</a></span>
-      <span class="message" compile="event.message | decorateMessage"></span>
-    </li>
-  </ul>
+    <div class="alert alert-danger logtrail-error" ng-show="errorMessage != null">
+        <a ng-click="errorMessage = null" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Error! </strong> {{ errorMessage }}
+    </div>
+    <div class='no-event-message' ng-show='events.length !== 0 && firstEventReached'>Oldest event reached.</div>
+    <div class='function-export' ng-show='false' ng-click='onPatternClick("test")'></div>
+    <div class='no-event-message' ng-show='showNoEventsMessage'>No events found.<br>
+        <div ng-show="isTimeRangeSearch()" class='time-range'>Time range searched: {{ noEventErrorStartTime }} to Now </div>
+    </div>
+    <ul class="events">
+        <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
+            <time compilehtml="event.display_timestamp"></time>
+            <span class='host' compilehtml="event.host"></span>
+            <span class='program' compilehtml="event.program"></span>
+            <span class="message" compilehtml="event.message"></span>
+        </li>
+    </ul>
 
-<div class="footer">
-    <form class="form-inline search-form" ng-submit="onSearchClick()">
-      <div class="flex-container-search">
+    <div class="footer">
+        <form class="form-inline search-form" ng-submit="onSearchClick()">
+            <div class="flex-container-search">
         <input type="text" ng-model="userSearchText" class="search-box form-control flex-item-search"
             placeholder='Example: "access denied" 1.2.3.4 -sshd'></input>
         <button class="submit btn search-btn flex-item-search" >Search</button>
@@ -46,26 +46,26 @@
     </div>
 
     <div class="host-picker" id="host-picker" ng-show="hostPickerVisible" click-outside="hideHostPicker()">
-      <ul class="host-picker-list">
-        <li ng-repeat="host in hosts"><a href ng-click="onHostSelected(host.key)">{{host.key}}</a></li>
-        <li> <a href ng-click="onHostSelected('*')"> [ All Systems ] </a></li>
-      </ul>
-    </div>
+            <ul class="host-picker-list">
+                <li ng-repeat="host in hosts"><a href ng-click="onHostSelected(host.key)">{{host.key}}</a></li>
+                <li> <a href ng-click="onHostSelected('*')"> [ All Systems ] </a></li>
+            </ul>
+        </div>
 
-    <div class="settings" id="settings" ng-show="settingsVisible" click-outside="hideSettings()"> 
-      <form class="form-inline" ng-submit="onSettingsChange()">
-        <div class="flex-container-settings">
-          <label class="flex-item-settings">Index Pattern</label>
-          <select class="flex-item-settings" ng-model="selected_index_pattern">
+        <div class="settings" id="settings" ng-show="settingsVisible" click-outside="hideSettings()">
+            <form class="form-inline" ng-submit="onSettingsChange()">
+                <div class="flex-container-settings">
+                    <label class="flex-item-settings">Index Pattern</label>
+                    <select class="flex-item-settings" ng-model="selected_index_pattern">
             <option ng-repeat="index in index_patterns" ng-value="index">{{index}}</option>
           </select>
-          <button class="flex-item-settings submit">Ok</button>          
+                    <button class="flex-item-settings submit">Ok</button>
+                </div>
+            </form>
         </div>
-      </form>
-    </div>
 
-    <div class="pull-right live-tail-button">
-      <button class="tail-status-btn" ng-click="toggleLiveTail()" >{{getLiveTailStatus()}}</button>
+        <div class="pull-right live-tail-button">
+            <button class="tail-status-btn" ng-click="toggleLiveTail()">{{getLiveTailStatus()}}</button>
+        </div>
     </div>
-</div>
 </div>
