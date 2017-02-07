@@ -11,7 +11,7 @@
     <ul class="events">
         <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
             <time compilehtml="event.display_timestamp"></time>
-            <span class='host' compilehtml="event.host"></span>
+            <span class='host' compilehtml="event.hostname"></span>
             <span class='program' compilehtml="event.program"></span>
             <span class="message" compilehtml="event.message"></span>
         </li>
