@@ -46,7 +46,7 @@
 
     <div class="host-picker" id="host-picker" ng-show="hostPickerVisible" click-outside="hideHostPicker()">
       <ul class="host-picker-list">
-        <li ng-repeat="host in hosts"><a href ng-click="onHostSelected(host.key)">{{host}}</a></li>
+        <li ng-repeat="host in hosts"><a href ng-click="onHostSelected(host.key)">{{host.key}}</a></li>
         <li> <a href ng-click="onHostSelected('*')"> [ All Systems ] </a></li>
       </ul>
     </div>
