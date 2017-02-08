@@ -233,6 +233,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         firstEventId = $scope.events[0].id;
         angular.forEach(events, function (event) {
           $scope.events.unshift(event);
+          eventIds.add(event.id);
         });
       } else {
         $scope.firstEventReached = true;
