@@ -24,8 +24,8 @@ uiRoutes
 
 document.title = 'LogTrail - Kibana';
 
-app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
-$window, $interval, $http, $document, $timeout, $location) {
+app.controller('logtrail', ['$scope', 'kbnUrl', '$route', '$routeParams', '$window', '$interval', '$http', '$document', '$timeout', '$location',
+        function($scope, kbnUrl, $route, $routeParams, $window, $interval, $http, $document, $timeout, $location) {
   $scope.title = 'LogTrail';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
