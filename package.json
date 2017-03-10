@@ -1,7 +1,7 @@
 {
   "name": "logtrail",
   "version": "0.1.8",
-  "kibana.version": "5.2.0",
+  "kibana.version": "5.2.2",
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "index.js",
   "scripts": {
