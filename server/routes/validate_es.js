@@ -3,10 +3,10 @@ module.exports = function (server) {
     method: 'POST',
     path: '/logtrail/validate/es',
     handler: function (request, reply) {
-      var config = require('../../logtrail.json');
+      var config = require('../../logtrail.json');      
       var index = request.params.index;
       var selected_config = config.index_patterns[0];
-      if (index) {
+      if (index) {        
         for (var i = config.index_patterns.length - 1; i >= 0; i--) {
           if (config.index_patterns[i].es.default_index === index) {
             selected_config = config.index_patterns[i];
@@ -21,6 +21,7 @@ module.exports = function (server) {
         index: selected_config.es.default_index,
         fields: timestampField
       };
+
       callWithRequest(request, 'fieldStats', body).then(function (resp) {
         if (resp.indices._all) {
           reply({
@@ -49,7 +50,6 @@ module.exports = function (server) {
           });
         }
       });
-
     }
-  });
+  });  
 };

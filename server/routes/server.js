@@ -1,7 +1,6 @@
 function convertToClientFormat(selected_config, esResponse) {
   var clientResponse = [];
-  var hits = esResponse.hits.hits;
-  //console.log(hits);
+  var hits = esResponse.hits.hits;  
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
@@ -11,9 +10,8 @@ function convertToClientFormat(selected_config, esResponse) {
       var flatten = require('flat');
       source = flatten(source);
     }
-        
-    event['display_timestamp'] = source[selected_config.fields.mapping['display_timestamp']]; 
     event['timestamp'] = source[selected_config.fields.mapping['timestamp']];
+    event['display_timestamp'] = source[selected_config.fields.mapping['display_timestamp']];
     event['hostname'] = source[selected_config.fields.mapping['hostname']];
     event['message'] = source[selected_config.fields.mapping['message']];
     event['program'] = source[selected_config.fields.mapping['program']];
@@ -34,13 +32,13 @@ module.exports = function (server) {
 
       var index = request.payload.index;
       var selected_config = config.index_patterns[0];
-      if (index) {
+      if (index) {        
         for (var i = config.index_patterns.length - 1; i >= 0; i--) {
           if (config.index_patterns[i].es.default_index === index) {
             selected_config = config.index_patterns[i];
             break;
-          }
-        }      
+          }          
+        }        
       }
 
       var searchText = request.payload.searchText;
@@ -55,26 +53,25 @@ module.exports = function (server) {
         body : {
           sort : [{}],
           query : {
-            filtered : {
-              query : {
-                query_string : {
-                  analyze_wildcard: true,
-                  default_field : selected_config.fields.mapping['message'],
-                  query : searchText
+              bool : {
+                must :{
+                    query_string : {
+                      analyze_wildcard: true,
+                      default_field : selected_config.fields.mapping['message'],
+                      query : searchText
+                    }
+                },
+                filter: {
+                  bool : {
+                    must : [
+                    ],
+	                  must_not:[],
+                  }
                 }
-              },
-              filter: {
-                bool: {
-                  must : [
-                  ],
-                  must_not:[],
-                }
-              }
             }
           }
         }
       };
-
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][selected_config.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
@@ -84,12 +81,12 @@ module.exports = function (server) {
           term : {
           }
         };
-        var rawHostField = selected_config.fields.mapping.hostname + ".raw";
-        termQuery.term[rawHostField] = request.payload.hostname;
-        searchRequest.body.query.filtered.filter.bool.must.push(termQuery);
+        var hostKeywordField = selected_config.fields.mapping.hostname + '.raw';
+        termQuery.term[hostKeywordField] = request.payload.hostname;
+        searchRequest.body.query.bool.filter.bool.must.push(termQuery);
       }
 
-      //If no time range is present get events based on selected config
+      //If no time range is present get events based on default selected_config
       var timestamp = request.payload.timestamp;
       var rangeType = request.payload.rangeType;
       if (timestamp == null) {
@@ -100,6 +97,7 @@ module.exports = function (server) {
           rangeType = 'gte';
         }
       }
+
       //If timestamps are present set ranges
       if (timestamp != null) {
         var rangeQuery = {
@@ -109,9 +107,9 @@ module.exports = function (server) {
         };
         var range = rangeQuery.range;
         range[selected_config.fields.mapping.timestamp] = {};
-        range[selected_config.fields.mapping.timestamp][rangeType] = timestamp;        
+        range[selected_config.fields.mapping.timestamp][rangeType] = timestamp;
         range[selected_config.fields.mapping.timestamp].format = 'epoch_millis';
-        searchRequest.body.query.filtered.filter.bool.must.push(rangeQuery);
+        searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
       }
       //console.log(JSON.stringify(searchRequest));
       callWithRequest(request,'search',searchRequest).then(function (resp) {
@@ -150,7 +148,8 @@ module.exports = function (server) {
           }          
         }        
       }
-      var rawHostField = selected_config.fields.mapping.hostname + ".raw";
+
+      var hostKeywordField = selected_config.fields.mapping.hostname + '.raw';
       var hostAggRequest = {
         index: selected_config.es.default_index,
         body : {
@@ -158,7 +157,7 @@ module.exports = function (server) {
           aggs: {
             hosts: {
               terms: {
-                field: rawHostField,
+                field: hostKeywordField,
                 size: selected_config.max_hosts
               }
             }
@@ -171,7 +170,7 @@ module.exports = function (server) {
         var parentIndex = selected_config.fields.mapping.hostname.lastIndexOf(".");
         var hostPath = selected_config.fields.mapping.hostname.substr(0,parentIndex);
         hostAggRequest = {
-          index: config.es.default_index,
+          index: selected_config.es.default_index,
           body : {
             size: 0,
             aggs: {
@@ -181,7 +180,7 @@ module.exports = function (server) {
               aggs: {
                 hosts: {
                   terms: {
-                    field: rawHostField,
+                    field: hostKeywordField,
                     size: selected_config.max_hosts
                   }
                 }
