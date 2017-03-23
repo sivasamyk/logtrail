@@ -1,10 +1,10 @@
-import serverRoute from './server/routes/server';
-import validateEsRoute from './server/routes/validate_es';
-
-export default function (kibana) {
+//var exampleRoute = require('./server/routes/example');
+var serverRoute = require('./server/routes/server');
+var validateEsRoute = require('./server/routes/validate_es');
+module.exports = function (kibana) {
   return new kibana.Plugin({
-    require: ['elasticsearch'],
-
+    name: 'logtrail',
+    require: ['kibana', 'elasticsearch'],
     uiExports: {
       app: {
         title: 'LogTrail',
@@ -20,15 +20,8 @@ export default function (kibana) {
           };
         }
       }
-    },
-
-    config(Joi) {
-      return Joi.object({
-        enabled: Joi.boolean().default(true),
-      }).default();
-    },
-
-    init(server, options) {
+    },    
+    init: function (server, options) {
       // Add server routes and initalize the plugin here
       serverRoute(server);
       validateEsRoute(server);
