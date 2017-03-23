@@ -28,7 +28,7 @@ module.exports = function (server) {
     path: '/logtrail/search',
     handler: function (request, reply) {
       var config = require('../../logtrail.json');
-      var callWithRequest = server.plugins.elasticsearch.callWithRequest;
+      const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
 
       var index = request.payload.index;
       var selected_config = config.index_patterns[0];
@@ -81,7 +81,7 @@ module.exports = function (server) {
           term : {
           }
         };
-        var hostKeywordField = selected_config.fields.mapping.hostname + '.raw';
+        var hostKeywordField = selected_config.fields.mapping.hostname + '.keyword';
         termQuery.term[hostKeywordField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
       }
@@ -137,7 +137,7 @@ module.exports = function (server) {
     path: '/logtrail/hosts',
     handler: function (request,reply) {
       var config = require('../../logtrail.json');      
-      var callWithRequest = server.plugins.elasticsearch.callWithRequest;      
+      const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var index = request.params.index;
       var selected_config = config.index_patterns[0];
       if (index) {        
@@ -149,7 +149,7 @@ module.exports = function (server) {
         }        
       }
 
-      var hostKeywordField = selected_config.fields.mapping.hostname + '.raw';
+      var hostKeywordField = selected_config.fields.mapping.hostname + '.keyword';
       var hostAggRequest = {
         index: selected_config.es.default_index,
         body : {

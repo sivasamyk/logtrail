@@ -14,7 +14,7 @@ module.exports = function (server) {
           }
         }
       }
-      var callWithRequest = server.plugins.elasticsearch.callWithRequest;
+      const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var timestampField = selected_config.fields.mapping.timestamp;
 
       var body = {
