@@ -1,5 +1,7 @@
 # LogTrail - Log Viewer plugin for Kibana
 
+[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail)
+
 Introduction
 ------------
 LogTrail is a plugin for Kibana to view, analyze, search and tail log events from multiple hosts in realtime with devops friendly interface inspired by [Papertrail](https://papertrailapp.com/).
