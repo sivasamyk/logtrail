@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "sugar-date": "1.5.1",
-    "flat" : "2.0.1"
+    "flat" : "2.0.1",
+    "string-template" : "1.0.0"
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "0.0.2",

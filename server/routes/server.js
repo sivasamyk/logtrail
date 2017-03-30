@@ -1,20 +1,27 @@
 function convertToClientFormat(selected_config, esResponse) {
   var clientResponse = [];
-  var hits = esResponse.hits.hits;  
+  var hits = esResponse.hits.hits; 
+  var format = require("string-template");
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
 
     event.id = hits[i]._id;
-    if(selected_config.nested_objects) {
+    if (selected_config.nested_objects) {
       var flatten = require('flat');
       source = flatten(source);
     }
     event['timestamp'] = source[selected_config.fields.mapping['timestamp']];
     event['display_timestamp'] = source[selected_config.fields.mapping['display_timestamp']];
     event['hostname'] = source[selected_config.fields.mapping['hostname']];
-    event['message'] = source[selected_config.fields.mapping['message']];
     event['program'] = source[selected_config.fields.mapping['program']];
+    var messageField = source[selected_config.fields.mapping['message']];
+    //If the user has specified a custom format for message field
+    if (selected_config.fields.message_format) {
+      event['message'] = format(selected_config.fields.message_format,source);
+    } else {
+      event['message'] = messageField;
+    }        
     clientResponse.push(event);
   }
   return clientResponse;
