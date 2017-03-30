@@ -1,6 +1,6 @@
 # LogTrail - Log Viewer plugin for Kibana
 
-[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail)
+[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](paypal.me/sivasamyk)
 
 Introduction
 ------------
