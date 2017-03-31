@@ -25,7 +25,7 @@ uiRoutes
 document.title = 'LogTrail - Kibana';
 
 app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
-   $window, $interval, $http, $document, $timeout, $location) {
+   $window, $interval, $http, $document, $timeout, $location, $sce) {
   $scope.title = 'LogTrail';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
@@ -162,14 +162,20 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
   }
 
-  //formats display_timestamp based on configured timezone and format
-  function addParsedTimestamp(event) {
+  //formats event based on logtrail.json config
+  function formatEvent(event) {
+    // display_timestamp based on configured timezone and format
     if (selected_index_config.display_timestamp_format != null) {
       var display_timestamp = moment(event['display_timestamp']);
       if (selected_index_config.display_timezone !== 'local') {
         display_timestamp = display_timestamp.tz(selected_index_config.display_timezone);
       }
       event['display_timestamp'] = display_timestamp.format(selected_index_config.display_timestamp_format);
+    }
+
+    //message format
+    if (selected_index_config.fields.message_format) {
+      event['message'] = $sce.trustAsHtml(event['message']);
     }
   }
 
@@ -192,7 +198,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
     // Add parsed timestamp to all events
     for (var i = events.length - 1; i >= 0; i--) {
-      addParsedTimestamp(events[i]);
+      formatEvent(events[i]);
     }
 
     if (actions.indexOf('reverse') !== -1) {
@@ -440,6 +446,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $scope.onSearchClick();
   };
 
+  $scope.onClick = function (name,value) {
+    $scope.userSearchText = name + ': "' + value + '"';
+    $scope.onSearchClick();
+  };
+
   $scope.getLiveTailStatus = function () {
     if ($scope.liveTailStatus === 'Live') {
       return 'PAUSE';
@@ -521,7 +532,6 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   init();
 });
 
-
 //Directive to manage scroll during launch and on new events
 uiModules.get('logtrail').directive('onLastRepeat', function () {
   return function (scope, element, attrs) {
@@ -532,6 +542,20 @@ uiModules.get('logtrail').directive('onLastRepeat', function () {
     }
   };
 });
+
+uiModules.get('logtrail').directive('compileTemplate', function($compile, $parse) {
+  return {
+    link: function(scope, element, attr){
+      var parsed = $parse(attr.ngBindHtml);
+      function getStringValue() { return (parsed(scope) || '').toString(); }
+
+      //Recompile if the template changes
+      scope.$watch(getStringValue, function() {
+        $compile(element, null, -9999)(scope);  //The -9999 makes it skip directives so that we do not recompile ourselves
+      });
+    }
+  }
+})
 
 uiModules.get('logtrail').directive('clickOutside', function ($document) {
   return {

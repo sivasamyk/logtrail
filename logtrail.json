@@ -22,7 +22,7 @@
             "program": "program",
             "message": "syslog_message"
         },
-        "message_format" : "$message"
+        "message_format": null
       }
     }  
   ]
