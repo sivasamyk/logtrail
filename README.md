@@ -16,6 +16,7 @@ Features
  - Filter aggregated logs by hosts and program
  - Quickly seek to logs based on time
  - Supports multiple Elasticsearch index patterns each with different schemas
+ - Can be extended by adding additional fields to log event
 
 Installation
 ------------
@@ -29,18 +30,18 @@ Installation
 Configuration
 -------------
 ### If you are already shipping logs/events to Elasticsearch
-- If you have already setup logging infrastructure with events getting indexed in ES,
+ - If you have already setup logging infrastructure with events getting indexed in ES,
 you need to map the current event fields in ES to logtrail specific fields. This can by done by editing
 `logtrail.json` file located inside`./plugins/logtrail` directory (for 4.x the directory is `./installedPlugins/logtrail/`).
 Edit the following fields:
-  - default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
+ - default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
       - While using an index name other than `logstash-*`, make sure respective .raw fields are created in ES index.
-  - default_time_range_in_days - Default time range in days to search when time is not specified using Seek button.
+ - default_time_range_in_days - Default time range in days to search when time is not specified using Seek button.
     Example: Value of 30 means logtrail will search only in logs from last 30 days, unless time is specified using Seek button.
     Value of 0 means logtrail will search in all available logs by default.
-  - display_timezone - Timezone to display the timestamp in Event Viewer. e.g. `America/Los_Angeles`. Default value of `local` will use the timezone of browser. The time specified in `Seek To` popup will always use browser timezone.
-  - display_timestamp_format - Format to display the timestamp in Event Viewer. For list of valid value refer [here](http://momentjs.com/docs/#/displaying/)
-  - fields - Edit this parameter to map the event fields in ES to logtrail fields
+ - display_timezone - Timezone to display the timestamp in Event Viewer. e.g. `America/Los_Angeles`. Default value of `local` will use the timezone of browser. The time specified in `Seek To` popup will always use browser timezone.
+ - display_timestamp_format - Format to display the timestamp in Event Viewer. For list of valid value refer [here](http://momentjs.com/docs/#/displaying/)
+ - fields - Edit this parameter to map the event fields in ES to logtrail fields
     - timestamp - maps to @timestamp field inserted by logstash. This will be used for querying internally. Logtrail recommends @timestamp to be stored in UTC in ES.
     - display_timestamp - the formatted timestamp displayed in the events view. By default mapped to @timestamp
     - hostname - hostname from where the events were received. Also used by hostname filter
@@ -56,9 +57,10 @@ Edit the following fields:
         "message": "message"
     }
 ```
-- Each line displayed in the events view is of format:
-  `display_timestamp hostname program:message`
-- Any changes in `logtrail.json` requires restart of Kibana
+ - By default each line displayed in the events view is of format:
+  `display_timestamp hostname program:message` 
+ - message_format - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](https://github.com/sivasamyk/logtrail/blob/message_format/docs/add_fields.md)
+ - Any changes in `logtrail.json` requires restart of Kibana
 
 ### If you are starting fresh
 - Before using the plugin make sure there are events indexed in Elasticsearch
