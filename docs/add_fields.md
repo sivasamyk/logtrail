@@ -8,7 +8,7 @@ By default logtrail shows following fields for each log event:
  
 These fields can be mapped to respective Elasticsearch documents using `fields.mapping` parameter in `logtrail.json`. Logtrail provides option to add additional fields to the log event. This can be done using the `fields.message_format` parameter in `logtrail.json`. By default this parameter is mapped to `syslog_message`. 
 
-Let us consider following is the source document present in Elasticsearch
+Let us consider following source document present in Elasticsearch :
 
     {
             "hostname" => "playground",
@@ -40,7 +40,7 @@ To add `pid` and `host ip address` to each log event following is the configurat
         "message_format": "{{host}} | {pid} : {{syslog_message}}"
       }
      
-For the above configuration the event console display will be like below:
+For the above configuration the event console display will be like:
 
 ![Add Fields screenshot](https://raw.githubusercontent.com/sivasamyk/logtrail/message_format/docs/add_fields.png)
 
