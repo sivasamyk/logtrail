@@ -1,20 +1,57 @@
+function getMessageTemplate(handlebar, selected_config) {
+  var message_format = selected_config.fields.message_format;
+  //Append <a> tags for click to message format except for message field    
+    var message_format_regex = /({{(\S+)}})/g; // e.g. {{pid}} : {{syslog_message}}    
+    var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>");
+    var messageField = "{{" + selected_config.fields.mapping.message + "}}";
+    var message_template = message_format;
+
+    var match = message_format_regex.exec(message_format);    
+    while (match !== null) {      
+      if (match[0] !== messageField) {
+        var context = {
+          name : match[0],
+          name_no_braces : match[2]
+        };        
+        var with_click = ng_click_template(context);
+        message_template = message_template.replace(match[0], with_click);        
+      }
+      match = message_format_regex.exec(message_format);
+    }
+    return message_template; //<a class="ng-binding" ng-click="onClick('pid','{{pid}}')">{{pid}}</a> : {{syslog_message}}
+}
+
 function convertToClientFormat(selected_config, esResponse) {
   var clientResponse = [];
-  var hits = esResponse.hits.hits;  
+  var hits = esResponse.hits.hits;   
+
+  var message_format = selected_config.fields.message_format;
+  if (message_format) {
+    var handlebar = require('handlebars');
+    var message_template = getMessageTemplate(handlebar, selected_config);    
+    var template = handlebar.compile(message_template);
+  }
+  var escape = require("escape-html");
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
 
     event.id = hits[i]._id;
-    if(selected_config.nested_objects) {
+    if (selected_config.nested_objects) {
       var flatten = require('flat');
       source = flatten(source);
     }
     event['timestamp'] = source[selected_config.fields.mapping['timestamp']];
     event['display_timestamp'] = source[selected_config.fields.mapping['display_timestamp']];
     event['hostname'] = source[selected_config.fields.mapping['hostname']];
-    event['message'] = source[selected_config.fields.mapping['message']];
     event['program'] = source[selected_config.fields.mapping['program']];
+    var message = source[selected_config.fields.mapping['message']];
+    //If the user has specified a custom format for message field
+    if (message_format) {
+      event['message'] = template(source);
+    } else {
+      event['message'] = escape(message);
+    }        
     clientResponse.push(event);
   }
   return clientResponse;

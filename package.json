@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "sugar-date": "1.5.1",
-    "flat" : "2.0.1"
+    "flat" : "2.0.1",
+    "escape-html" : "1.0.3",
+    "handlebars" : "4.0.6"
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "0.0.2",
