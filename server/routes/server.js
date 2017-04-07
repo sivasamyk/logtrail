@@ -170,12 +170,12 @@ module.exports = function (server) {
 
   //Get All Systems
   server.route({
-    method: ['GET'],
+    method: ['POST'],
     path: '/logtrail/hosts',
     handler: function (request,reply) {
       var config = require('../../logtrail.json');      
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
-      var index = request.params.index;
+      var index = request.payload.index;
       var selected_config = config.index_patterns[0];
       if (index) {        
         for (var i = config.index_patterns.length - 1; i >= 0; i--) {
