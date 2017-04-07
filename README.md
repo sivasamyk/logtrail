@@ -103,7 +103,7 @@ Edit the following fields:
       - Restart rsyslog to activate the changes
         ```sudo service rsyslog restart
         ```
-  - Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
+- Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
   - For more configuration options refer to [Papertrail Configuration Help](http://help.papertrailapp.com/).
 - Beats/Fluentd can also be used to ship events to ES and fields can be mapped using `fields` parameter in `logtrail.json`
 - Switching back to Kibana main view from logtrail will not work (known bug). Workaround: Please change the URL directly in address bar.
