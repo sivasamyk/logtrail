@@ -24,7 +24,7 @@ Installation
   - Download and install Elasticsearch , Logstash and Kibana
   - Logtrail is supported and tested with Kibana 4.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
-  - Kibana 5.3.0 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/0.1.10/logtrail-5.3.0-0.1.10.zip`
+  - Kibana 5.3.0 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/0.1.11/logtrail-5.3.0-0.1.11.zip`
   - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/0.1.7/logtrail-4.x-0.1.7.tar.gz`
 
 Configuration
@@ -103,7 +103,7 @@ Edit the following fields:
       - Restart rsyslog to activate the changes
         ```sudo service rsyslog restart
         ```
-  - Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
+- Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
   - For more configuration options refer to [Papertrail Configuration Help](http://help.papertrailapp.com/).
 - Beats/Fluentd can also be used to ship events to ES and fields can be mapped using `fields` parameter in `logtrail.json`
 - Switching back to Kibana main view from logtrail will not work (known bug). Workaround: Please change the URL directly in address bar.
