@@ -409,6 +409,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
     }
     $scope.hideSettings();
+    setupHostsList();
     $scope.onSearchClick();
   };
 
@@ -515,7 +516,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     var params = {
       index: selected_index_config.es.default_index
     };
-    $http.get(chrome.addBasePath('/logtrail/hosts'),params).then(function (resp) {
+    $http.post(chrome.addBasePath('/logtrail/hosts'),params).then(function (resp) {
       if (resp.data.ok) {
         $scope.hosts = [];
         for (var i = resp.data.resp.length - 1; i >= 0; i--) {
