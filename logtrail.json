@@ -13,6 +13,7 @@
       "nested_objects" : false,
       "default_time_range_in_days" : 0,
       "max_hosts": 100,
+      "max_events_to_keep_in_viewer": 5000,
       "fields" : {
         "mapping" : {
             "timestamp" : "@timestamp",
@@ -20,7 +21,8 @@
             "hostname" : "hostname",
             "program": "program",
             "message": "syslog_message"
-        }
+        },
+        "message_format": "{{syslog_message}}"
       }
     }  
   ]

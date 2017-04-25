@@ -60,7 +60,7 @@ html,body {
     height: 2.4em;
     margin-left: 1em;
     border: 2px solid #ccc;
-    font-size: 16px;    
+    font-size: 16px;
 }
 
 .search-form {
@@ -76,7 +76,7 @@ html,body {
 	list-style: none;
 	list-style-position: outside;
 	padding-bottom: 5em;
-	padding-top: 5em;
+	padding-top: .5em;
 }
 
 .host {
@@ -105,7 +105,7 @@ html,body {
 }
 
 .message {
-	color: #B0B0B0;
+	color: #B0B0B0;	
 	word-break: break-all;
     word-wrap: break-word;
     white-space: pre-wrap;
@@ -173,11 +173,11 @@ html,body {
 	position: absolute;
 	background: white;
 	border: 4px solid rgb(128,128,128);
-  width: 16em;
-  height: auto;
-  border-radius: 6px;
+  	width: 16em;
+  	height: auto;
+  	border-radius: 6px;
 	bottom: 5.5em;
-	left: 63em;
+	left: 58em;
 	padding: 0;
 }
 
@@ -233,11 +233,11 @@ html,body {
 	background: white;
 	border: 4px solid rgb(128,128,128);
 	padding: 1em;
-	width: 26.5em;
-	height: 7em;
- 	border-radius: 6px;
+  width: 25em;
+  height: 7em;
+  border-radius: 6px;
 	bottom: 5.5em;
-	left: 63em;
+	left: 60em;
 }
 
 .date-picker:after, .date-picker:before {
@@ -283,7 +283,7 @@ html,body {
 	text-align: right;
 	padding-top: .5em;
 	font-family: verdana;
-  font-size: 11px;
+  	font-size: 11px;
 	color: #006600;
 }
 
@@ -297,7 +297,7 @@ html,body {
 	padding-top: .1em;
 	padding-bottom: .1em;
 	font-family: verdana;
-  font-size: 10px;
+    font-size: 10px;
 }
 
 .flex-container-date-picker {
@@ -319,7 +319,7 @@ html,body {
     -webkit-align-items: stretch;
     -ms-flex-align: stretch;
     align-items: stretch;
-  }
+ }
 
 .flex-item-date-picker:nth-child(1) {
     -webkit-order: 0;
@@ -331,7 +331,7 @@ html,body {
     -webkit-align-self: auto;
     -ms-flex-item-align: auto;
     align-self: auto;
-  }
+ }
 
 .flex-item-date-picker:nth-child(2) {
     -webkit-order: 0;
@@ -343,7 +343,7 @@ html,body {
     -webkit-align-self: auto;
     -ms-flex-item-align: auto;
     align-self: auto;
-  }
+ }
 
 .flex-item-date-picker:nth-child(3) {
     -webkit-order: 0;
@@ -355,19 +355,19 @@ html,body {
     -webkit-align-self: auto;
     -ms-flex-item-align: auto;
     align-self: auto;
-  }
+ }
 
 .flex-item-date-picker:nth-child(4) {
-    -webkit-order: 0;
-    -ms-flex-order: 0;
-    order: 0;
-    -webkit-flex: 2 0 auto;
-    -ms-flex: 2 0 auto;
-    flex: 2 0 auto;
-    -webkit-align-self: auto;
-    -ms-flex-item-align: auto;
-    align-self: auto;
-  }
+	-webkit-order: 0;
+	-ms-flex-order: 0;
+	order: 0;
+	-webkit-flex: 2 0 auto;
+	-ms-flex: 2 0 auto;
+	flex: 2 0 auto;
+	-webkit-align-self: auto;
+	-ms-flex-item-align: auto;
+	align-self: auto;
+}
 
 .settings {
 	position: absolute;
@@ -506,7 +506,7 @@ html,body {
 
 .no-event-message {
 	text-align: center;
-  padding-top: 2em;
+	padding-top: 2em;
 	padding-bottom: 1em;
   font-size: xx-large;
   font-family: inherit;
