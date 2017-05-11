@@ -23,9 +23,7 @@ function getMessageTemplate(handlebar, selected_config) {
 
 function convertToClientFormat(selected_config, esResponse) {
   var clientResponse = [];
-  var hits = esResponse.hits.hits;   
-
-  console.log(hits);
+  var hits = esResponse.hits.hits;     
 
   var message_format = selected_config.fields.message_format;
   if (message_format) {
