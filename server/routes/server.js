@@ -25,6 +25,8 @@ function convertToClientFormat(selected_config, esResponse) {
   var clientResponse = [];
   var hits = esResponse.hits.hits;   
 
+  console.log(hits);
+
   var message_format = selected_config.fields.message_format;
   if (message_format) {
     var handlebar = require('handlebars');
@@ -201,32 +203,6 @@ module.exports = function (server) {
           }
         }
       };
-
-      //NOT YET TESTED!!
-      if (selected_config.nested_objects) {
-        var parentIndex = selected_config.fields.mapping.hostname.lastIndexOf(".");
-        var hostPath = selected_config.fields.mapping.hostname.substr(0,parentIndex);
-        hostAggRequest = {
-          index: selected_config.es.default_index,
-          body : {
-            size: 0,
-            aggs: {
-              nested: {
-                path: hostPath
-              },
-              aggs: {
-                hosts: {
-                  terms: {
-                    field: hostKeywordField,
-                    size: selected_config.max_hosts
-                  }
-                }
-              }
-            }
-          }
-        };
-      }
-
       callWithRequest(request,'search',hostAggRequest).then(function (resp) {
         //console.log(resp);//.aggregations.hosts.buckets);
         reply({
