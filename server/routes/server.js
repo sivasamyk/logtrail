@@ -1,9 +1,9 @@
 function getMessageTemplate(handlebar, selected_config) {
   var message_format = selected_config.fields.message_format;
   //Append <a> tags for click to message format except for message field    
-    var message_format_regex = /({{(\S+)}})/g; // e.g. {{pid}} : {{syslog_message}}    
+    var message_format_regex = /({{{(\S+)}}})/g; // e.g. {{pid}} : {{syslog_message}}    
     var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>");
-    var messageField = "{{" + selected_config.fields.mapping.message + "}}";
+    var messageField = "{{{" + selected_config.fields.mapping.message + "}}}";
     var message_template = message_format;
 
     var match = message_format_regex.exec(message_format);    
@@ -28,7 +28,7 @@ function convertToClientFormat(selected_config, esResponse) {
   var message_format = selected_config.fields.message_format;
   if (message_format) {
     var handlebar = require('handlebars');
-    var message_template = getMessageTemplate(handlebar, selected_config);    
+    var message_template = getMessageTemplate(handlebar, selected_config);
     var template = handlebar.compile(message_template);
   }
   var escape = require("escape-html");
@@ -45,13 +45,19 @@ function convertToClientFormat(selected_config, esResponse) {
     event['display_timestamp'] = source[selected_config.fields.mapping['display_timestamp']];
     event['hostname'] = source[selected_config.fields.mapping['hostname']];
     event['program'] = source[selected_config.fields.mapping['program']];
+
+    //Change the source['message'] to highlighter text if available
+    if (hits[i].highlight) {
+      source[selected_config.fields.mapping['message']] = hits[i].highlight[selected_config.fields.mapping['message']][0];
+    }
     var message = source[selected_config.fields.mapping['message']];
     //If the user has specified a custom format for message field
     if (message_format) {
       event['message'] = template(source);
     } else {
       event['message'] = escape(message);
-    }        
+    }
+    //console.log(event.message);
     clientResponse.push(event);
   }
   return clientResponse;
@@ -106,9 +112,19 @@ module.exports = function (server) {
                   }
                 }
             }
+          },
+          highlight : {
+            pre_tags : ["<span class='highlight'>"],
+            post_tags : ["</span>"],
+            fields : {
+            }
           }
         }
       };
+      //Enable highlightng on message field
+      searchRequest.body.highlight.fields[selected_config.fields.mapping['message']] = {
+      };
+
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][selected_config.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 

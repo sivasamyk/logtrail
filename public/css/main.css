@@ -522,3 +522,7 @@ html,body {
 	width: 97%;
 	top: 4em;
 }
+
+.highlight {
+	background-color: #004899;
+}
