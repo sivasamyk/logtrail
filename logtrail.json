@@ -8,10 +8,10 @@
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
       "display_timezone": "local",
-      "display_timestamp_format": "MMM DD HH:mm:ss",
+      "display_timestamp_format": "YYYY-MM-DD HH:mm:ss.SSS",
       "max_buckets": 500,
       "nested_objects" : false,
-      "default_time_range_in_days" : 0,
+      "default_time_range_in_days" : 1,
       "max_hosts": 100,
       "max_events_to_keep_in_viewer": 5000,
       "fields" : {
@@ -20,10 +20,11 @@
             "display_timestamp" : "@timestamp",
             "hostname" : "hostname",
             "program": "program",
-            "message": "syslog_message"
+            "message": "syslog_message",
+            "severity": "severity"
         },
         "message_format": "{{syslog_message}}"
       }
-    }  
+    }
   ]
 }

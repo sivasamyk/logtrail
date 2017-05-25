@@ -448,6 +448,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $scope.onSearchClick();
   };
 
+  $scope.onSeverityClick = function (severity) {
+    $scope.userSearchText = selected_index_config.fields.mapping['severity'] + ': "' + severity + '"';
+    $scope.onSearchClick();
+  };
+
   $scope.onClick = function (name,value) {
     $scope.userSearchText = name + ': "' + value + '"';
     $scope.onSearchClick();

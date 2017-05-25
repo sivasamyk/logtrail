@@ -9,10 +9,11 @@
   </div>
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
-      <time>{{ event.display_timestamp }}</time>
+      <time style="color: #258CCD">{{ event.display_timestamp }}</time>
       <span class='host'><a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a></span>
-      <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}:</a></span>
-      <span class="message" ng-bind-html="event.message" compile-template/>
+      <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}</a></span>
+      <span class='severity-{{ event.severity }}'><a ng-click="onSeverityClick(event.severity)">[{{ event.severity }}]:</a></span>
+      <span class="message-{{ event.severity }}" ng-bind-html="event.message" compile-template/>
     </li>
   </ul>
 

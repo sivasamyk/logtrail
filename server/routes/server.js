@@ -1,7 +1,7 @@
 function getMessageTemplate(handlebar, selected_config) {
   var message_format = selected_config.fields.message_format;
   //Append <a> tags for click to message format except for message field    
-    var message_format_regex = /({{(\S+)}})/g; // e.g. {{pid}} : {{syslog_message}}    
+    var message_format_regex = /({{(\S+)}})/g; // e.g. {{pid}} : {{syslog_message}}   
     var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>");
     var messageField = "{{" + selected_config.fields.mapping.message + "}}";
     var message_template = message_format;
@@ -45,6 +45,10 @@ function convertToClientFormat(selected_config, esResponse) {
     event['display_timestamp'] = source[selected_config.fields.mapping['display_timestamp']];
     event['hostname'] = source[selected_config.fields.mapping['hostname']];
     event['program'] = source[selected_config.fields.mapping['program']];
+    if ( source[selected_config.fields.mapping['severity']] )
+    	event['severity'] = source[selected_config.fields.mapping['severity']].toLowerCase();
+    else
+    	event['severity'] = source[selected_config.fields.mapping['severity']];
     var message = source[selected_config.fields.mapping['message']];
     //If the user has specified a custom format for message field
     if (message_format) {
