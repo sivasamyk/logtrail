@@ -16,6 +16,7 @@ Features
  - Live tail
  - Filter aggregated logs by hosts and program
  - Quickly seek to logs based on time
+ - Supports highlighting of search matches
  - Supports multiple Elasticsearch index patterns each with different schemas
  - Can be extended by adding additional fields to log event
 
@@ -25,7 +26,7 @@ Installation
   - Download and install Elasticsearch , Logstash and Kibana
   - Logtrail is supported and tested with Kibana 4.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
-  - Kibana 5.4.0 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/0.1.13/logtrail-5.4.0-0.1.13.zip`
+  - Kibana 5.4.0 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/0.1.14/logtrail-5.4.0-0.1.14.zip`
   - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/0.1.7/logtrail-4.x-0.1.7.tar.gz`
 
 Configuration
