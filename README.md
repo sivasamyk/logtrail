@@ -16,7 +16,7 @@ Features
  - Live tail
  - Filter aggregated logs by hosts and program
  - Quickly seek to logs based on time
- - Supports highlighting of search matches in logs
+ - Supports highlighting of search matches
  - Supports multiple Elasticsearch index patterns each with different schemas
  - Can be extended by adding additional fields to log event
 
