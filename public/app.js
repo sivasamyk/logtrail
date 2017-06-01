@@ -499,7 +499,12 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   function doTail() {
     if ($scope.liveTailStatus === 'Live' && !updateViewInProgress) {
-      doSearch('gte', 'asc', ['append'], lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 ));
+
+      var adjustedLastEventTime = null;
+      if (lastEventTime) {
+        adjustedLastEventTime = lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 );
+      }
+      doSearch('gte', 'asc', ['append'], adjustedLastEventTime);
     }
   };
 

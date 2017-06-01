@@ -23,7 +23,7 @@
             "message": "syslog_message",
             "severity": "severity"
         },
-        "message_format": "{{syslog_message}}"
+        "message_format": "{{{syslog_message}}}"
       }
     }
   ]
