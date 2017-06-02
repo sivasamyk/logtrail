@@ -61,7 +61,7 @@ Edit the following fields:
 ```
  - By default each line displayed in the events view is of format:
   `display_timestamp hostname program:message` 
- - message_format - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](https://github.com/sivasamyk/logtrail/blob/message_format/docs/add_fields.md)
+ - message_format - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](docs/add_fields.md)
  - Any changes in `logtrail.json` requires restart of Kibana
 
 ### If you are starting fresh
