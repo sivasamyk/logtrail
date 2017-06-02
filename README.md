@@ -1,6 +1,6 @@
 # LogTrail - Log Viewer plugin for Kibana
 
-[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 5.4.0](https://img.shields.io/badge/Kibana-v5.4.0-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-5-4-0)
+[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 5.4.1](https://img.shields.io/badge/Kibana-v5.4.1-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-5-4-1)
 [![License](https://img.shields.io/github/license/sivasamyk/logtrail.svg)](https://github.com/sivasamyk/logtrail) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sivasamyk)
 
 Introduction
@@ -26,7 +26,7 @@ Installation
   - Download and install Elasticsearch , Logstash and Kibana
   - Logtrail is supported and tested with Kibana 4.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
-  - Kibana 5.4.0 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/0.1.14/logtrail-5.4.0-0.1.14.zip`
+  - Kibana 5.4.1 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/0.1.14/logtrail-5.4.1-0.1.14.zip`
   - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/0.1.7/logtrail-4.x-0.1.7.tar.gz`
 
 Configuration
