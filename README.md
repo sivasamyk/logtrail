@@ -103,7 +103,7 @@ Edit the following fields:
       - To send syslog events using TCP `*.*  @@<logstash-agent-ip>:<port>`
       - To send syslog events using UDP `*.*        @<logstash-agent-ip>:<port>`
       - Restart rsyslog to activate the changes
-        ```
+        ```sh
         sudo service rsyslog restart
         ```
 - Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
