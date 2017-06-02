@@ -50,7 +50,7 @@ Edit the following fields:
     - program - program that generated this event.
     - message - actual event message. This field will be used by search.
  - Example:  If the event fields names are @timestamp, host, process, message the mapping should be
- ```
+ ```json
  "mapping" : {
         "timestamp" : "@timestamp",
         "display_timestamp" : "@timestamp",
@@ -68,7 +68,7 @@ Edit the following fields:
 - Before using the plugin make sure there are events indexed in Elasticsearch
 - Configure logstash to receive syslog events
  - Start logstash agent with following configuration to receive syslog events.
-  ```
+  ```ruby
   input {
     tcp {
       port => 5000 # syslog port. can be changed
