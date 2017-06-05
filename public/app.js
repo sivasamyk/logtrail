@@ -31,7 +31,7 @@ require('ui/routes')
 document.title = 'LogTrail - Kibana';
 
 app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, courier,
-   $window, $interval, $http, $document, $timeout, $location) {
+   $window, $interval, $http, $document, $timeout, $location, $sce) {
   $scope.title = 'LogTrail';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
@@ -168,14 +168,20 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
     }
   }  
 
-  //formats display_timestamp based on configured timezone and format
-  function addParsedTimestamp(event) {
+  //formats event based on logtrail.json config
+  function formatEvent(event) {
+    // display_timestamp based on configured timezone and format
     if (selected_index_config.display_timestamp_format != null) {
       var display_timestamp = moment(event['display_timestamp']);
       if (selected_index_config.display_timezone !== 'local') {
         display_timestamp = display_timestamp.tz(selected_index_config.display_timezone);
       }
       event['display_timestamp'] = display_timestamp.format(selected_index_config.display_timestamp_format);
+    }
+
+    //message format
+    if (selected_index_config.fields.message_format) {
+      event['message'] = $sce.trustAsHtml(event['message']);
     }
   }
 
@@ -198,7 +204,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
 
     // Add parsed timestamp to all events
     for (var i = events.length - 1; i >= 0; i--) {
-      addParsedTimestamp(events[i]);
+      formatEvent(events[i]);
     }
 
     if (actions.indexOf('reverse') !== -1) {
@@ -410,6 +416,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
       }
     }
     $scope.hideSettings();
+    setupHostsList();
     $scope.onSearchClick();
   };
 
@@ -444,6 +451,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
 
   $scope.onProgramClick = function (program) {
     $scope.userSearchText = selected_index_config.fields.mapping['program'] + '.raw: "' + program + '"';
+    $scope.onSearchClick();
+  };
+  
+  $scope.onClick = function (name,value) {
+    $scope.userSearchText = name + ': "' + value + '"';
     $scope.onSearchClick();
   };
 
@@ -488,7 +500,12 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
 
   function doTail() {
     if ($scope.liveTailStatus === 'Live' && !updateViewInProgress) {
-      doSearch('gte', 'asc', ['append'], lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 ));
+
+      var adjustedLastEventTime = null;
+      if (lastEventTime) {
+        adjustedLastEventTime = lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 );
+      }
+      doSearch('gte', 'asc', ['append'], adjustedLastEventTime);
     }
   };
 
@@ -511,7 +528,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams, es, c
     var params = {
       index: selected_index_config.es.default_index
     };
-    $http.get(chrome.addBasePath('/logtrail/hosts'),params).then(function (resp) {
+    $http.post(chrome.addBasePath('/logtrail/hosts'),params).then(function (resp) {
       if (resp.data.ok) {
         $scope.hosts = [];
         for (var i = resp.data.resp.length - 1; i >= 0; i--) {
@@ -539,6 +556,20 @@ modules.get('logtrail').directive('onLastRepeat', function () {
     }
   };
 });
+
+modules.get('logtrail').directive('compileTemplate', function($compile, $parse) {
+  return {
+    link: function(scope, element, attr){
+      var parsed = $parse(attr.ngBindHtml);
+      function getStringValue() { return (parsed(scope) || '').toString(); }
+
+      //Recompile if the template changes
+      scope.$watch(getStringValue, function() {
+        $compile(element, null, -9999)(scope);  //The -9999 makes it skip directives so that we do not recompile ourselves
+      });
+    }
+  }
+})
 
 modules.get('logtrail').directive('clickOutside', function ($document) {
   return {

@@ -1,6 +1,6 @@
 {
   "name": "logtrail",
-  "version": "0.1.7",
+  "version": "0.1.14",
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "gulpfile.js",
   "scripts": {
@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "sugar-date": "1.5.1",
-    "flat" : "2.0.1"
+    "flat" : "2.0.1",
+    "escape-html" : "1.0.3",
+    "handlebars" : "4.0.6"
   },
   "devDependencies": {
     "babel-eslint": "^4.1.6",
