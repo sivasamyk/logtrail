@@ -36,7 +36,7 @@ To add `pid` and `host ip address` to each log event following is the configurat
         "program": "program",
         "message": "syslog_message"
     },
-    "message_format": "{{host}} | {pid} : {{syslog_message}}"
+    "message_format": "{{{host}}} | {{{pid}}} : {{{syslog_message}}}"
   }
 ```
 For the above configuration the event console display will be like:
