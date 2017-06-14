@@ -30,7 +30,7 @@
           ng-click="showSettings()">Settings</button>
       </div>
     </form>
-    <div class="date-picker" id="date-picker" ng-show="datePickerVisible" click-outside="hideDatePicker()">
+    <div class="date-picker" id="date-picker" ng-show="datePickerVisible" click-outside>
       <form class="form-inline" ng-submit="seekAndSearch()">
         <div class="flex-container-date-picker">
           <input class="flex-item-date-picker date-picker-box form-control" type="search"
@@ -44,21 +44,21 @@
       </form>
     </div>
 
-    <div class="host-picker" id="host-picker" ng-show="hostPickerVisible" click-outside="hideHostPicker()">
+    <div class="host-picker" id="host-picker" ng-show="hostPickerVisible" >
       <ul class="host-picker-list">
         <li ng-repeat="host in hosts"><a href ng-click="onHostSelected(host)">{{host}}</a></li>
         <li> <a href ng-click="onHostSelected('*')"> [ All Systems ] </a></li>
       </ul>
     </div>
 
-    <div class="settings" id="settings" ng-show="settingsVisible" click-outside="hideSettings()"> 
+    <div class="settings" id="settings" ng-show="settingsVisible" > 
       <form class="form-inline" ng-submit="onSettingsChange()">
         <div class="flex-container-settings">
           <label class="flex-item-settings">Index Pattern</label>
           <select class="flex-item-settings" ng-model="selected_index_pattern">
             <option ng-repeat="index in index_patterns" ng-value="index">{{index}}</option>
           </select>
-          <button class="flex-item-settings submit">Ok</button>          
+          <button class="flex-item-settings submit">Ok</button>
         </div>
       </form>
     </div>

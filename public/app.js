@@ -540,7 +540,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 });
 
 //Directive to manage scroll during launch and on new events
-uiModules.get('logtrail').directive('onLastRepeat', function () {
+uiModules.get('app/logtrail').directive('onLastRepeat', function () {
   return function (scope, element, attrs) {
     if (scope.$last) {
       setTimeout(function () {
@@ -550,7 +550,7 @@ uiModules.get('logtrail').directive('onLastRepeat', function () {
   };
 });
 
-uiModules.get('logtrail').directive('compileTemplate', function($compile, $parse) {
+uiModules.get('app/logtrail').directive('compileTemplate', function($compile, $parse) {
   return {
     link: function(scope, element, attr){
       var parsed = $parse(attr.ngBindHtml);
@@ -564,18 +564,32 @@ uiModules.get('logtrail').directive('compileTemplate', function($compile, $parse
   }
 })
 
-uiModules.get('logtrail').directive('clickOutside', function ($document) {
+uiModules.get('app/logtrail').directive('clickOutside', function ($document) {
   return {
     restrict: 'A',
-    scope: {
-      clickOutside: '&'
-    },
+    scope: false,
     link: function (scope, el, attr) {
       $document.on('click', function (e) {
-        if (el !== e.target && !el[0].contains(e.target) && (e.target !== angular.element('#showDatePickerBtn')[0] &&
-        e.target !== angular.element('#showHostPickerBtn')[0] && e.target !== angular.element('#showSettingsBtn')[0])) {
-          scope.$apply(function () {
-            scope.$eval(scope.clickOutside);
+        if (el !== e.target && !el[0].contains(e.target)) {
+          scope.$apply(function() {
+
+            if (e.target === angular.element('#showDatePickerBtn')[0]) {
+              scope.showDatePicker();
+            } else {
+              scope.hideDatePicker();
+            }
+
+            if (e.target === angular.element('#showHostPickerBtn')[0]) {
+              scope.showHostPicker();
+            } else {
+              scope.hideHostPicker();
+            }
+
+            if (e.target === angular.element('#showSettingsBtn')[0]) {
+              scope.showSettings();
+            } else {
+              scope.hideSettings();
+            }
           });
         }
       });
