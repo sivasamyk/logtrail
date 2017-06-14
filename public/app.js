@@ -30,9 +30,6 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
   $scope.events = [];
-  $scope.datePickerVisible = false;
-  $scope.hostPickerVisible = false;
-  $scope.settingsVisible = false;
   $scope.userDateTime = null; // exact string typed by user like 'Aug 24 or last friday'
   $scope.pickedDateTime = null; // UTC date used in search query.
   $scope.userDateTimeSeeked = null; // exact string entered by user set after user clicks seek. Used to show in search button
@@ -45,6 +42,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   $scope.showNoEventsMessage = false;
   $scope.index_patterns = [];
   $scope.selected_index_pattern = null;
+  $scope.popup = null;
   var updateViewInProgress = false;
   var tailTimer = null;
   var searchText = null;
@@ -345,31 +343,10 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
   };
 
-  $scope.showDatePicker = function () {
-    $scope.datePickerVisible = true;
+  $scope.resetDatePicker = function () {    
     if ($scope.pickedDateTime == null) {
       $scope.userDateTime = null;
     }
-  };
-
-  $scope.hideDatePicker = function () {
-    $scope.datePickerVisible = false;
-  };
-
-  $scope.showHostPicker = function () {
-    $scope.hostPickerVisible = true;
-  };
-
-  $scope.hideHostPicker = function () {
-    $scope.hostPickerVisible = false;
-  };
-
-  $scope.showSettings = function () {
-    $scope.settingsVisible = true;
-  };
-
-  $scope.hideSettings = function () {
-    $scope.settingsVisible = false;
   };
 
   $scope.onDateChange = function () {
@@ -570,27 +547,16 @@ uiModules.get('app/logtrail').directive('clickOutside', function ($document) {
     scope: false,
     link: function (scope, el, attr) {
       $document.on('click', function (e) {
-        if (el !== e.target && !el[0].contains(e.target)) {
-          scope.$apply(function() {
-
-            if (e.target === angular.element('#showDatePickerBtn')[0]) {
-              scope.showDatePicker();
-            } else {
-              scope.hideDatePicker();
+        if (scope.popup == null || 
+            (scope.popup !== e.target && !scope.popup[0].contains(e.target))) {
+            if (scope.popup != null) {
+              scope.popup.addClass('ng-hide');
             }
-
-            if (e.target === angular.element('#showHostPickerBtn')[0]) {
-              scope.showHostPicker();
-            } else {
-              scope.hideHostPicker();
+            if (e.target.id === 'date-picker-btn' ||
+                e.target.id === 'host-picker-btn' ||
+                e.target.id === 'settings-btn') {
+              scope.popup = angular.element('#' + e.target.id.replace('-btn','')).removeClass('ng-hide');
             }
-
-            if (e.target === angular.element('#showSettingsBtn')[0]) {
-              scope.showSettings();
-            } else {
-              scope.hideSettings();
-            }
-          });
         }
       });
     }
