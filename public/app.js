@@ -373,7 +373,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     } else {
       $scope.userDateTimeSeeked = null;
     }
-    $scope.hideDatePicker();
+    angular.element('#date-picker').addClass('ng-hide');
     $scope.onSearchClick();
   };
 
@@ -386,7 +386,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         }
       }
     }
-    $scope.hideSettings();
+    angular.element('#settings').addClass('ng-hide');
     setupHostsList();
     $scope.onSearchClick();
   };
@@ -411,7 +411,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.onHostSelected = function (host) {
-    $scope.hideHostPicker();
+    angular.element('#host-picker').addClass('ng-hide');
     if (host === '*') {
       $scope.selectedHost = null;
     } else {
