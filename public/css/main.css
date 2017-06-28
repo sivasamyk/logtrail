@@ -212,6 +212,8 @@ html,body {
 	margin: 0;
 	font-size: medium;
 	padding: 0;
+	max-height: 20em;
+	overflow-y: auto;
 }
 
 .host-picker-list > li {
