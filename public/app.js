@@ -1,9 +1,9 @@
-import chrome from 'ui/chrome';
-import uiModules from 'ui/modules';
-import uiRoutes from 'ui/routes';
 import angular from 'angular';
+import chrome from 'ui/chrome';
+import uiRoutes from 'ui/routes';
+import { notify } from 'ui/notify';
+import { uiModules } from "ui/modules"
 import sugarDate from 'sugar-date';
-import notify from 'ui/notify';
 import moment from 'moment-timezone';
 
 import 'ui/autoload/styles';
@@ -11,9 +11,7 @@ import 'plugins/logtrail/css/main.css';
 
 import template from './templates/index.html';
 
-chrome.setNavBackground('#222222');
-
-var app = uiModules.get('app/logtrail', []);
+const app = uiModules.get('app/logtrail', []);
 
 uiRoutes.enable();
 uiRoutes
