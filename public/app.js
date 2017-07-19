@@ -133,7 +133,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       timestamp: timestamp,
       rangeType: rangeType,
       order: order,
-      hostname: $scope.selectedHost,      
+      hostname: $scope.selectedHost,
       index: selected_index_config.es.default_index
     };
 
