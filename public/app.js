@@ -421,7 +421,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.onProgramClick = function (program) {
-    $scope.userSearchText = selected_index_config.fields.mapping['program'] + '.keyword: "' + program + '"';
+    var programField = selected_index_config.fields.mapping['program'];
+    if (selected_index_config.es.default_index.startsWith('logstash-')) {
+      programField += ".keyword";
+    }
+    $scope.userSearchText =  programField  + ':"' + program + '"';
     $scope.onSearchClick();
   };
 

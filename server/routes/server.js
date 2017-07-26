@@ -37,30 +37,19 @@ function convertToClientFormat(selected_config, esResponse) {
     var source =  hits[i]._source;
 
     event.id = hits[i]._id;
-    if (selected_config.nested_objects) {
-      var get = require('lodash.get');      
-      event['timestamp'] = get(source, selected_config.fields.mapping['timestamp']);
-      event['display_timestamp'] = get(source, selected_config.fields.mapping['display_timestamp']);
-      event['hostname'] = get(source, selected_config.fields.mapping['hostname']);
-      event['program'] = get(source, selected_config.fields.mapping['program']);
-    } else {
-      event['timestamp'] = source[selected_config.fields.mapping['timestamp']];
-      event['display_timestamp'] = source[selected_config.fields.mapping['display_timestamp']];
-      event['hostname'] = source[selected_config.fields.mapping['hostname']];
-      event['program'] = source[selected_config.fields.mapping['program']];
-    }
+    var get = require('lodash.get');
+    event['timestamp'] = get(source, selected_config.fields.mapping['timestamp']);
+    event['display_timestamp'] = get(source, selected_config.fields.mapping['display_timestamp']);
+    event['hostname'] = get(source, selected_config.fields.mapping['hostname']);
+    event['program'] = get(source, selected_config.fields.mapping['program']);
 
     //Change the source['message'] to highlighter text if available
     if (hits[i].highlight) {
-      if (selected_config.nested_objects) {
-        var get = require('lodash.get');
-        var set = require('lodash.set');
-        var with_highlights = get(hits[i].highlight, [selected_config.fields.mapping['message'],0]);
-        set(source, selected_config.fields.mapping['message'], with_highlights);
-        source[selected_config.fields.mapping['message']] = hits[i].highlight[selected_config.fields.mapping['message']][0];
-      } else {
-        source[selected_config.fields.mapping['message']] = hits[i].highlight[selected_config.fields.mapping['message']][0];
-      }
+      var get = require('lodash.get');
+      var set = require('lodash.set');
+      var with_highlights = get(hits[i].highlight, [selected_config.fields.mapping['message'],0]);
+      set(source, selected_config.fields.mapping['message'], with_highlights);
+      source[selected_config.fields.mapping['message']] = hits[i].highlight[selected_config.fields.mapping['message']][0];
     }
     var message = source[selected_config.fields.mapping['message']];
     //If the user has specified a custom format for message field
@@ -146,8 +135,11 @@ module.exports = function (server) {
           term : {
           }
         };
-        var hostKeywordField = selected_config.fields.mapping.hostname + '.keyword';
-        termQuery.term[hostKeywordField] = request.payload.hostname;
+        var hostnameField = selected_config.fields.mapping.hostname;
+        if (selected_config.es.default_index.startsWith('logstash-')) {
+          hostnameField += ".keyword";
+        }
+        termQuery.term[hostnameField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
       }
 
@@ -214,7 +206,10 @@ module.exports = function (server) {
         }        
       }
 
-      var hostKeywordField = selected_config.fields.mapping.hostname + '.keyword';
+      var hostnameField = selected_config.fields.mapping.hostname;
+      if (selected_config.es.default_index.startsWith('logstash-')) {
+        hostnameField += ".keyword";
+      }
       var hostAggRequest = {
         index: selected_config.es.default_index,
         body : {
@@ -222,7 +217,7 @@ module.exports = function (server) {
           aggs: {
             hosts: {
               terms: {
-                field: hostKeywordField,
+                field: hostnameField,
                 size: selected_config.max_hosts
               }
             }
