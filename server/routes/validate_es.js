@@ -4,7 +4,7 @@ module.exports = function (server) {
     path: '/logtrail/validate/es',
     handler: function (request, reply) {
       var config = require('../../logtrail.json');      
-      var index = request.params.index;
+      var index = request.payload.index;
       var selected_config = config.index_patterns[0];
       if (index) {        
         for (var i = config.index_patterns.length - 1; i >= 0; i--) {

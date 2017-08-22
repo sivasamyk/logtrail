@@ -1,9 +1,11 @@
 {
   "name": "logtrail",
-  "version": "0.1.14",
-  "kibana.version": "5.4.0",
+  "version": "0.1.19",
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "index.js",
+  "kibana": {
+    "version": "5.5.2"
+  },
   "scripts": {
     "lint": "eslint",
     "start": "plugin-helpers start",
@@ -14,9 +16,10 @@
   },
   "dependencies": {
     "sugar-date": "1.5.1",
-    "flat" : "2.0.1",
-    "escape-html" : "1.0.3",
-    "handlebars" : "4.0.6"
+    "escape-html": "1.0.3",
+    "handlebars": "4.0.6",
+    "lodash.get": "4.4.2",
+    "lodash.set": "4.3.2"
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "0.0.2",

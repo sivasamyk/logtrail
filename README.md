@@ -1,6 +1,6 @@
 # LogTrail - Log Viewer plugin for Kibana
 
-[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 5.4.0](https://img.shields.io/badge/Kibana-v5.4.0-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-5-4-0)
+[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 5.5.2](https://img.shields.io/badge/Kibana-v5.5.2-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-5.5.2)
 [![License](https://img.shields.io/github/license/sivasamyk/logtrail.svg)](https://github.com/sivasamyk/logtrail) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sivasamyk)
 
 Introduction
@@ -26,8 +26,10 @@ Installation
   - Download and install Elasticsearch , Logstash and Kibana
   - Logtrail is supported and tested with Kibana 4.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
-  - Kibana 5.4.0 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/0.1.14/logtrail-5.4.0-0.1.14.zip`
-  - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/0.1.7/logtrail-4.x-0.1.7.tar.gz`
+  - Kibana 5.5.2 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.19/logtrail-5.5.2-0.1.19.zip`
+  - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/0.1.14/logtrail-4.x-0.1.14.tar.gz`
+  - Other versions : [https://github.com/sivasamyk/logtrail/releases](https://github.com/sivasamyk/logtrail/releases)
+
 
 Configuration
 -------------
@@ -50,7 +52,7 @@ Edit the following fields:
     - program - program that generated this event.
     - message - actual event message. This field will be used by search.
  - Example:  If the event fields names are @timestamp, host, process, message the mapping should be
- ```
+ ```json
  "mapping" : {
         "timestamp" : "@timestamp",
         "display_timestamp" : "@timestamp",
@@ -60,15 +62,15 @@ Edit the following fields:
     }
 ```
  - By default each line displayed in the events view is of format:
-  `display_timestamp hostname program:message` 
- - message_format - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](https://github.com/sivasamyk/logtrail/blob/message_format/docs/add_fields.md)
+  `display_timestamp hostname program:message`
+ - message_format - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](docs/add_fields.md)
  - Any changes in `logtrail.json` requires restart of Kibana
 
 ### If you are starting fresh
 - Before using the plugin make sure there are events indexed in Elasticsearch
 - Configure logstash to receive syslog events
  - Start logstash agent with following configuration to receive syslog events.
-  ```
+  ```ruby
   input {
     tcp {
       port => 5000 # syslog port. can be changed
@@ -103,7 +105,7 @@ Edit the following fields:
       - To send syslog events using TCP `*.*  @@<logstash-agent-ip>:<port>`
       - To send syslog events using UDP `*.*        @<logstash-agent-ip>:<port>`
       - Restart rsyslog to activate the changes
-        ```
+        ```bash
         sudo service rsyslog restart
         ```
 - Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.

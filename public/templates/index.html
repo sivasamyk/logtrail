@@ -23,21 +23,21 @@
         <input type="text" ng-model="userSearchText" class="search-box form-control flex-item-search"
             placeholder='Example: "access denied" 1.2.3.4 -sshd'></input>
         <button class="submit btn search-btn flex-item-search" >Search</button>
-        <button type="button" id="showHostPickerBtn" class="btn host-option-select-btn flex-item-search"
+        <button type="button" id="host-picker-btn" class="btn host-option-select-btn flex-item-search"
           ng-click="showHostPicker()">{{selectedHost == null ? 'All Systems' : selectedHost}}</button>
-        <button type="button" id="showDatePickerBtn" class="time-option-select-btn btn flex-item-search"
+        <button type="button" id="date-picker-btn" class="time-option-select-btn btn flex-item-search"
           ng-click="showDatePicker()">{{ isNullorEmpty(userDateTimeSeeked) ? 'Now' : userDateTimeSeeked }}</button>
-        <button type="button" id="showSettingsBtn" class="settings-select-btn btn flex-item-search"
+        <button type="button" id="settings-btn" class="settings-select-btn btn flex-item-search"
           ng-click="showSettings()">Settings</button>
       </div>
     </form>
-    <div class="date-picker" id="date-picker" ng-show="datePickerVisible" click-outside="hideDatePicker()">
+    <div class="date-picker ng-hide" id="date-picker" click-outside>
       <form class="form-inline" ng-submit="seekAndSearch()">
         <div class="flex-container-date-picker">
           <input class="flex-item-date-picker date-picker-box form-control" type="search"
           placeholder='7:02 am,last friday,jun 9 1:16pm'
           ng-model="userDateTime" ng-change="onDateChange()"></input>
-          <button class="flex-item-date-picker date-picker-btn submit">Seek To</button>
+          <button class="flex-item-date-picker date-picker-submit-btn submit">Seek To</button>
           <label class="flex-item-date-picker date-picker-message"
             ng-class="{ 'date-picker-message-error' : !isNullorEmpty(userDateTime)  && (pickedDateTime == null) }">
             {{ (isNullorEmpty(userDateTime)) ? 'Right now' : (pickedDateTime == null ? 'Cannot parse date time' : pickedDateTime)}}</label>
@@ -45,27 +45,27 @@
       </form>
     </div>
 
-    <div class="host-picker" id="host-picker" ng-show="hostPickerVisible" click-outside="hideHostPicker()">
+    <div class="host-picker ng-hide" id="host-picker" click-outside>
       <ul class="host-picker-list">
-        <li ng-repeat="host in hosts"><a href ng-click="onHostSelected(host)">{{host}}</a></li>
         <li> <a href ng-click="onHostSelected('*')"> [ All Systems ] </a></li>
+        <li ng-repeat="host in hosts"><a href ng-click="onHostSelected(host)">{{host}}</a></li>
       </ul>
     </div>
 
-    <div class="settings" id="settings" ng-show="settingsVisible" click-outside="hideSettings()"> 
+    <div class="settings ng-hide" id="settings" click-outside>
       <form class="form-inline" ng-submit="onSettingsChange()">
         <div class="flex-container-settings">
           <label class="flex-item-settings">Index Pattern</label>
           <select class="flex-item-settings" ng-model="selected_index_pattern">
             <option ng-repeat="index in index_patterns" ng-value="index">{{index}}</option>
           </select>
-          <button class="flex-item-settings submit">Ok</button>          
+          <button class="flex-item-settings submit">Ok</button>
         </div>
       </form>
     </div>
 
     <div class="pull-right live-tail-button">
-      <button class="tail-status-btn" ng-click="toggleLiveTail()" >{{getLiveTailStatus()}}</button>
+      <button type="button" class="btn tail-status-btn" ng-click="toggleLiveTail()" >{{getLiveTailStatus()}}</button>
     </div>
 </div>
 </div>
