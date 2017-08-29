@@ -2,7 +2,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "logstash-*",
+        "default_index": "logstash-2017.01.10",
         "allow_url_parameter": false
       },
       "tail_interval_in_seconds": 10,
@@ -13,15 +13,20 @@
       "default_time_range_in_days" : 0,
       "max_hosts": 100,
       "max_events_to_keep_in_viewer": 5000,
+      "source_analyzer" : {
+        "enabled" : true,
+        "pre_tag" : "<em>",
+        "post_tag" : "</em>"
+      }
       "fields" : {
         "mapping" : {
             "timestamp" : "@timestamp",
             "display_timestamp" : "@timestamp",
             "hostname" : "hostname",
-            "program": "program",
-            "message": "syslog_message"
+            "program": "clazz",
+            "message": "message"
         },
-        "message_format": "{{{syslog_message}}}"
+        "message_format": "{{{message}}}"
       }
     }  
   ]

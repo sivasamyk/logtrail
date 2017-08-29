@@ -49,9 +49,15 @@ function convertToClientFormat(selected_config, esResponse) {
       var set = require('lodash.set');
       var with_highlights = get(hits[i].highlight, [selected_config.fields.mapping['message'],0]);
       set(source, selected_config.fields.mapping['message'], with_highlights);
-      source[selected_config.fields.mapping['message']] = hits[i].highlight[selected_config.fields.mapping['message']][0];
     }
+
     var message = source[selected_config.fields.mapping['message']];
+    if (selected_config.source_analyzer.enabled) {
+      if (source['logtrail_message']) {
+        var encoded_message = source['logtrail_message'];
+        source[selected_config.fields.mapping['message']] = encoded_message;
+      }
+    }
     //If the user has specified a custom format for message field
     if (message_format) {
       event['message'] = template(source);
@@ -119,6 +125,7 @@ module.exports = function (server) {
             pre_tags : ["<span class='highlight'>"],
             post_tags : ["</span>"],
             fields : {
+              number_of_fragments: 0
             }
           }
         }
