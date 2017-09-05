@@ -385,6 +385,14 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
     }
     angular.element('#settings').addClass('ng-hide');
+    //reset index specific states. 
+    // Other fields will be overwritten on successful search
+    $scope.events = [];
+    eventIds.clear();
+    $scope.selectedHost = null; //all systems
+    $scope.hosts = null;
+    $scope.errorMessage = null;
+
     setupHostsList();
     $scope.onSearchClick();
   };
