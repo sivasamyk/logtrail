@@ -455,7 +455,6 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     if (!updateViewInProgress) {
       //When scroll bar reaches bottom
       var scrollTop = angular.element($window).scrollTop();
-      console.log(scrollTop);
       var scrollPos = angular.element($window).scrollTop() + angular.element($window).height();
       var docHeight = angular.element($document).height();
       if (scrollPos >= docHeight) {
