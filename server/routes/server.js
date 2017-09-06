@@ -43,9 +43,9 @@ function convertToClientFormat(selected_config, esResponse) {
     event['program'] = get(source, selected_config.fields.mapping['program']);
 
     //Calculate message color, if configured
-    if (selected_config.color_coding && selected_config.color_coding.field) {
-      var color_field_val = get(source, selected_config.color_coding.field);
-      var color = selected_config.color_coding.mapping[color_field_val];
+    if (selected_config.color_mapping && selected_config.color_mapping.field) {
+      var color_field_val = get(source, selected_config.color_mapping.field);
+      var color = selected_config.color_mapping.mapping[color_field_val];
       if (color) {
         event['color'] =  color;
       }
