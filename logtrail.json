@@ -22,6 +22,8 @@
             "message": "syslog_message"
         },
         "message_format": "{{{syslog_message}}}"
+      },
+      "color_coding" : {
       }
     }  
   ]

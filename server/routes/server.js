@@ -35,7 +35,6 @@ function convertToClientFormat(selected_config, esResponse) {
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
-
     event.id = hits[i]._id;
     var get = require('lodash.get');
     event['timestamp'] = get(source, selected_config.fields.mapping['timestamp']);
@@ -44,9 +43,9 @@ function convertToClientFormat(selected_config, esResponse) {
     event['program'] = get(source, selected_config.fields.mapping['program']);
 
     //Calculate message color, if configured
-    if (selected_config.color) {
-      var color_field_val = get(source, selected_config.color.field);
-      var color = selected_config.color.mapping[color_field_val];
+    if (selected_config.color_coding && selected_config.color_coding.field) {
+      var color_field_val = get(source, selected_config.color_coding.field);
+      var color = selected_config.color_coding.mapping[color_field_val];
       if (color) {
         event['color'] =  color;
       }
