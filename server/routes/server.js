@@ -43,6 +43,15 @@ function convertToClientFormat(selected_config, esResponse) {
     event['hostname'] = get(source, selected_config.fields.mapping['hostname']);
     event['program'] = get(source, selected_config.fields.mapping['program']);
 
+    //Calculate message color, if configured
+    if (selected_config.color) {
+      var color_field_val = get(source, selected_config.color.field);
+      var color = selected_config.color.mapping[color_field_val];
+      if (color) {
+        event['color'] =  color;
+      }
+    }
+
     //Change the source['message'] to highlighter text if available
     if (hits[i].highlight) {
       var get = require('lodash.get');

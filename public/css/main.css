@@ -106,10 +106,10 @@ html,body {
 }
 
 .message {
-	color: #B0B0B0;	
+	color: #B0B0B0;
 	word-break: break-all;
-    word-wrap: break-word;
-    white-space: pre-wrap;
+	word-wrap: break-word;
+	white-space: pre-wrap;
 }
 
 .flex-container-search {
