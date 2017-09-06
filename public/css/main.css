@@ -410,6 +410,11 @@ html,body {
 	margin-left: -36px;
 }
 
+
+.flex-container-settings > .submit:enabled:hover {
+	background-color: rgb(204,204,204);
+}
+
 .live-tail-button {
 	margin-right: 4em;
 	text-align: center;
