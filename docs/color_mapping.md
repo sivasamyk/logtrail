@@ -1,4 +1,4 @@
-##Coloring messages##
+## Coloring messages ##
 
 Logtrail provides option to color the messages based on field values. This feature can be enabled by configuring `color_mapping` field in `logtrail.json`. Let us assume you have following log messages:
 ```
@@ -27,4 +27,4 @@ If there are no matches in the mapping, the default color ( as per CSS ) will be
 
 For the above configuration the event console display will be like:
 
-![Color Coding screenshot](https://raw.githubusercontent.com/sivasamyk/logtrail/colors/docs/color_mapping.png)
+![Color Coding screenshot](https://raw.githubusercontent.com/sivasamyk/logtrail/features/colors/docs/color_mapping.png)
