@@ -23,7 +23,7 @@
         },
         "message_format": "{{{syslog_message}}}"
       },
-      "color_coding" : {
+      "color_mapping" : {
       }
     }  
   ]
