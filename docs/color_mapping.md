@@ -27,4 +27,4 @@ If there are no matches in the mapping, the default color ( as per CSS ) will be
 
 For the above configuration the event console display will be like:
 
-![Color Coding screenshot](https://raw.githubusercontent.com/sivasamyk/logtrail/feature/colors/docs/color_mapping.png)
+![Color Coding screenshot](https://raw.githubusercontent.com/sivasamyk/logtrail/master/docs/color_mapping.png)
