@@ -34,13 +34,21 @@ function convertToClientFormat(selected_config, esResponse) {
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
-
     event.id = hits[i]._id;
     var get = require('lodash.get');
     event['timestamp'] = get(source, selected_config.fields.mapping['timestamp']);
     event['display_timestamp'] = get(source, selected_config.fields.mapping['display_timestamp']);
     event['hostname'] = get(source, selected_config.fields.mapping['hostname']);
     event['program'] = get(source, selected_config.fields.mapping['program']);
+
+    //Calculate message color, if configured
+    if (selected_config.color_mapping && selected_config.color_mapping.field) {
+      var color_field_val = get(source, selected_config.color_mapping.field);
+      var color = selected_config.color_mapping.mapping[color_field_val];
+      if (color) {
+        event['color'] =  color;
+      }
+    }
 
     //Change the source['message'] to highlighter text if available
     if (hits[i].highlight) {

@@ -106,10 +106,10 @@ html,body {
 }
 
 .message {
-	color: #B0B0B0;	
+	color: #B0B0B0;
 	word-break: break-all;
-    word-wrap: break-word;
-    white-space: pre-wrap;
+	word-wrap: break-word;
+	white-space: pre-wrap;
 }
 
 .flex-container-search {
@@ -408,6 +408,11 @@ html,body {
 	border-top-color: white;
 	border-width: 36px;
 	margin-left: -36px;
+}
+
+
+.flex-container-settings > .submit:enabled:hover {
+	background-color: rgb(204,204,204);
 }
 
 .live-tail-button {

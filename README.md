@@ -1,6 +1,6 @@
 # LogTrail - Log Viewer plugin for Kibana
 
-[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 5.5.2](https://img.shields.io/badge/Kibana-v5.5.2-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-5.5.2)
+[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 5.6.0](https://img.shields.io/badge/Kibana-v5.6.0-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-5.6.0)
 [![License](https://img.shields.io/github/license/sivasamyk/logtrail.svg)](https://github.com/sivasamyk/logtrail) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sivasamyk)
 
 Introduction
@@ -19,6 +19,7 @@ Features
  - Supports highlighting of search matches
  - Supports multiple Elasticsearch index patterns each with different schemas
  - Can be extended by adding additional fields to log event
+ - Color coding of messages based on field values
 
 Installation
 ------------
@@ -26,7 +27,7 @@ Installation
   - Download and install Elasticsearch , Logstash and Kibana
   - Logtrail is supported and tested with Kibana 4.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
-  - Kibana 5.5.2 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.19/logtrail-5.5.2-0.1.19.zip`
+  - Kibana 5.6.0 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.21/logtrail-5.6.0-0.1.21.zip`
   - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/0.1.14/logtrail-4.x-0.1.14.tar.gz`
   - Other versions : [https://github.com/sivasamyk/logtrail/releases](https://github.com/sivasamyk/logtrail/releases)
 
@@ -64,6 +65,7 @@ Edit the following fields:
  - By default each line displayed in the events view is of format:
   `display_timestamp hostname program:message`
  - message_format - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](docs/add_fields.md)
+ - color_mapping - Color code messages based on field values. For more details refer [Color coding messages](docs/color_mapping.md)
  - Any changes in `logtrail.json` requires restart of Kibana
 
 ### If you are starting fresh

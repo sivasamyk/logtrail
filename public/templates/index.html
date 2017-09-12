@@ -12,7 +12,7 @@
       <time>{{ event.display_timestamp }}</time>
       <span class='host'><a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a></span>
       <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}:</a></span>
-      <span class="message" ng-bind-html="event.message"/>
+      <span class="message" ng-style="event.color? {color: event.color} : ''" ng-bind-html="event.message"/>
     </li>
   </ul>
 
@@ -58,7 +58,7 @@
           <select class="flex-item-settings" ng-model="selected_index_pattern">
             <option ng-repeat="index in index_patterns" ng-value="index">{{index}}</option>
           </select>
-          <button class="flex-item-settings submit">Ok</button>
+          <button class="btn flex-item-settings submit">Ok</button>
         </div>
       </form>
     </div>
