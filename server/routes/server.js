@@ -31,7 +31,6 @@ function convertToClientFormat(selected_config, esResponse) {
     var message_template = getMessageTemplate(handlebar, selected_config);
     var template = handlebar.compile(message_template);
   }
-  var escape = require("escape-html");
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
@@ -60,13 +59,22 @@ function convertToClientFormat(selected_config, esResponse) {
       source[selected_config.fields.mapping['message']] = hits[i].highlight[selected_config.fields.mapping['message']][0];
     }
     var message = source[selected_config.fields.mapping['message']];
+    //sanitize html
+    var escape = require('lodash.escape');
+    message = escape(message);
+    //if highlight is present then replace pre and post tag with html
+    if (hits[i].highlight) {
+      message = message.replace('logtrail.highlight.pre_tag','<span class="highlight">')
+      message = message.replace('logtrail.highlight.post_tag','</span>')
+    }
+    source[selected_config.fields.mapping['message']] = message;
+
     //If the user has specified a custom format for message field
     if (message_format) {
       event['message'] = template(source);
     } else {
-      event['message'] = escape(message);
+      event['message'] = message;
     }
-    //console.log(event.message);
     clientResponse.push(event);
   }
   return clientResponse;
@@ -124,8 +132,8 @@ module.exports = function (server) {
             }
           },
           highlight : {
-            pre_tags : ["<span class='highlight'>"],
-            post_tags : ["</span>"],
+            pre_tags : ["logtrail.highlight.pre_tag"],
+            post_tags : ["logtrail.highlight.post_tag"],
             fields : {
             }
           }
