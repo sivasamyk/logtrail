@@ -21,7 +21,7 @@ function getMessageTemplate(handlebar, selected_config) {
     return message_template; //<a class="ng-binding" ng-click="onClick('pid','{{pid}}')">{{pid}}</a> : {{syslog_message}}
 }
 
-function convertToClientFormat(selected_config, esResponse) {
+function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
   var clientResponse = [];
   var hits = esResponse.hits.hits;
 
@@ -69,6 +69,23 @@ function convertToClientFormat(selected_config, esResponse) {
     }
     source[selected_config.fields.mapping['message']] = message;
 
+    //if source analysis is enabled 
+    if (sourcePatterns) {
+      var context = selected_config.source_analysis.context;
+      var messageField = selected_config.source_analysis.message_field;
+      var context_patterns = sourcePatterns[context];
+      if (!context_patterns) {
+        //try default
+        context_patterns = sourcePatterns['default-context'];
+      }
+
+      if(context_patterns) {
+        for (var i = context_patterns.length - 1; i >= 0; i--) {
+          context_patterns[i]
+        }
+      }
+    }
+
     //If the user has specified a custom format for message field
     if (message_format) {
       event['message'] = template(source);
@@ -80,7 +97,38 @@ function convertToClientFormat(selected_config, esResponse) {
   return clientResponse;
 }
 
+//for each index, if source analysis is enabled, read the
+//respective patterns file and then create a map of context -> patterns
+function getSourcePatterns() {
+  var config = require('../../logtrail.json');
+  var sourcePatterns = {};
+  for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+    var sourceAnalysis = config.index_patterns[i].source_analysis;
+    if(sourceAnalysis) {
+      if (sourceAnalysis.enabled) {
+        var index = config.index_patterns[i].es.default_index;
+        var patternsFromFile = require(sourceAnalysis.patterns_file);
+        //Map of context to patterns
+        var patternMap = {}; 
+        sourcePatterns[index] = patternMap;
+
+        for (var i = patternsFromFile.length - 1; i >= 0; i--) {
+          var context = patternsFromFile[i].context;
+          //If not present, create a new array
+          if (!patternMap[context]) {
+            patternMap[context] = [];
+          }
+          patternMap[context].push(patternsFromFile[i]);
+        }
+      }
+    }
+  }
+  return sourcePatterns;
+}
+
 module.exports = function (server) {
+
+  var sourcePatterns = getSourcePatterns();
 
   //Search
   server.route({
@@ -190,7 +238,7 @@ module.exports = function (server) {
       callWithRequest(request,'search',searchRequest).then(function (resp) {
         reply({
           ok: true,
-          resp: convertToClientFormat(selected_config, resp)
+          resp: convertToClientFormat(selected_config, resp, sourcePatterns[selected_config.es.default_index])
         });
       }).catch(function (resp) {
         if (resp.isBoom) {

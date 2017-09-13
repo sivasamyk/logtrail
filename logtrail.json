@@ -17,13 +17,19 @@
         "mapping" : {
             "timestamp" : "@timestamp",
             "display_timestamp" : "@timestamp",
-            "hostname" : "hostname",
-            "program": "program",
-            "message": "syslog_message"
+            "hostname" : "host",
+            "program": "package",
+            "message": "log_message"
         },
-        "message_format": "{{{syslog_message}}}"
+        "message_format": "{{{log_message}}}"
       },
       "color_mapping" : {
+      },
+      "source_analysis" : {
+        "enabled": true,
+        "patterns_file" : "/home/skaliappan/lab/zookeeper-release-3.4.3/logs/zpatterns.json",
+        "message_field": "log_message",
+        "context": "package"
       }
     }  
   ]
