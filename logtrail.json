@@ -13,7 +13,7 @@
       "default_time_range_in_days" : 0,
       "max_hosts": 100,
       "max_events_to_keep_in_viewer": 5000,
-      "source_analyzer" : {
+      "source_analysis" : {
         "enabled" : true,
         "pre_tag" : "<em>",
         "post_tag" : "</em>"

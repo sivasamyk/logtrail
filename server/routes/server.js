@@ -52,7 +52,7 @@ function convertToClientFormat(selected_config, esResponse) {
     }
 
     var message = source[selected_config.fields.mapping['message']];
-    if (selected_config.source_analyzer.enabled) {
+    if (selected_config.source_analysis.enabled) {
       if (source['logtrail_message']) {
         var encoded_message = source['logtrail_message'];
         source[selected_config.fields.mapping['message']] = encoded_message;
