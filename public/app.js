@@ -385,6 +385,14 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
     }
     angular.element('#settings').addClass('ng-hide');
+    //reset index specific states. 
+    // Other fields will be overwritten on successful search
+    $scope.events = [];
+    eventIds.clear();
+    $scope.selectedHost = null; //all systems
+    $scope.hosts = null;
+    $scope.errorMessage = null;
+
     setupHostsList();
     $scope.onSearchClick();
   };
@@ -445,8 +453,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   angular.element($window).bind('scroll', function (event) {
 
     if (!updateViewInProgress) {
-      //When scroll bar search bottom
-      if (angular.element($window).scrollTop() + angular.element($window).height() === angular.element($document).height()) {
+      //When scroll bar reaches bottom
+      var scrollTop = angular.element($window).scrollTop();
+      var scrollPos = angular.element($window).scrollTop() + angular.element($window).height();
+      var docHeight = angular.element($document).height();
+      if (scrollPos >= docHeight) {
         if ($scope.events.length > 0) {
           doSearch('gte', 'asc', ['append','scrollToView'], lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 ));
         }

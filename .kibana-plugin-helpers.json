@@ -1,0 +1,8 @@
+{
+  "buildSourcePatterns": [
+    "package.json",
+    "index.js",
+    "{lib,public,server,webpackShims}/**/*",
+    "logtrail.json"
+  ]
+}
