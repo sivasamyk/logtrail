@@ -2,7 +2,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "logstash-2017.01.10",
+        "default_index": "logstash-zookeeper",
         "allow_url_parameter": false
       },
       "tail_interval_in_seconds": 10,
@@ -15,18 +15,18 @@
       "max_events_to_keep_in_viewer": 5000,
       "source_analysis" : {
         "enabled" : true,
-        "pre_tag" : "<em>",
-        "post_tag" : "</em>"
-      }
+        "pre_tag" : "logtrail.pre",
+        "post_tag" : "logtrail.post"
+      },
       "fields" : {
         "mapping" : {
             "timestamp" : "@timestamp",
             "display_timestamp" : "@timestamp",
-            "hostname" : "hostname",
-            "program": "clazz",
-            "message": "message"
+            "hostname" : "host",
+            "program": "package",
+            "message": "log_message"
         },
-        "message_format": "{{{message}}}"
+        "message_format": "{{{log_message}}}"
       }
     }  
   ]

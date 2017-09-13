@@ -55,6 +55,8 @@ function convertToClientFormat(selected_config, esResponse) {
     if (selected_config.source_analysis.enabled) {
       if (source['logtrail_message']) {
         var encoded_message = source['logtrail_message'];
+        encoded_message = encoded_message.replace('logtral.pre','<a hre="#">');
+        encoded_message = encoded_message.replace('logtral.post','</a>');
         source[selected_config.fields.mapping['message']] = encoded_message;
       }
     }
@@ -125,7 +127,6 @@ module.exports = function (server) {
             pre_tags : ["<span class='highlight'>"],
             post_tags : ["</span>"],
             fields : {
-              number_of_fragments: 0
             }
           }
         }
