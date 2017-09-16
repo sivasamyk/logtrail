@@ -61,6 +61,7 @@ html,body {
     margin-left: 1em;
     border: 2px solid #ccc;
     font-size: 16px;
+    padding-right: 11em;
 }
 
 .search-form {
@@ -274,8 +275,12 @@ html,body {
 	color: black;
 }
 
+.flex-container-date-picker > .submit:enabled:hover {
+	background-color: rgb(204,204,204);
+}
+
 .date-picker-box.form-control {
-    height: 2.3em;
+    height: 2.4em;
     margin-left: .2em;
     border: 2px solid #ccc;
     font-size: 16px;
@@ -340,9 +345,9 @@ html,body {
     -webkit-order: 0;
     -ms-flex-order: 0;
     order: 0;
-    -webkit-flex: 0 0 5em;
-    -ms-flex: 0 0 5em;
-    flex: 0 0 5em;
+    -webkit-flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
     -webkit-align-self: auto;
     -ms-flex-item-align: auto;
     align-self: auto;
@@ -376,9 +381,9 @@ html,body {
 	position: absolute;
 	background: white;
 	border: 4px solid rgb(128,128,128);
-  	width: 20em;
-  	height: auto;
-  	border-radius: 6px;
+	width: 20em;
+	height: auto;
+	border-radius: 6px;
 	bottom: 5.5em;
 	left: 68em;
 	padding: 0;	
@@ -532,4 +537,9 @@ html,body {
 
 .highlight {
 	background-color: #004899;
+}
+
+.lucene-hint {
+	position: fixed;
+	left: 50em;
 }

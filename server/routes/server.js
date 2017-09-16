@@ -64,8 +64,8 @@ function convertToClientFormat(selected_config, esResponse) {
     message = escape(message);
     //if highlight is present then replace pre and post tag with html
     if (hits[i].highlight) {
-      message = message.replace('logtrail.highlight.pre_tag','<span class="highlight">')
-      message = message.replace('logtrail.highlight.post_tag','</span>')
+      message = message.replace(/logtrail.highlight.pre_tag/g,'<span class="highlight">')
+      message = message.replace(/logtrail.highlight.post_tag/g,'</span>')
     }
     source[selected_config.fields.mapping['message']] = message;
 
