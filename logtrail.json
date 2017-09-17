@@ -26,10 +26,7 @@
       "color_mapping" : {
       },
       "source_analysis" : {
-        "enabled": true,
-        "patterns_file" : "/home/skaliappan/lab/zookeeper-release-3.4.3/logs/zpatterns.json",
-        "message_field": "log_message",
-        "context": "package"
+        "enabled": true
       }
     }  
   ]

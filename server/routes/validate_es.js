@@ -3,7 +3,7 @@ module.exports = function (server) {
     method: 'POST',
     path: '/logtrail/validate/es',
     handler: function (request, reply) {
-      var config = require('../../logtrail.json');      
+      var config = require('../../logtrail.json');
       var index = request.payload.index;
       var selected_config = config.index_patterns[0];
       if (index) {        

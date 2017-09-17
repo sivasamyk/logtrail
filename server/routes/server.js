@@ -71,17 +71,28 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
 
     //if source analysis is enabled 
     if (sourcePatterns) {
-      var context = selected_config.source_analysis.context;
-      var messageField = selected_config.source_analysis.message_field;
-      var context_patterns = sourcePatterns[context];
-      if (!context_patterns) {
-        //try default
-        context_patterns = sourcePatterns['default-context'];
-      }
-
-      if(context_patterns) {
-        for (var i = context_patterns.length - 1; i >= 0; i--) {
-          context_patterns[i]
+      var logtrail = source['logtrail'];
+      if (logtrail) {
+        var patternId = logtrail['patternId'];
+        if (patternId) {
+          var pattern = sourcePatterns[patternId];
+          if (pattern) {
+            var matchIndices = logtrail['matchIndices'];
+            if (matchIndices) {
+              var indices = matchIndices.split(",");
+              indices.reverse();
+              var messageArr = [];
+              for (var j = 0; j < indices.length - 1; j+=2) {
+                var lastIndex = j == 0 ? 0 : indices[j-1];
+                messageArr.push(message.slice(lastIndex, indices[j]));
+                messageArr.push('<a href="#">');
+                messageArr.push(message.slice(indices[j], indices[j+1]));
+                messageArr.push('</a>');
+              }
+              messageArr.push(message.slice(indices[indices.length-1]));
+              source[selected_config.fields.mapping['message']] = messageArr.join("");
+            }
+          }
         }
       }
     }
@@ -99,36 +110,29 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
 
 //for each index, if source analysis is enabled, read the
 //respective patterns file and then create a map of context -> patterns
-function getSourcePatterns() {
-  var config = require('../../logtrail.json');
-  var sourcePatterns = {};
-  for (var i = config.index_patterns.length - 1; i >= 0; i--) {
-    var sourceAnalysis = config.index_patterns[i].source_analysis;
-    if(sourceAnalysis) {
-      if (sourceAnalysis.enabled) {
-        var index = config.index_patterns[i].es.default_index;
-        var patternsFromFile = require(sourceAnalysis.patterns_file);
-        //Map of context to patterns
-        var patternMap = {}; 
-        sourcePatterns[index] = patternMap;
+function loadSourcePatterns(server, sourcePatterns) {
+  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('data');
 
-        for (var i = patternsFromFile.length - 1; i >= 0; i--) {
-          var context = patternsFromFile[i].context;
-          //If not present, create a new array
-          if (!patternMap[context]) {
-            patternMap[context] = [];
-          }
-          patternMap[context].push(patternsFromFile[i]);
-        }
-      }
+  var request = {
+    index: '.logtrail_patterns',
+    size: 2000,
+  };
+  callWithInternalUser('search',request).then(function (resp) {
+    var hits = resp.hits.hits;
+    for (var i = hits.length - 1; i >= 0; i--) {
+      var hit = hits[i];
+      sourcePatterns[hit['_id']] = hit['_source'];
     }
-  }
-  return sourcePatterns;
+    server.log (['info','status'],`Loaded ${hits.length} source patterns from ES ...`);
+  }).catch(function (resp) {
+    server.log (['error','status'],`Error while loading patterns from ES ...${resp}`);
+  });
 }
 
 module.exports = function (server) {
 
-  var sourcePatterns = getSourcePatterns();
+  var sourcePatterns = {};
+  loadSourcePatterns(server, sourcePatterns);
 
   //Search
   server.route({
@@ -238,13 +242,13 @@ module.exports = function (server) {
       callWithRequest(request,'search',searchRequest).then(function (resp) {
         reply({
           ok: true,
-          resp: convertToClientFormat(selected_config, resp, sourcePatterns[selected_config.es.default_index])
+          resp: convertToClientFormat(selected_config, resp, sourcePatterns)
         });
       }).catch(function (resp) {
         if (resp.isBoom) {
           reply(resp);
         } else {
-          console.error("Error while executing search",resp);
+          server.log(['error'],"Error while executing search : " + resp);
           reply({
             ok: false,
             resp: resp
@@ -301,7 +305,7 @@ module.exports = function (server) {
         if(resp.isBoom) {
           reply(resp);
         } else {
-          console.error("Error while fetching hosts",resp);
+          server.log(['error'],"Error while fetching hosts" + resp);
           reply({
             ok: false,
             resp: resp
