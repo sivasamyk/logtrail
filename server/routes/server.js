@@ -62,39 +62,30 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     //sanitize html
     var escape = require('lodash.escape');
     message = escape(message);
-    //if highlight is present then replace pre and post tag with html
+    //map of indices and the content to replace
+    var replaceIndices = [];
     if (hits[i].highlight) {
-      message = message.replace(/logtrail.highlight.pre_tag/g,'<span class="highlight">')
-      message = message.replace(/logtrail.highlight.post_tag/g,'</span>')
+      replaceAndUpdateHighlightIndices(message,replaceIndices)
     }
     source[selected_config.fields.mapping['message']] = message;
 
-    //if source analysis is enabled 
+    //if source analysis is enabled. This won't work for messages with HTML text.
     if (sourcePatterns) {
       var logtrail = source['logtrail'];
-      if (logtrail) {
-        var patternId = logtrail['patternId'];
-        if (patternId) {
-          var pattern = sourcePatterns[patternId];
-          if (pattern) {
-            var matchIndices = logtrail['matchIndices'];
-            if (matchIndices) {
-              var indices = matchIndices.split(",");
-              indices.reverse();
-              var messageArr = [];
-              for (var j = 0; j < indices.length - 1; j+=2) {
-                var lastIndex = j == 0 ? 0 : indices[j-1];
-                messageArr.push(message.slice(lastIndex, indices[j]));
-                messageArr.push('<a href="#">');
-                messageArr.push(message.slice(indices[j], indices[j+1]));
-                messageArr.push('</a>');
-              }
-              messageArr.push(message.slice(indices[indices.length-1]));
-              source[selected_config.fields.mapping['message']] = messageArr.join("");
-            }
-          }
-        }
+      updateSourcePatternIndices(replaceIndices,logtrail, sourcePatterns);
+    }
+
+    var messageArr = [];
+    if (replaceIndices.length > 0) {
+      for (var j = 0; j < replaceIndices.length - 1; j+=2) {
+        var lastIndex = j == 0 ? 0 : replaceIndices[j-1].index;
+        messageArr.push(message.slice(lastIndex, replaceIndices[j].index));
+        messageArr.push(replaceIndices[j].text);
+        messageArr.push(message.slice(replaceIndices[j].index, replaceIndices[j+1].index));
+        messageArr.push(replaceIndices[j+1].text);
       }
+      messageArr.push(message.slice(replaceIndices[replaceIndices.length-1].index));
+      source[selected_config.fields.mapping['message']] = messageArr.join("");
     }
 
     //If the user has specified a custom format for message field
@@ -106,6 +97,55 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     clientResponse.push(event);
   }
   return clientResponse;
+}
+
+//get index of pre and post tag and replace them with ''
+function replaceAndUpdateHighlightIndices(message, replaceIndices) {
+  var index = 0;
+  while(index != -1) {
+    index = message.indexOf('logtrail.highlight.pre_tag');
+    if (index != -1) {
+      replaceIndices.push ({
+        index: index,
+        text: '<span class="highlight">'
+      });
+      message = message.replace('logtrail.highlight.pre_tag','');
+
+      index = message.indexOf('logtrail.highlight.post_tag');
+      replaceIndices.push ({
+        index: index,
+        text: '</span>'
+      });
+      message = message.replace('logtrail.highlight.post_tag','');
+    }
+  }
+}
+
+//lookup for pattern in sourcePatterns and update replaceIndices with tags.
+function updateSourcePatternIndices(replaceIndices, logtrail, sourcePatterns) {
+  if (logtrail) {
+    var patternId = logtrail['patternId'];
+    if (patternId) {
+      var pattern = sourcePatterns[patternId];
+      if (pattern) {
+        var matchIndices = logtrail['matchIndices'];
+        if (matchIndices) {
+          var indices = matchIndices.split(",");
+          indices.reverse();
+          for (var j = 0; j < indices.length - 1; j+=2) {
+            replaceIndices.push({
+              index: indices[j],
+              text: '<a href="#">'
+            });
+            replaceIndices.push({
+              index: indices[j+1],
+              text: '</a>'
+            });
+          }
+        }
+      }
+    }
+  }
 }
 
 //for each index, if source analysis is enabled, read the
