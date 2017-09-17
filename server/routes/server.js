@@ -63,28 +63,31 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     var escape = require('lodash.escape');
     message = escape(message);
     //map of indices and the content to replace
-    var replaceIndices = [];
+    var tokensToInsert = [];
     if (hits[i].highlight) {
-      replaceAndUpdateHighlightIndices(message,replaceIndices)
+      message = replaceHighlightTokens(message,tokensToInsert);
     }
     source[selected_config.fields.mapping['message']] = message;
 
     //if source analysis is enabled. This won't work for messages with HTML text.
     if (sourcePatterns) {
-      var logtrail = source['logtrail'];
-      updateSourcePatternIndices(replaceIndices,logtrail, sourcePatterns);
+      var patternInfo = source['logtrail'];
+      updateSourcePatternIndices(tokensToInsert,patternInfo, sourcePatterns);
     }
 
-    var messageArr = [];
-    if (replaceIndices.length > 0) {
-      for (var j = 0; j < replaceIndices.length - 1; j+=2) {
-        var lastIndex = j == 0 ? 0 : replaceIndices[j-1].index;
-        messageArr.push(message.slice(lastIndex, replaceIndices[j].index));
-        messageArr.push(replaceIndices[j].text);
-        messageArr.push(message.slice(replaceIndices[j].index, replaceIndices[j+1].index));
-        messageArr.push(replaceIndices[j+1].text);
+    tokensToInsert.sort(function(t1, t2) {
+      return t1.index - t2.index;
+    });
+
+    //add required tags to message based on replace indices.
+    if (tokensToInsert.length > 0) {
+      var messageArr = [];
+      for (var j = 0; j < tokensToInsert.length; j++) {
+        var lastIndex = j == 0 ? 0 : tokensToInsert[j-1].index;
+        messageArr.push(message.slice(lastIndex, tokensToInsert[j].index));
+        messageArr.push(tokensToInsert[j].text);
       }
-      messageArr.push(message.slice(replaceIndices[replaceIndices.length-1].index));
+      messageArr.push(message.slice(tokensToInsert[tokensToInsert.length-1].index));
       source[selected_config.fields.mapping['message']] = messageArr.join("");
     }
 
@@ -99,45 +102,40 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
   return clientResponse;
 }
 
-//get index of pre and post tag and replace them with ''
-function replaceAndUpdateHighlightIndices(message, replaceIndices) {
+//get indices of highlight tag and add them to tokensToInsert 
+// with respective html tags
+function replaceHighlightTokens(message, tokensToInsert) {
   var index = 0;
-  while(index != -1) {
-    index = message.indexOf('logtrail.highlight.pre_tag');
-    if (index != -1) {
-      replaceIndices.push ({
-        index: index,
-        text: '<span class="highlight">'
-      });
-      message = message.replace('logtrail.highlight.pre_tag','');
-
-      index = message.indexOf('logtrail.highlight.post_tag');
-      replaceIndices.push ({
-        index: index,
-        text: '</span>'
-      });
-      message = message.replace('logtrail.highlight.post_tag','');
-    }
+  var tokens = message.split('logtrail.highlight.tag');
+  var totalLength = 0;
+  for (var i = 0; i < tokens.length - 1; i++) {
+    var text = i % 2 == 0? '<span class="highlight">' : '</span>';
+    tokensToInsert.push({
+      index: totalLength + tokens[i].length,
+      text: text
+    });
+    totalLength = totalLength + tokens[i].length;
   }
+  return tokens.join('');
 }
 
-//lookup for pattern in sourcePatterns and update replaceIndices with tags.
-function updateSourcePatternIndices(replaceIndices, logtrail, sourcePatterns) {
+//lookup for pattern in sourcePatterns and update tokensToInsert with tags.
+function updateSourcePatternIndices(tokensToInsert, patternInfo, sourcePatterns) {
   if (logtrail) {
-    var patternId = logtrail['patternId'];
+    var patternId = patternInfo['patternId'];
     if (patternId) {
       var pattern = sourcePatterns[patternId];
       if (pattern) {
-        var matchIndices = logtrail['matchIndices'];
+        var matchIndices = patternInfo['matchIndices'];
         if (matchIndices) {
           var indices = matchIndices.split(",");
           indices.reverse();
           for (var j = 0; j < indices.length - 1; j+=2) {
-            replaceIndices.push({
+            tokensToInsert.push({
               index: indices[j],
               text: '<a href="#">'
             });
-            replaceIndices.push({
+            tokensToInsert.push({
               index: indices[j+1],
               text: '</a>'
             });
@@ -224,8 +222,8 @@ module.exports = function (server) {
             }
           },
           highlight : {
-            pre_tags : ["logtrail.highlight.pre_tag"],
-            post_tags : ["logtrail.highlight.post_tag"],
+            pre_tags : ["logtrail.highlight.tag"],
+            post_tags : ["logtrail.highlight.tag"],
             fields : {
             }
           }
