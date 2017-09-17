@@ -22,7 +22,7 @@ function getMessageTemplate(handlebar, selected_config) {
 }
 
 function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
-  var clientResponse = [];
+  var responseToClient = [];
   var hits = esResponse.hits.hits;
 
   var message_format = selected_config.fields.message_format;
@@ -62,8 +62,10 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     //sanitize html
     var escape = require('lodash.escape');
     message = escape(message);
-    //map of indices and the content to replace
+    //list of indices and html tags to replace
+    //based in highlight and source pattern analysis.
     var tokensToInsert = [];
+
     if (hits[i].highlight) {
       message = replaceHighlightTokens(message,tokensToInsert);
     }
@@ -75,6 +77,7 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
       updateSourcePatternIndices(tokensToInsert,patternInfo, sourcePatterns);
     }
 
+    //sort the indices
     tokensToInsert.sort(function(t1, t2) {
       return t1.index - t2.index;
     });
@@ -97,9 +100,9 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     } else {
       event['message'] = message;
     }
-    clientResponse.push(event);
+    responseToClient.push(event);
   }
-  return clientResponse;
+  return responseToClient;
 }
 
 //get indices of highlight tag and add them to tokensToInsert 
@@ -109,10 +112,10 @@ function replaceHighlightTokens(message, tokensToInsert) {
   var tokens = message.split('logtrail.highlight.tag');
   var totalLength = 0;
   for (var i = 0; i < tokens.length - 1; i++) {
-    var text = i % 2 == 0? '<span class="highlight">' : '</span>';
+    var tag = i % 2 == 0? '<span class="highlight">' : '</span>';
     tokensToInsert.push({
       index: totalLength + tokens[i].length,
-      text: text
+      text: tag
     });
     totalLength = totalLength + tokens[i].length;
   }
@@ -121,23 +124,18 @@ function replaceHighlightTokens(message, tokensToInsert) {
 
 //lookup for pattern in sourcePatterns and update tokensToInsert with tags.
 function updateSourcePatternIndices(tokensToInsert, patternInfo, sourcePatterns) {
-  if (logtrail) {
+  if (patternInfo) {
     var patternId = patternInfo['patternId'];
     if (patternId) {
       var pattern = sourcePatterns[patternId];
       if (pattern) {
         var matchIndices = patternInfo['matchIndices'];
         if (matchIndices) {
-          var indices = matchIndices.split(",");
-          indices.reverse();
-          for (var j = 0; j < indices.length - 1; j+=2) {
+          for (var j = 0; j < matchIndices.length - 1; j++) {
+            var tag = j%2 == 0 ? '<a href="#">' : '</a>';
             tokensToInsert.push({
-              index: indices[j],
-              text: '<a href="#">'
-            });
-            tokensToInsert.push({
-              index: indices[j+1],
-              text: '</a>'
+              index: matchIndices[j],
+              text: tag
             });
           }
         }
