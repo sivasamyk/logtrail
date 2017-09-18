@@ -74,7 +74,10 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     //if source analysis is enabled. This won't work for messages with HTML text.
     if (sourcePatterns) {
       var patternInfo = source['logtrail'];
-      updateSourcePatternIndices(tokensToInsert,patternInfo, sourcePatterns);
+      if (patternInfo) {
+        updateSourcePatternIndices(tokensToInsert,patternInfo, sourcePatterns);
+        event['patternInfo'] = patternInfo;
+      }
     }
 
     //sort the indices
@@ -124,20 +127,19 @@ function replaceHighlightTokens(message, tokensToInsert) {
 
 //lookup for pattern in sourcePatterns and update tokensToInsert with tags.
 function updateSourcePatternIndices(tokensToInsert, patternInfo, sourcePatterns) {
-  if (patternInfo) {
-    var patternId = patternInfo['patternId'];
-    if (patternId) {
-      var pattern = sourcePatterns[patternId];
-      if (pattern) {
-        var matchIndices = patternInfo['matchIndices'];
-        if (matchIndices) {
-          for (var j = 0; j < matchIndices.length - 1; j++) {
-            var tag = j%2 == 0 ? '<a href="#">' : '</a>';
-            tokensToInsert.push({
-              index: matchIndices[j],
-              text: tag
-            });
-          }
+  var patternId = patternInfo['patternId'];
+  if (patternId) {
+    var pattern = sourcePatterns[patternId];
+    if (pattern) {
+      var matchIndices = patternInfo['matchIndices'];
+      if (matchIndices) {
+        for (var j = 0; j < matchIndices.length - 1; j++) {
+          var title = pattern['args']['arg' + (j+1)];
+          var tag = j%2 == 0 ? '<a title="'+ title +'" href="#">' : '</a>';
+          tokensToInsert.push({
+            index: matchIndices[j],
+            text: tag
+          });
         }
       }
     }
