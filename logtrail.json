@@ -15,8 +15,8 @@
       "max_events_to_keep_in_viewer": 5000,
       "fields" : {
         "mapping" : {
-            "timestamp" : "@timestamp",
-            "display_timestamp" : "@timestamp",
+            "timestamp" : "logdate",
+            "display_timestamp" : "logdate",
             "hostname" : "host",
             "program": "package",
             "message": "log_message"

@@ -127,15 +127,16 @@ function replaceHighlightTokens(message, tokensToInsert) {
 
 //lookup for pattern in sourcePatterns and update tokensToInsert with tags.
 function updateSourcePatternIndices(tokensToInsert, patternInfo, sourcePatterns) {
+  `debugger;`
   var patternId = patternInfo['patternId'];
+  console.log(patternId);
   if (patternId) {
     var pattern = sourcePatterns[patternId];
     if (pattern) {
       var matchIndices = patternInfo['matchIndices'];
       if (matchIndices) {
         for (var j = 0; j < matchIndices.length - 1; j++) {
-          var title = pattern['args']['arg' + (j+1)];
-          var tag = j%2 == 0 ? '<a title="'+ title +'" href="#">' : '</a>';
+          var tag = j%2 == 0 ? '<a href="#">' : '</a>';
           tokensToInsert.push({
             index: matchIndices[j],
             text: tag
