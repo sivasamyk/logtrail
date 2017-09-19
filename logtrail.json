@@ -2,7 +2,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "logstash-*",
+        "default_index": "logstash-zookeeper",
         "allow_url_parameter": false
       },
       "tail_interval_in_seconds": 10,

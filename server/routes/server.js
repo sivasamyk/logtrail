@@ -127,16 +127,19 @@ function replaceHighlightTokens(message, tokensToInsert) {
 
 //lookup for pattern in sourcePatterns and update tokensToInsert with tags.
 function updateSourcePatternIndices(tokensToInsert, patternInfo, sourcePatterns) {
-  `debugger;`
   var patternId = patternInfo['patternId'];
-  console.log(patternId);
   if (patternId) {
     var pattern = sourcePatterns[patternId];
     if (pattern) {
       var matchIndices = patternInfo['matchIndices'];
       if (matchIndices) {
+        var handlebar = require('handlebars');
+        var tagTemplate = handlebar.compile('<a id="{{id}}" ng-click="onArgClick($event,\'{{id}}\')" href>' : '</a>');
         for (var j = 0; j < matchIndices.length - 1; j++) {
-          var tag = j%2 == 0 ? '<a href="#">' : '</a>';
+          var id = patternId + "-" + ((j/2) + 1);
+          var tag = j%2 == 0 ? tagTemplate({
+            id : id
+          }) : '</a>';
           tokensToInsert.push({
             index: matchIndices[j],
             text: tag
@@ -153,7 +156,7 @@ function loadSourcePatterns(server, sourcePatterns) {
   const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('data');
 
   var request = {
-    index: '.logtrail_patterns',
+    index: '.logtrail-patterns',
     size: 2000,
   };
   callWithInternalUser('search',request).then(function (resp) {

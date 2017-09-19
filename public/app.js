@@ -440,6 +440,13 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $scope.onSearchClick();
   };
 
+  //sample id : AV6ZqLMVVcFBgzHpASJj-2
+  $scope.onArgClick = function (event,id) {
+    var tokens = id.split('-');
+    $scope.userSearchText = 'logtrail.patternId:' + tokens[0] + ' AND logtrail.a' + tokens[1] + ':"' + event.target.text + '"';
+    $scope.onSearchClick();
+  }
+
   $scope.getLiveTailStatus = function () {
     if ($scope.liveTailStatus === 'Live') {
       return 'PAUSE';
