@@ -265,13 +265,13 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       });
     }
 
+    trimEvents(actions.indexOf('append') != -1);
+
     if ($scope.events.length > 0) {
       lastEventTime = Date.create($scope.events[$scope.events.length - 1].timestamp).getTime();
     } else {
       lastEventTime = null;
     }
-
-    trimEvents();
 
     $timeout(function () {
       updateViewInProgress = false;
@@ -291,22 +291,21 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
   };
 
-  function trimEvents() {
+  function trimEvents(append) {
     var eventCount = $scope.events.length;
     if (eventCount > selected_index_config.max_events_to_keep_in_viewer) {
         var noOfItemsToDelete = eventCount - selected_index_config.max_events_to_keep_in_viewer;
-        $scope.events.splice(0, noOfItemsToDelete);
-        var count = noOfItemsToDelete;
-        try {
-          eventIds.forEach(function (eventId) {
-            eventIds.delete(eventId);
-            count--;
-            if(count == 0) {
-              throw "Exception";
-            }
-          });
-        } catch (e) {
-          //Ignore
+        //if append the remove from top
+        var removedEvents = [];
+        if (append) {
+          removedEvents = $scope.events.splice(0,noOfItemsToDelete);
+        } else { //remove from bottom
+          removedEvents = $scope.events.splice(-noOfItemsToDelete);
+        }
+
+        //delete the removed event ids from cache.
+        for (var i = 0; i < removedEvents.length; i++) {
+          eventIds.delete(removedEvents[i].id);
         }
     }
   }
