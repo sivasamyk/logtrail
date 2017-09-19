@@ -41,6 +41,6 @@ To add `pid` and `host ip address` to each log event following is the configurat
 ```
 For the above configuration the event console display will be like:
 
-![Add Fields screenshot](https://raw.githubusercontent.com/sivasamyk/logtrail/message_format/docs/add_fields.png)
+![Add Fields screenshot](https://raw.githubusercontent.com/sivasamyk/logtrail/master/docs/add_fields.png)
 
 On clicking additional field, logtrail will automatically search for log messages matching the value of the field. For example on clicking the pid `16545` in above message, logtrail will search for all message whose pid is `16545` in this index.

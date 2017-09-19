@@ -31,17 +31,24 @@ function convertToClientFormat(selected_config, esResponse) {
     var message_template = getMessageTemplate(handlebar, selected_config);
     var template = handlebar.compile(message_template);
   }
-  var escape = require("escape-html");
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
-
     event.id = hits[i]._id;
     var get = require('lodash.get');
     event['timestamp'] = get(source, selected_config.fields.mapping['timestamp']);
     event['display_timestamp'] = get(source, selected_config.fields.mapping['display_timestamp']);
     event['hostname'] = get(source, selected_config.fields.mapping['hostname']);
     event['program'] = get(source, selected_config.fields.mapping['program']);
+
+    //Calculate message color, if configured
+    if (selected_config.color_mapping && selected_config.color_mapping.field) {
+      var color_field_val = get(source, selected_config.color_mapping.field);
+      var color = selected_config.color_mapping.mapping[color_field_val];
+      if (color) {
+        event['color'] =  color;
+      }
+    }
 
     //Change the source['message'] to highlighter text if available
     if (hits[i].highlight) {
@@ -52,13 +59,22 @@ function convertToClientFormat(selected_config, esResponse) {
       source[selected_config.fields.mapping['message']] = hits[i].highlight[selected_config.fields.mapping['message']][0];
     }
     var message = source[selected_config.fields.mapping['message']];
+    //sanitize html
+    var escape = require('lodash.escape');
+    message = escape(message);
+    //if highlight is present then replace pre and post tag with html
+    if (hits[i].highlight) {
+      message = message.replace(/logtrail.highlight.pre_tag/g,'<span class="highlight">')
+      message = message.replace(/logtrail.highlight.post_tag/g,'</span>')
+    }
+    source[selected_config.fields.mapping['message']] = message;
+
     //If the user has specified a custom format for message field
     if (message_format) {
       event['message'] = template(source);
     } else {
-      event['message'] = escape(message);
+      event['message'] = message;
     }
-    //console.log(event.message);
     clientResponse.push(event);
   }
   return clientResponse;
@@ -116,8 +132,8 @@ module.exports = function (server) {
             }
           },
           highlight : {
-            pre_tags : ["<span class='highlight'>"],
-            post_tags : ["</span>"],
+            pre_tags : ["logtrail.highlight.pre_tag"],
+            post_tags : ["logtrail.highlight.post_tag"],
             fields : {
             }
           }
