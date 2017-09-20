@@ -40,6 +40,7 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     event['display_timestamp'] = get(source, selected_config.fields.mapping['display_timestamp']);
     event['hostname'] = get(source, selected_config.fields.mapping['hostname']);
     event['program'] = get(source, selected_config.fields.mapping['program']);
+    event['raw_message'] = get(source, selected_config.fields.mapping['message']);
 
     //Calculate message color, if configured
     if (selected_config.color_mapping && selected_config.color_mapping.field) {
@@ -134,11 +135,10 @@ function updateSourcePatternIndices(tokensToInsert, patternInfo, sourcePatterns)
       var matchIndices = patternInfo['matchIndices'];
       if (matchIndices) {
         var handlebar = require('handlebars');
-        var tagTemplate = handlebar.compile('<a id="{{id}}" ng-click="onArgClick($event,\'{{id}}\')" href>' : '</a>');
+        var tagTemplate = handlebar.compile('<a data-argnum="{{num}}" class="arg" href>' : '</a>');
         for (var j = 0; j < matchIndices.length - 1; j++) {
-          var id = patternId + "-" + ((j/2) + 1);
           var tag = j%2 == 0 ? tagTemplate({
-            id : id
+            num : (j/2) + 1
           }) : '</a>';
           tokensToInsert.push({
             index: matchIndices[j],

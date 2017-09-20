@@ -94,7 +94,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     });        
   };
   
-  function checkElasticsearch() {    
+  function checkElasticsearch() {
     var params = {
       index: selected_index_config.es.default_index
     };
@@ -435,14 +435,12 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.onClick = function (name,value) {
-    $scope.userSearchText = name + ': "' + value + '"';
-    $scope.onSearchClick();
+    $scope.search(name + ': "' + value + '"');
   };
 
-  //sample id : AV6ZqLMVVcFBgzHpASJj-2
-  $scope.onArgClick = function (event,id) {
-    var tokens = id.split('-');
-    $scope.userSearchText = 'logtrail.patternId:' + tokens[0] + ' AND logtrail.a' + tokens[1] + ':"' + event.target.text + '"';
+  //TODO :: What if there is already a string string present???
+  $scope.search = function (searchString) {
+    $scope.userSearchText = searchString;
     $scope.onSearchClick();
   }
 
@@ -579,6 +577,46 @@ uiModules.get('app/logtrail').directive('compileTemplate', function($compile, $p
       scope.$watch(getStringValue, function() {
         $compile(element, null, -9999)(scope);  //The -9999 makes it skip directives so that we do not recompile ourselves
       });
+    }
+  }
+});
+
+app.directive('formatEvent', function() {
+  return {
+    scope: {
+      event: '=',
+      search: '&'
+    },
+    link: function (scope, element, attr) {
+      element.on('click', onClick);
+
+      function onClick(clickEvent) {
+        var argElement = angular.element(clickEvent.target);
+        var argNum = argElement.data('argnum');
+        //in case of highlight span will be the target. then search for parent.
+        if (!argNum) {
+          argNum = argElement.parent().data('argnum');
+        }
+        if (argNum) {
+          var matchIndices = scope.event.patternInfo.matchIndices;
+          var text = scope.event.raw_message.substring(matchIndices[argNum * 2 - 2],matchIndices[argNum * 2 -1]);
+          if (event.shiftKey) {
+            var searchString = 'logtrail.patternId:' + scope.event.patternInfo.patternId + ' AND logtrail.a' + argNum + ':"' + text + '"';
+            //e.g searchString : logtrail.patternId:AV6ZmVeGVcFBgzHpAO3k AND logtrail.a1:"/10.196.68.149:3570"
+            scope.search({
+              searchString: searchString
+            });
+          } else if (event.altKey) {
+            var searchString = '"' + text + '"';
+            //e.g searchString : "/10.196.68.149:3570"
+            scope.search({
+              searchString: searchString
+            });
+          } else {
+            //popup...
+          }
+        }
+      }
     }
   }
 });
