@@ -75,8 +75,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
 
       //populate index_patterns
-      for (var i = config.index_patterns.length - 1; i >= 0; i--) {          
-        $scope.index_patterns.push(config.index_patterns[i].es.default_index);          
+      for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+        $scope.index_patterns.push(config.index_patterns[i].es.default_index);
       }
       if($routeParams.i) {
         for (var i = config.index_patterns.length - 1; i >= 0; i--) {
@@ -91,15 +91,15 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
       $scope.selected_index_pattern = selected_index_config.es.default_index;
       checkElasticsearch();
-    });        
+    });
   };
-  
-  function checkElasticsearch() {    
+
+  function checkElasticsearch() {
     var params = {
       index: selected_index_config.es.default_index
     };
     return $http.post(chrome.addBasePath('/logtrail/validate/es'), params).then(function (resp) {
-      if (resp.data.ok) {        
+      if (resp.data.ok) {
         console.info('connection to elasticsearch successful');
         //Initialize app views on validate successful
         setupHostsList();
@@ -189,113 +189,167 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   function updateEventView(events,actions,order) {
 
-    updateViewInProgress = true;
-    $scope.showNoEventsMessage = false;
+    if(events && events.length > 1) {
 
-    // Add parsed timestamp to all events
-    for (var i = events.length - 1; i >= 0; i--) {
-      formatEvent(events[i]);
-    }
+      updateViewInProgress = true;
+      $scope.showNoEventsMessage = false;
 
-    if (actions.indexOf('reverse') !== -1) {
-      events.reverse();
-    }
-    if (actions.indexOf('overwrite') !== -1) {
-      $scope.firstEventReached = false;
-      $scope.events = [];
-      eventIds.clear();
-      angular.forEach(events, function (event) {
-        $scope.events.push(event);
-        eventIds.add(event.id);
-      });
-      $timeout(function () {
-        //If scrollbar not visible
-        if (angular.element($document).height() <= angular.element($window).height()) {
-          $scope.firstEventReached = true;
-        }
-      });
-    }
-    if (actions.indexOf('append') !== -1) {
-      //If events are order desc, the reverse the list
-      if (order === 'desc') {
+      // Add parsed timestamp to all events
+      for (var i = events.length - 1; i >= 0; i--) {
+        formatEvent(events[i]);
+      }
+
+      if (actions.indexOf('reverse') !== -1) {
         events.reverse();
       }
-      removeDuplicates(events);
-      angular.forEach(events, function (event) {
-        $scope.events.push(event);
-        eventIds.add(event.id);
-      });
-    }
-    var firstEventId = null;
-    if (actions.indexOf('prepend') !== -1) {
-      removeDuplicates(events);
-      if (events.length > 0) {
-        //Need to move scrollbar to old event location,
-        //so note down its id of before model update
-        firstEventId = $scope.events[0].id;
+      if (actions.indexOf('overwrite') !== -1) {
+        $scope.firstEventReached = false;
+        $scope.events = [];
+        eventIds.clear();
         angular.forEach(events, function (event) {
-          $scope.events.unshift(event);
+          $scope.events.push(event);
           eventIds.add(event.id);
         });
-      } else {
-        $scope.firstEventReached = true;
-      }
-    }
-
-    if (actions.indexOf('scrollToTop') !== -1) {
-      $timeout(function () {
-        window.scrollTo(0,5);
-      });
-    } else if (actions.indexOf('scrollToView') !== -1) {
-
-      if (firstEventId !== null) {
-        //Make sure the old top event in is still in view
         $timeout(function () {
-          var firstEventElement = document.getElementById(firstEventId);
-          if (firstEventElement !== null) {
-            var topPos = firstEventElement.offsetTop;
-            firstEventElement.scrollIntoView();
+          //If scrollbar not visible
+          if (angular.element($document).height() <= angular.element($window).height()) {
+            $scope.firstEventReached = true;
           }
         });
       }
-    } else {
-      //Bring scroll to bottom
-      $timeout(function () {
-        window.scrollTo(0,$(document).height());
-      });
-    }
+      if (actions.indexOf('append') !== -1) {
+        //If events are order desc, the reverse the list
+        if (order === 'desc') {
+          events.reverse();
+        }
+        removeDuplicates(events);
 
-    if ($scope.events.length > 0) {
-      lastEventTime = Date.create($scope.events[$scope.events.length - 1].timestamp).getTime();
-    } else {
-      lastEventTime = null;
-    }
+          // Live tail status logic with forced sort
+          if (selected_index_config.display_timestamp_force_sort && events.length > 0 && $scope.liveTailStatus === 'Live') {
 
-    trimEvents();
+            // Only append events if the newest date from incoming events is newer than the oldest of the current events)
+            if (localeDateStringCompareAsc(events[events.length - 1], $scope.events[0]) > 0) {
 
-    $timeout(function () {
-      updateViewInProgress = false;
-    });
+              angular.forEach(events, function (event) {
+                $scope.events.push(event);
+                eventIds.add(event.id);
+              });
 
-    if ($scope.events != null && $scope.events.length === 0) {
-      $scope.showNoEventsMessage = true;
-      if ($scope.pickedDateTime != null) {
-        var timestamp = Date.create($scope.pickedDateTime).getTime();
-        $scope.noEventErrorStartTime = moment(timestamp).format('MMMM Do YYYY, h:mm:ss a');
+              //TODO: how to deal with dates formatted in ways that can be sorted by alphabetical order ?
+              $scope.events.sort(localeDateStringCompareAsc);
+
+            }
+
+          } else if(events.length > 0) {
+
+            angular.forEach(events, function (event) {
+              $scope.events.push(event);
+              eventIds.add(event.id);
+            });
+
+          }
+      }
+      var firstEventId = null;
+      if (actions.indexOf('prepend') !== -1) {
+        removeDuplicates(events);
+        if (events.length > 0) {
+          //Need to move scrollbar to old event location,
+          //so note down its id of before model update
+          firstEventId = $scope.events[0].id;
+          angular.forEach(events, function (event) {
+            $scope.events.unshift(event);
+            eventIds.add(event.id);
+          });
+        } else {
+          $scope.firstEventReached = true;
+        }
+      }
+
+      trimEvents(order);
+
+      if (actions.indexOf('scrollToTop') !== -1) {
+        $timeout(function () {
+          window.scrollTo(0,5);
+        });
+      } else if (actions.indexOf('scrollToView') !== -1) {
+
+        if (firstEventId !== null) {
+          //Make sure the old top event in is still in view
+          $timeout(function () {
+            var firstEventElement = document.getElementById(firstEventId);
+            if (firstEventElement !== null) {
+              var topPos = firstEventElement.offsetTop;
+              firstEventElement.scrollIntoView();
+            }
+          });
+        }
       } else {
-        if (selected_index_config.default_time_range_in_days !== 0) {
-          $scope.noEventErrorStartTime = moment().subtract(
-            selected_index_config.default_time_range_in_days,'days').startOf('day').format('MMMM Do YYYY, h:mm:ss a');
+        //Bring scroll to bottom
+        $timeout(function () {
+          window.scrollTo(0,$(document).height());
+        });
+      }
+
+      if ($scope.events.length > 0) {
+
+          if (selected_index_config.utc_based_timestamp) {
+            lastEventTime = moment.utc($scope.events[$scope.events.length - 1].timestamp);
+          } else {
+            lastEventTime = Date.create($scope.events[$scope.events.length - 1].timestamp);
+          }
+      } else {
+        lastEventTime = null;
+      }
+
+      $timeout(function () {
+        updateViewInProgress = false;
+      });
+
+      if ($scope.events != null && $scope.events.length === 0) {
+        $scope.showNoEventsMessage = true;
+        if ($scope.pickedDateTime != null) {
+          var timestamp = Date.create($scope.pickedDateTime).getTime();
+          $scope.noEventErrorStartTime = moment(timestamp).format('MMMM Do YYYY, h:mm:ss a');
+        } else {
+          if (selected_index_config.default_time_range_in_days !== 0) {
+            $scope.noEventErrorStartTime = moment().subtract(
+              selected_index_config.default_time_range_in_days,'days').startOf('day').format('MMMM Do YYYY, h:mm:ss a');
+          }
         }
       }
     }
   };
 
+  /**
+   * Checks if 'display_timestamp'-field exists, in case it exists it returns a comparator-value based on localCompare-function.
+   *
+   * localCompare-function:
+   * A Number, indicating whether the reference string comes before, after or is the same as the compareString in sort order. Returns one of three values:
+   * -1 if the reference string is sorted before the compareString
+   * 0 if the two strings are equal
+   * 1 if the reference string is sorted after the compareString
+   *
+   * @param reference string
+   * @param compare string
+   * @return {number}
+   */
+  function localeDateStringCompareAsc(a, b) {
+    if(a !== undefined && a.display_timestamp !== undefined && b !== undefined) {
+      return a.display_timestamp.localeCompare(b.display_timestamp);
+    } else {
+      return -1;
+    }
+  }
+
   function trimEvents() {
     var eventCount = $scope.events.length;
     if (eventCount > selected_index_config.max_events_to_keep_in_viewer) {
         var noOfItemsToDelete = eventCount - selected_index_config.max_events_to_keep_in_viewer;
-        $scope.events.splice(0, noOfItemsToDelete);
+        if (order === 'desc') {
+          $scope.events.splice(0,noOfItemsToDelete);
+        } else { //remove from bottom
+          $scope.events.splice(-noOfItemsToDelete);
+        }
         var count = noOfItemsToDelete;
         try {
           eventIds.forEach(function (eventId) {
@@ -334,14 +388,19 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $location.path('/').search({q: searchText, h: host, t:time, i:selected_index_config.es.default_index});
 
     if ($scope.pickedDateTime != null) {
-      var timestamp = Date.create($scope.pickedDateTime).getTime();
+      var timestamp = null;
+      if (selected_index_config.utc_based_timestamp) {
+        timestamp = Date.create($scope.pickedDateTime.getUTCDate()).getTime();
+      } else {
+        timestamp = Date.create($scope.pickedDateTime).getTime();
+      }
       doSearch('gt','asc', ['overwrite','scrollToTop'],timestamp);
     } else {
       doSearch(null,'desc', ['overwrite','reverse'],null);
     }
   };
 
-  $scope.resetDatePicker = function () {    
+  $scope.resetDatePicker = function () {
     if ($scope.pickedDateTime == null) {
       $scope.userDateTime = null;
     }
@@ -385,7 +444,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
     }
     angular.element('#settings').addClass('ng-hide');
-    //reset index specific states. 
+    //reset index specific states.
     // Other fields will be overwritten on successful search
     $scope.events = [];
     eventIds.clear();
@@ -560,7 +619,7 @@ uiModules.get('app/logtrail').directive('clickOutside', function ($document) {
     scope: false,
     link: function (scope, el, attr) {
       $document.on('click', function (e) {
-        if (scope.popup == null || 
+        if (scope.popup == null ||
             (scope.popup !== e.target && !scope.popup[0].contains(e.target))) {
             if (scope.popup != null) {
               scope.popup.addClass('ng-hide');
