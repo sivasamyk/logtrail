@@ -75,8 +75,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
 
       //populate index_patterns
-      for (var i = config.index_patterns.length - 1; i >= 0; i--) {
-        $scope.index_patterns.push(config.index_patterns[i].es.default_index);
+      for (var i = config.index_patterns.length - 1; i >= 0; i--) {          
+        $scope.index_patterns.push(config.index_patterns[i].es.default_index);          
       }
       if($routeParams.i) {
         for (var i = config.index_patterns.length - 1; i >= 0; i--) {
@@ -91,15 +91,15 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
       $scope.selected_index_pattern = selected_index_config.es.default_index;
       checkElasticsearch();
-    });
+    });        
   };
-
-  function checkElasticsearch() {
+  
+  function checkElasticsearch() {    
     var params = {
       index: selected_index_config.es.default_index
     };
     return $http.post(chrome.addBasePath('/logtrail/validate/es'), params).then(function (resp) {
-      if (resp.data.ok) {
+      if (resp.data.ok) {        
         console.info('connection to elasticsearch successful');
         //Initialize app views on validate successful
         setupHostsList();
@@ -400,7 +400,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
   };
 
-  $scope.resetDatePicker = function () {
+  $scope.resetDatePicker = function () {    
     if ($scope.pickedDateTime == null) {
       $scope.userDateTime = null;
     }
@@ -444,7 +444,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
     }
     angular.element('#settings').addClass('ng-hide');
-    //reset index specific states.
+    //reset index specific states. 
     // Other fields will be overwritten on successful search
     $scope.events = [];
     eventIds.clear();
@@ -619,7 +619,7 @@ uiModules.get('app/logtrail').directive('clickOutside', function ($document) {
     scope: false,
     link: function (scope, el, attr) {
       $document.on('click', function (e) {
-        if (scope.popup == null ||
+        if (scope.popup == null || 
             (scope.popup !== e.target && !scope.popup[0].contains(e.target))) {
             if (scope.popup != null) {
               scope.popup.addClass('ng-hide');
