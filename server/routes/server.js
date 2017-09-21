@@ -78,6 +78,7 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
       if (patternInfo) {
         updateSourcePatternIndices(tokensToInsert,patternInfo, sourcePatterns);
         event['patternInfo'] = patternInfo;
+        event['sourcePattern'] = sourcePatterns[patternInfo.patternId];
       }
     }
 

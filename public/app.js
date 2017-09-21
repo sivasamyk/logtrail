@@ -8,6 +8,7 @@ import moment from 'moment-timezone';
 
 import 'ui/autoload/styles';
 import 'plugins/logtrail/css/main.css';
+import 'plugins/logtrail/directives/format_event.js';
 
 import template from './templates/index.html';
 
@@ -41,6 +42,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   $scope.index_patterns = [];
   $scope.selected_index_pattern = null;
   $scope.popup = null;
+  $scope.argPopup = {
+    style : {
+      display: 'none'
+    }
+  };
   var updateViewInProgress = false;
   var tailTimer = null;
   var searchText = null;
@@ -577,46 +583,6 @@ uiModules.get('app/logtrail').directive('compileTemplate', function($compile, $p
       scope.$watch(getStringValue, function() {
         $compile(element, null, -9999)(scope);  //The -9999 makes it skip directives so that we do not recompile ourselves
       });
-    }
-  }
-});
-
-app.directive('formatEvent', function() {
-  return {
-    scope: {
-      event: '=',
-      search: '&'
-    },
-    link: function (scope, element, attr) {
-      element.on('click', onClick);
-
-      function onClick(clickEvent) {
-        var argElement = angular.element(clickEvent.target);
-        var argNum = argElement.data('argnum');
-        //in case of highlight span will be the target. then search for parent.
-        if (!argNum) {
-          argNum = argElement.parent().data('argnum');
-        }
-        if (argNum) {
-          var matchIndices = scope.event.patternInfo.matchIndices;
-          var text = scope.event.raw_message.substring(matchIndices[argNum * 2 - 2],matchIndices[argNum * 2 -1]);
-          if (event.shiftKey) {
-            var searchString = 'logtrail.patternId:' + scope.event.patternInfo.patternId + ' AND logtrail.a' + argNum + ':"' + text + '"';
-            //e.g searchString : logtrail.patternId:AV6ZmVeGVcFBgzHpAO3k AND logtrail.a1:"/10.196.68.149:3570"
-            scope.search({
-              searchString: searchString
-            });
-          } else if (event.altKey) {
-            var searchString = '"' + text + '"';
-            //e.g searchString : "/10.196.68.149:3570"
-            scope.search({
-              searchString: searchString
-            });
-          } else {
-            //popup...
-          }
-        }
-      }
     }
   }
 });

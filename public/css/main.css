@@ -543,3 +543,43 @@ html,body {
 	position: fixed;
 	left: 50em;
 }
+
+.arg-popup {
+	position: fixed;
+	left: 100px;
+	top: 100px;
+}
+
+.arg-popup-content {
+	position:absolute; left:30px; top:-30px; z-index:999;
+	margin:0; padding:10px; list-style:none;
+	background:#fff; color:#333;
+	-moz-border-radius:5px; -webkit-border-radius:5px; border-radius:5px;
+	-moz-box-shadow:0 0 5px #999; -webkit-box-shadow:0 0 5px #999; box-shadow:0 0 5px #999;
+	display: flex;
+	flex-direction: column;
+	border: 1px solid rgba(0,0,0,.2);
+  border-radius: .3rem;
+  outline: 0;
+  min-width: 25em;
+}
+
+.arg-popup-header {
+	margin-bottom: 0;
+	line-height: 1.5;
+	border-bottom: 1px solid #eceeef;
+}
+
+.arg-popup-context {
+	border-bottom: 1px solid #eceeef;
+	padding-top: .5em;
+}
+
+.arg-popup-links {
+	padding-top: .5em;
+	padding-bottom: .5em;
+}
+
+.highlight-event {
+	border: .2em solid green;
+}
