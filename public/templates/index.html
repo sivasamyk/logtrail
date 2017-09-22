@@ -19,14 +19,26 @@
   <div id='arg-popup' class = 'arg-popup' ng-style = 'argPopup.style' ng-mouseleave= 'argPopup.style.display = "block"'>
     <div class='arg-popup-content'>
       <div class='arg-popup-header'>
-        <h4>{{argPopup.text}}</h4>
+        <h4><strong>{{argPopup.text}}</strong></h4>
       </div>
       <div class='arg-popup-context'>
-        <ul>
-          <li>Class     <a href>{{argPopup.className}}</a></li>
+        <div class="logtrail-form-group">
+          <label>Class</label>
+          <a href>{{argPopup.className}}</a>
+        </div>
+        <div class="logtrail-form-group">
+          <label>Method</label>
+          <a href>{{argPopup.methodName}}</a>
+        </div>
+        <div class="logtrail-form-group">
+          <label>Variable</label>
+          <a href>{{argPopup.variableName}}</a>
+        </div>
+       <!--  <ul>
+          <li><p>Class</p>    <a href>{{argPopup.className}}</a></li>
           <li>Method    <a href> {{argPopup.methodName}}</a></li>
           <li>Variable  <a href> {{argPopup.variableName}}</a></li>
-        </ul>
+        </ul> -->
       </div>
       <div class='arg-popup-links'>
         <ul>
