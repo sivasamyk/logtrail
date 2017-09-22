@@ -550,66 +550,55 @@ html,body {
 	top: 100px;
 }
 
+
 .arg-popup-content {
 	position:absolute; left:30px; top:-30px; z-index:999;
-	margin:0; padding:10px; list-style:none;
-	background:#fff; color:#333;
-	-moz-border-radius:5px; -webkit-border-radius:5px; border-radius:5px;
-	-moz-box-shadow:0 0 5px #999; -webkit-box-shadow:0 0 5px #999; box-shadow:0 0 5px #999;
+	margin:0; list-style:none;
+	background-color: #1C2736;
+	color: #93A9C8;
+	border: solid 1px #2A3A51;
+	border-radius: 3px;
+	box-shadow: 0 3px 12px rgba(27, 31, 35, 0.15);
 	display: flex;
 	flex-direction: column;
-	border: 1px solid rgba(0,0,0,.2);
-  border-radius: .3rem;
-  outline: 0;
-  min-width: 25em;
+	min-width: 35em;
+	max-width: 35em;
+	width: 35em;
+	font-family: monospace;
+	font-size: 12px;
 }
 
-.arg-popup-header {
-	margin-bottom: 0;
-	line-height: 1.5;
-	border-bottom: 1px solid #eceeef;
+.arg-popup-content > .header {
+	border-bottom: 1px solid #2A3A51;
+	padding: 1em .5em 1em .5em;
+	display: flex;
+	word-wrap: break-word;
 }
 
-.arg-popup-context {
-	border-bottom: 1px solid #eceeef;
-	padding-top: .5em;
+.arg-popup-content > .header > .text {
+	padding-right: 1em;
 }
 
-.arg-popup-content > div > ul {
-	list-style-type: none;
+.arg-popup-content > .header > .var-name {
 	padding-left: 1em;
 }
 
-.arg-popup-links {
-	padding-top: .5em;
+.arg-popup-content > .context {
+	border-bottom: 1px solid #2A3A51;
+	padding: 1em .5em 1em .5em;
+	display: inline-block;
+	word-wrap: break-word;
+}
+
+.arg-popup-content > .search > ul {
+	padding: 1em .5em .5em .5em;
+}
+
+.arg-popup-content > .search > ul > li {
+	list-style: none;
 	padding-bottom: .5em;
 }
 
 .highlight-event {
-	border: .2em solid green;
+	background-color: #233043;
 }
-
-/* https://codepen.io/rstrahl/pen/rxmjgL */
-.logtrail-form-group {
-   margin-bottom: 0;
-   display: flex;
-   flex-direction: row;
- }
- 
- .logtrail-form-group label {
-   flex: none;
-   display: block;
-   width: 125px;
-   font-weight: bold;
-   font-size: 1em;
-   text-align: right;
-   padding-right: 1em;
- }
- 
- .logtrail-form-group .link {
-   flex: 1 1 auto;
-   display: block;
-   margin-right: 8px;
-   padding: 4px;
-   margin-top: -4px;
- }

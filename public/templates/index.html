@@ -9,6 +9,7 @@
   </div>
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll ng-class="(argPopup.eventId == event.id && argPopup.style.display == 'block') ? 'highlight-event' : ''" >
+      <span class='icon-plus'/>
       <time>{{ event.display_timestamp }}</time>
       <span class='host'><a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a></span>
       <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}:</a></span>
@@ -17,34 +18,22 @@
   </ul>
 
   <div id='arg-popup' class = 'arg-popup' ng-style = 'argPopup.style' ng-mouseleave= 'argPopup.style.display = "block"'>
-    <div class='arg-popup-content'>
-      <div class='arg-popup-header'>
-        <h4><strong>{{argPopup.text}}</strong></h4>
+    <div class="arg-popup-content">
+      <div class="header">
+        <span class="text"><strong>{{ argPopup.text }}</strong></span> : 
+        <span class="var-name">{{ argPopup.variableName }}</span>
       </div>
-      <div class='arg-popup-context'>
-        <div class="logtrail-form-group">
-          <label>Class</label>
-          <a href>{{argPopup.className}}</a>
-        </div>
-        <div class="logtrail-form-group">
-          <label>Method</label>
-          <a href>{{argPopup.methodName}}</a>
-        </div>
-        <div class="logtrail-form-group">
-          <label>Variable</label>
-          <a href>{{argPopup.variableName}}</a>
-        </div>
-       <!--  <ul>
-          <li><p>Class</p>    <a href>{{argPopup.className}}</a></li>
-          <li>Method    <a href> {{argPopup.methodName}}</a></li>
-          <li>Variable  <a href> {{argPopup.variableName}}</a></li>
-        </ul> -->
+      <div class="context">
+        <a href>{{ argPopup.className }}</a> : <a href>{{ argPopup.methodName}}</a>
       </div>
-      <div class='arg-popup-links'>
+      <div class="search">
         <ul>
-          <li><a href>All messages with <em>{{argPopup.text}}</em></a></li>
-          <li><a href>Similar messages with <em>{{argPopup.text}}</em></a></li>
+          <li><a href>Show All messages containing <strong>{{argPopup.text}}</strong></a></li>
+          <li><a href>Show Similar messages containing <strong>{{argPopup.text}}</strong></a></li>
         </ul>
+      </div>
+      <div class="kibana">
+        
       </div>
     </div>
   </div>
