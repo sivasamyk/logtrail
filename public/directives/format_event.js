@@ -28,17 +28,20 @@ uiModules.get('app/logtrail', []).directive('formatEvent', function() {
               searchString: searchString
             });
           } else {
+            scope.closePopup();
             scope.argPopup.style.display = 'block';
-            scope.argPopup.style.left = clickEvent.clientX;
-            scope.argPopup.style.top = clickEvent.clientY;
+            var rect = clickEvent.target.getBoundingClientRect();
+            scope.argPopup.style.left = rect.left - 30;
+            scope.argPopup.style.top = rect.top + 50;
             scope.argPopup.eventId = scope.event.id;
             scope.argPopup.text = text;
             scope.argPopup.className = scope.event.sourcePattern.context;
             scope.argPopup.methodName = scope.event.sourcePattern.method;
             scope.argPopup.variableName = scope.event.sourcePattern.args[argNum-1];
+            scope.argPopup.argElement = argElement;
+            scope.argPopup.argElement.addClass('highlight-arg');
             scope.$apply();
           }
-          
         }
       });
 

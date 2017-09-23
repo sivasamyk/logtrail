@@ -2,7 +2,7 @@ import angular from 'angular';
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { notify } from 'ui/notify';
-import { uiModules } from "ui/modules"
+import { uiModules } from "ui/modules";
 import sugarDate from 'sugar-date';
 import moment from 'moment-timezone';
 
@@ -459,6 +459,13 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       return 'GO LIVE';
     }
   };
+
+  $scope.closePopup = function (argument) {
+    if ($scope.argPopup.argElement) {
+      $scope.argPopup.argElement.removeClass("highlight-arg");
+    }
+    $scope.argPopup.style.display = 'none';
+  }
 
   angular.element($window).bind('scroll', function (event) {
 

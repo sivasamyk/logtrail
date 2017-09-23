@@ -602,3 +602,37 @@ html,body {
 .highlight-event {
 	background-color: #233043;
 }
+
+.highlight-arg, .highlight-arg:visited {
+	background-color: rgba(217, 72, 15, 0.5);
+	color: #fff3bf;
+}
+
+/* close icon 
+ * https://codepen.io/brissmyr/pen/egidw
+*/
+.close-icon {
+  position: absolute;
+  right: 10px;
+  top: 6px;
+  width: 16px;
+  height: 16px;
+  opacity: 0.3;
+}
+.close-icon:hover {
+  opacity: 1;
+}
+.close-icon:before, .close-icon:after {
+  position: absolute;
+  left: 8px;
+  content: ' ';
+  height: 12px;
+  width: 2px;
+  background-color: #93A9C8;
+}
+.close-icon:before {
+  transform: rotate(45deg);
+}
+.close-icon:after {
+  transform: rotate(-45deg);
+}

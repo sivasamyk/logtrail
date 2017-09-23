@@ -17,11 +17,12 @@
     </li>
   </ul>
 
-  <div id='arg-popup' class = 'arg-popup' ng-style = 'argPopup.style' ng-mouseleave= 'argPopup.style.display = "block"'>
+  <div id='arg-popup' class = 'arg-popup' ng-style = 'argPopup.style'>
     <div class="arg-popup-content">
       <div class="header">
         <span class="text"><strong>{{ argPopup.text }}</strong></span> : 
         <span class="var-name">{{ argPopup.variableName }}</span>
+        <span><a href ng-click = 'closePopup()' class="close-icon"></a></span>
       </div>
       <div class="context">
         <a href>{{ argPopup.className }}</a> : <a href>{{ argPopup.methodName}}</a>
