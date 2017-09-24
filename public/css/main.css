@@ -71,7 +71,7 @@ html,body {
 .events {
 	color: #ddd;
 	background-color: black;
-	padding-left: 1em;
+	padding-left: 0em;
 	font-family: monaco,monospace,courier,'courier new','Bitstream Vera Sans Mono';
 	font-size: 12px;
 	list-style: none;
@@ -546,8 +546,6 @@ html,body {
 
 .arg-popup {
 	position: fixed;
-	left: 100px;
-	top: 100px;
 }
 
 
@@ -613,8 +611,8 @@ html,body {
 */
 .close-icon {
   position: absolute;
-  right: 10px;
-  top: 6px;
+  right: 2px;
+  top: 4px;
   width: 16px;
   height: 16px;
   opacity: 0.3;
@@ -635,4 +633,75 @@ html,body {
 }
 .close-icon:after {
   transform: rotate(-45deg);
+}
+
+/* plus icon */
+
+.plus-icon {
+	position: relative;
+	right: 2px;
+	top: 4px;
+	width: 8px;
+	height: 8px;
+	opacity: 0.5;
+}
+.plus-icon:hover {
+  opacity: 1;
+}
+.plus-icon:before, .plus-icon:after {
+  position: absolute;
+  left: 0px;
+  content: ' ';
+  height: 8px;
+  width: 2px;
+  background-color: #93A9C8;
+}
+.plus-icon:before {
+  transform: rotate(90deg);
+}
+.plus-icon:after {
+  transform: rotate(180deg);
+}
+
+.plus-icon-span {
+	display: inline-flex;
+	position: absolute;
+	left: 1em;
+}
+
+.time {
+	left: 1em;
+}
+
+.event {
+	padding-left: 1.6em;
+}
+
+.msg-popup-content {
+	position:absolute; left:30px; top:-30px; z-index:999;
+	margin:0; list-style:none;
+	background-color: #1C2736;
+	color: #93A9C8;
+	border: solid 1px #2A3A51;
+	border-radius: 3px;
+	box-shadow: 0 3px 12px rgba(27, 31, 35, 0.15);
+	display: flex;
+	flex-direction: column;
+	width: 20em;
+	font-family: monospace;
+	font-size: 12px;
+}
+
+.msg-popup-content > .search > ul {
+	padding: 1em .5em .5em .5em;
+	margin-bottom: 0em;
+}
+
+.msg-popup-content > .search > ul > li {
+	list-style: none;
+	padding-bottom: .5em;
+}
+
+.msg-popup {
+	position: fixed;
 }

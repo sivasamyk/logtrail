@@ -44,9 +44,15 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   $scope.popup = null;
   $scope.argPopup = {
     style : {
-      display: 'none'
     }
   };
+
+  $scope.msgPopup = {
+    plusIcon : true,
+    style : {
+
+    }
+  }
   var updateViewInProgress = false;
   var tailTimer = null;
   var searchText = null;
@@ -460,11 +466,86 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
   };
 
-  $scope.closePopup = function (argument) {
+  $scope.closeArgPopup = function (argument) {
     if ($scope.argPopup.argElement) {
       $scope.argPopup.argElement.removeClass("highlight-arg");
     }
-    $scope.argPopup.style.display = 'none';
+    $scope.argPopup.show = false;
+    $scope.argPopup.event = null;
+  }
+
+  $scope.showMsgPopup = function (clickEvent, event) {
+    var rect = clickEvent.target.getBoundingClientRect();
+    $scope.msgPopup.style.left = rect.left - 30;
+    $scope.msgPopup.style.top = rect.top + 50;
+    $scope.msgPopup.event = event;
+    $scope.msgPopup.show = true;
+  }
+
+  $scope.closeMsgPopup = function () {
+    $scope.msgPopup.show = false;
+    $scope.msgPopup.event = null;
+  }
+
+  $scope.getEventNgClass = function (event) {
+    var highlightClass = null;
+    if ($scope.msgPopup.event) {
+      if ($scope.msgPopup.event.id == event.id && $scope.msgPopup.show) {
+          highlightClass = 'highlight-event';
+      } else if ($scope.msgPopup.event.id == event.id) {
+        if ($scope.msgPopup.plusIcon) {
+          highlightClass = 'highlight-event';
+        }
+      }
+    }
+
+    if ($scope.argPopup.event) {
+      if (event.id === $scope.argPopup.event.id) {
+        highlightClass = 'highlight-event';
+      }
+    }
+
+    return highlightClass;
+  }
+
+  $scope.onEventMouseOver = function (event) {
+    if (!$scope.msgPopup.show) {
+      $scope.msgPopup.plusIcon = true;
+      $scope.msgPopup.event = event;
+    }
+  }
+
+  $scope.onEventMouseLeave = function (event) {
+    if (event.id != $scope.msgPopup.event.id) {
+      $scope.msgPopup.plusIcon = false;
+    }
+  }
+
+  $scope.showExactMatches = function () {
+    var event = $scope.msgPopup.event;
+    $scope.closeMsgPopup();
+    $scope.search('"' + event.raw_message + '"');
+  }
+
+  $scope.showSimilarMessages = function () {
+    var event = $scope.msgPopup.event;
+    $scope.closeMsgPopup();
+    $scope.search('logtrail.patternId : ' + event.patternInfo.patternId);
+  }
+
+  $scope.showMessagesContaining = function () {
+    var text = $scope.argPopup.text;
+    $scope.closeArgPopup();
+    $scope.search('"' + text + '"');
+  }
+
+  $scope.showSimilarMessagesContaining = function () {
+    var text = $scope.argPopup.text;
+    var argNum = $scope.argPopup.argNum;
+    var patternInfo = $scope.argPopup.event.patternInfo;
+    var searchString = 'logtrail.patternId:' + patternInfo.patternId + ' AND logtrail.a' + argNum + ':"' + text + '"';
+    $scope.closeArgPopup();
+    $scope.search(searchString);
   }
 
   angular.element($window).bind('scroll', function (event) {

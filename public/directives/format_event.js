@@ -28,32 +28,21 @@ uiModules.get('app/logtrail', []).directive('formatEvent', function() {
               searchString: searchString
             });
           } else {
-            scope.closePopup();
-            scope.argPopup.style.display = 'block';
+            scope.closeArgPopup();
             var rect = clickEvent.target.getBoundingClientRect();
             scope.argPopup.style.left = rect.left - 30;
             scope.argPopup.style.top = rect.top + 50;
-            scope.argPopup.eventId = scope.event.id;
+            scope.argPopup.event = scope.event;
             scope.argPopup.text = text;
+            scope.argPopup.argNum = argNum;
             scope.argPopup.className = scope.event.sourcePattern.context;
             scope.argPopup.methodName = scope.event.sourcePattern.method;
             scope.argPopup.variableName = scope.event.sourcePattern.args[argNum-1];
             scope.argPopup.argElement = argElement;
             scope.argPopup.argElement.addClass('highlight-arg');
+            scope.argPopup.show = true;
             scope.$apply();
           }
-        }
-      });
-
-      element.on('mouseover', function (mouseOverEvent) {
-        var argElement = angular.element(mouseOverEvent.target);
-        var argNum = argElement.data('argnum');
-        //in case of highlight span will be the target. then search for parent.
-        if (!argNum) {
-          argNum = argElement.parent().data('argnum');
-        }
-        if (argNum) {
-          
         }
       });
     }
