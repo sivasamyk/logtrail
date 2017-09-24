@@ -509,7 +509,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   }
 
   $scope.onEventMouseOver = function (event) {
-    if (!$scope.msgPopup.show) {
+    if (!$scope.msgPopup.show && !$scope.argPopup.show) {
       $scope.msgPopup.plusIcon = true;
       $scope.msgPopup.event = event;
     }

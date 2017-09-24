@@ -603,7 +603,7 @@ html,body {
 
 .highlight-arg, .highlight-arg:visited {
 	background-color: rgba(217, 72, 15, 0.5);
-	color: #fff3bf;
+	color: white;
 }
 
 /* close icon 
@@ -704,4 +704,13 @@ html,body {
 
 .msg-popup {
 	position: fixed;
+}
+
+.arg {
+	color: #B0B0B0;
+	text-decoration: underline;
+}
+
+.arg:hover {
+	color: white;
 }
