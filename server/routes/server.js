@@ -2,7 +2,14 @@ function getMessageTemplate(handlebar, selected_config) {
   var message_format = selected_config.fields.message_format;
   //Append <a> tags for click to message format except for message field
     var message_format_regex = /({{{(\S+)}}})/g; // e.g. {{pid}} : {{syslog_message}}
-    var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>");
+    var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>",
+      {
+      knownHelpers: {
+        log: false,
+        lookup: false
+      },
+      knownHelpersOnly: true
+    });
     var messageField = "{{{" + selected_config.fields.mapping.message + "}}}";
     var message_template = message_format;
 
@@ -29,7 +36,13 @@ function convertToClientFormat(selected_config, esResponse) {
   if (message_format) {
     var handlebar = require('handlebars');
     var message_template = getMessageTemplate(handlebar, selected_config);
-    var template = handlebar.compile(message_template);
+    var template = handlebar.compile(message_template, {
+      knownHelpers: {
+        log: false,
+        lookup: false
+      },
+      knownHelpersOnly: true
+    });
   }
   for (var i = 0; i < hits.length; i++) {
     var event = {};
