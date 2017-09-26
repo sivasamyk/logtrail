@@ -30,6 +30,7 @@ Installation
   - Kibana 5.6.1 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.21/logtrail-5.6.1-0.1.21.zip`
   - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/0.1.14/logtrail-4.x-0.1.14.tar.gz`
   - Other versions : [https://github.com/sivasamyk/logtrail/releases](https://github.com/sivasamyk/logtrail/releases)
+- Refer [Logtrail Config Examples Repo](https://github.com/sivasamyk/logtrail-config-examples) for sample configurations for syslog, Java app, Kubernetes logs.
 
 
 Configuration
@@ -69,47 +70,8 @@ Edit the following fields:
  - Any changes in `logtrail.json` requires restart of Kibana
 
 ### If you are starting fresh
-- Before using the plugin make sure there are events indexed in Elasticsearch
-- Configure logstash to receive syslog events
- - Start logstash agent with following configuration to receive syslog events.
-  ```ruby
-  input {
-    tcp {
-      port => 5000 # syslog port. can be changed
-      type => syslog
-    }
-    udp { #optional. required if syslog events are sent using UDP.
-      port => 5000
-      type => syslog
-    }
-  }
-  #Do not change the contents of filter codec
-  filter {
-    if [type] == "syslog" {
-      grok {
-        match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:hostname} %{DATA:program}(?:\[%{POSINT:pid}\])?: %{GREEDYDATA:syslog_message}" }
-      }
-      date {
-        match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
-      }
-    }
-  }
-
-  output {
-    elasticsearch {
-      hosts => ["localhost:9200"]  #change host as required
-    }
-  }
-  ```
-- Configure rsyslog to send data to logstash
-  - In Ubuntu
-      - As root, edit /etc/rsyslog.conf or /etc/syslog.conf to include following line at the end
-      - To send syslog events using TCP `*.*  @@<logstash-agent-ip>:<port>`
-      - To send syslog events using UDP `*.*        @<logstash-agent-ip>:<port>`
-      - Restart rsyslog to activate the changes
-        ```bash
-        sudo service rsyslog restart
-        ```
+- Before using the plugin make sure there are events indexed in Elasticsearch.
+- Refer [logtrail-config-examples](https://github.com/sivasamyk/logtrail-config-examples) repo for sample configurations 
 - Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
   - For more configuration options refer to [Papertrail Configuration Help](http://help.papertrailapp.com/).
 - Beats/Fluentd can also be used to ship events to ES and fields can be mapped using `fields` parameter in `logtrail.json`
