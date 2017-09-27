@@ -93,7 +93,39 @@ function convertToClientFormat(selected_config, esResponse) {
   return clientResponse;
 }
 
+function loadConfigFromES(server) {
+  
+  var config = null;
+  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+  var request = {
+    index: '.logtrail',
+    type: 'config',
+    id: 1
+  };
+  callWithInternalUser('get',request).then(function (resp) {
+    config = resp._source;
+    server.log (['info','status'],`Loaded logtrail config from ES`);
+  }).catch(function (resp) {
+    server.log (['info','status'],`Error while loading config from ES. Will use local` );
+  });
+  return config;
+}
+
+function fetchConfig(server) {
+  //first try loading from elasticsearch server
+  var config = loadConfigFromES(server);
+  if (!config) {
+    //load from local filesystem logtrail.json
+    server.log (['info','status'],`Using logtrail.json from filesystem`);
+    config = require('../../logtrail.json');
+  } 
+  return config;
+}
+
 module.exports = function (server) {
+
+  var context = {};
+  initConfig(server);
 
   //Search
   server.route({
