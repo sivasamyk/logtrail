@@ -93,14 +93,41 @@ function convertToClientFormat(selected_config, esResponse) {
   return clientResponse;
 }
 
+function loadConfigFromES(context,server) {
+  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+  var request = {
+    index: '.logtrail',
+    type: 'config',
+    id: 1
+  };
+  callWithInternalUser('get',request).then(function (resp) {
+    //If elasticsearch has config use it.
+    context['config'] = resp._source;
+    server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
+  }).catch(function (resp) {
+    server.log (['info','status'],`Error while loading config from Elasticsearch. Will use local` );
+  });
+}
+
+function initConfig(context,server) {
+  //by default use local config
+  var config = require('../../logtrail.json');
+  context['config'] = config;
+  //try loading from elasticsearch
+  loadConfigFromES(context, server);
+}
+
 module.exports = function (server) {
+
+  var context = {};
+  initConfig(context,server);
 
   //Search
   server.route({
     method: ['POST'],
     path: '/logtrail/search',
     handler: function (request, reply) {
-      var config = require('../../logtrail.json');
+      var config = context.config;
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
 
       var index = request.payload.index;
@@ -224,7 +251,7 @@ module.exports = function (server) {
     method: ['POST'],
     path: '/logtrail/hosts',
     handler: function (request,reply) {
-      var config = require('../../logtrail.json');
+      var config = context.config;
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var index = request.payload.index;
       var selected_config = config.index_patterns[0];
@@ -282,7 +309,7 @@ module.exports = function (server) {
     handler: function (request, reply) {
       reply({
         ok: true,
-        config: require('../../logtrail.json')
+        config: context.config
       });
     }  
   });
