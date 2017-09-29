@@ -2,7 +2,7 @@ import angular from 'angular';
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { notify } from 'ui/notify';
-import { uiModules } from "ui/modules";
+import { uiModules } from "ui/modules"
 import sugarDate from 'sugar-date';
 import moment from 'moment-timezone';
 
@@ -102,36 +102,21 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         selected_index_config = config.index_patterns[0];
       }
       $scope.selected_index_pattern = selected_index_config.es.default_index;
-      checkElasticsearch();
-    });        
-  };
-  
-  function checkElasticsearch() {
-    var params = {
-      index: selected_index_config.es.default_index
-    };
-    return $http.post(chrome.addBasePath('/logtrail/validate/es'), params).then(function (resp) {
-      if (resp.data.ok) {        
-        console.info('connection to elasticsearch successful');
-        //Initialize app views on validate successful
-        setupHostsList();
-        if ($scope.pickedDateTime == null) {
-          doSearch(null, 'desc', ['overwrite','reverse'], null);
-        } else {
-          var timestamp = Date.create($scope.pickedDateTime).getTime();
-          doSearch('gt','asc', ['overwrite','scrollToTop'],timestamp);
-        }
-        startTailTimer();
-      } else {
-        console.error('validate elasticsearch failed :' , resp);
-        if (resp.data.resp.message) {
-          $scope.errorMessage = resp.data.resp.message;
-        } else {
-          $scope.errorMessage = 'ES Validation failed : ' + resp.data.resp;
-        }
-      }
+      initialize();
     });
   };
+
+  function initialize() {
+    //Initialize app views on validate successful
+    setupHostsList();
+    if ($scope.pickedDateTime == null) {
+      doSearch(null, 'desc', ['overwrite','reverse'], null);
+    } else {
+      var timestamp = Date.create($scope.pickedDateTime).getTime();
+      doSearch('gt','asc', ['overwrite','scrollToTop'],timestamp);
+    }
+    startTailTimer();
+  }
 
   /**
   rangeType - gte or lte

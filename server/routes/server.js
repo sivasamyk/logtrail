@@ -2,7 +2,14 @@ function getMessageTemplate(handlebar, selected_config) {
   var message_format = selected_config.fields.message_format;
   //Append <a> tags for click to message format except for message field
     var message_format_regex = /({{{(\S+)}}})/g; // e.g. {{pid}} : {{syslog_message}}
-    var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>");
+    var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>",
+      {
+      knownHelpers: {
+        log: false,
+        lookup: false
+      },
+      knownHelpersOnly: true
+    });
     var messageField = "{{{" + selected_config.fields.mapping.message + "}}}";
     var message_template = message_format;
 
@@ -29,7 +36,13 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
   if (message_format) {
     var handlebar = require('handlebars');
     var message_template = getMessageTemplate(handlebar, selected_config);
-    var template = handlebar.compile(message_template);
+    var template = handlebar.compile(message_template, {
+      knownHelpers: {
+        log: false,
+        lookup: false
+      },
+      knownHelpersOnly: true
+    });
   }
   for (var i = 0; i < hits.length; i++) {
     var event = {};
@@ -110,61 +123,48 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
   return responseToClient;
 }
 
-//get indices of highlight tag and add them to tokensToInsert 
-// with respective html tags
-function replaceHighlightTokens(message, tokensToInsert) {
-  var index = 0;
-  var tokens = message.split('logtrail.highlight.tag');
-  var totalLength = 0;
-  for (var i = 0; i < tokens.length - 1; i++) {
-    var tag = i % 2 == 0? '<span class="highlight">' : '</span>';
-    tokensToInsert.push({
-      index: totalLength + tokens[i].length,
-      text: tag
-    });
-    totalLength = totalLength + tokens[i].length;
-  }
-  return tokens.join('');
+
+function loadConfigFromES(context,server) {
+  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+  var request = {
+    index: '.logtrail',
+    type: 'config',
+    id: 1
+  };
+  callWithInternalUser('get',request).then(function (resp) {
+    //If elasticsearch has config use it.
+    context['config'] = resp._source;
+    server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
+  }).catch(function (resp) {
+    server.log (['info','status'],`Error while loading config from Elasticsearch. Will use local` );
+  });
 }
 
-//lookup for pattern in sourcePatterns and update tokensToInsert with tags.
-function updateSourcePatternIndices(tokensToInsert, patternInfo, sourcePatterns) {
-  var patternId = patternInfo['patternId'];
-  if (patternId) {
-    var pattern = sourcePatterns[patternId];
-    if (pattern) {
-      var matchIndices = patternInfo['matchIndices'];
-      if (matchIndices) {
-        var handlebar = require('handlebars');
-        var tagTemplate = handlebar.compile('<a data-argnum="{{num}}" class="arg" href>' : '</a>');
-        for (var j = 0; j < matchIndices.length - 1; j++) {
-          var tag = j%2 == 0 ? tagTemplate({
-            num : (j/2) + 1
-          }) : '</a>';
-          tokensToInsert.push({
-            index: matchIndices[j],
-            text: tag
-          });
-        }
-      }
-    }
-  }
+function initConfig(context,server) {
+  //by default use local config
+  var config = require('../../logtrail.json');
+  context['config'] = config;
+  //try loading from elasticsearch
+  loadConfigFromES(context, server);
 }
 
 //for each index, if source analysis is enabled, read the
 //respective patterns file and then create a map of context -> patterns
-function loadSourcePatterns(server, sourcePatterns) {
-  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('data');
+function loadSourcePatterns(context, server) {
+  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+  context['sourcePatterns'] = {};
 
   var request = {
-    index: '.logtrail-patterns',
-    size: 2000,
+    index: '.logtrail',
+    type: 'pattern',
+    //scroll: "1m", // TODO :: Use scroll
+    size: 2000
   };
   callWithInternalUser('search',request).then(function (resp) {
     var hits = resp.hits.hits;
     for (var i = hits.length - 1; i >= 0; i--) {
       var hit = hits[i];
-      sourcePatterns[hit['_id']] = hit['_source'];
+      context.sourcePatterns[hit['_id']] = hit['_source'];
     }
     server.log (['info','status'],`Loaded ${hits.length} source patterns from ES ...`);
   }).catch(function (resp) {
@@ -174,15 +174,16 @@ function loadSourcePatterns(server, sourcePatterns) {
 
 module.exports = function (server) {
 
-  var sourcePatterns = {};
-  loadSourcePatterns(server, sourcePatterns);
+  var context = {};
+  initConfig(context,server);
+  loadSourcePatterns(context,server);
 
   //Search
   server.route({
     method: ['POST'],
     path: '/logtrail/search',
     handler: function (request, reply) {
-      var config = require('../../logtrail.json');
+      var config = context.config;
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
 
       var index = request.payload.index;
@@ -285,7 +286,7 @@ module.exports = function (server) {
       callWithRequest(request,'search',searchRequest).then(function (resp) {
         reply({
           ok: true,
-          resp: convertToClientFormat(selected_config, resp, sourcePatterns)
+          resp: convertToClientFormat(selected_config, resp, context.sourcePatterns)
         });
       }).catch(function (resp) {
         if (resp.isBoom) {
@@ -306,7 +307,7 @@ module.exports = function (server) {
     method: ['POST'],
     path: '/logtrail/hosts',
     handler: function (request,reply) {
-      var config = require('../../logtrail.json');
+      var config = context.config;
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var index = request.payload.index;
       var selected_config = config.index_patterns[0];
@@ -364,7 +365,7 @@ module.exports = function (server) {
     handler: function (request, reply) {
       reply({
         ok: true,
-        config: require('../../logtrail.json')
+        config: context.config
       });
     }  
   });
