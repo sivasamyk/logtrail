@@ -588,13 +588,22 @@ html,body {
 	word-wrap: break-word;
 }
 
+.arg-popup-content > .search {
+	border-bottom: 1px solid #2A3A51;
+}
+
 .arg-popup-content > .search > ul {
 	padding: 1em .5em .5em .5em;
+	margin-bottom: 0;
 }
 
 .arg-popup-content > .search > ul > li {
 	list-style: none;
 	padding-bottom: .5em;
+}
+
+.arg-popup-content > .kibana {
+	padding: 1em .5em;
 }
 
 .highlight-event {
@@ -707,7 +716,7 @@ html,body {
 }
 
 .arg {
-	color: #B0B0B0;
+	color: inherit;
 	text-decoration: underline;
 }
 

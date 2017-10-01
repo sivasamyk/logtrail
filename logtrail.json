@@ -3,7 +3,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "logstash-zookeeper",
+        "default_index": "logstash-hadoop",
         "allow_url_parameter": false
       },
       "tail_interval_in_seconds": 10,
@@ -16,15 +16,22 @@
       "max_events_to_keep_in_viewer": 5000,
       "fields" : {
         "mapping" : {
-            "timestamp" : "logdate",
-            "display_timestamp" : "logdate",
+            "timestamp" : "@timestamp",
+            "display_timestamp" : "@timestamp",
             "hostname" : "host",
-            "program": "package",
+            "program": "logger_name",
             "message": "log_message"
         },
         "message_format": "{{{log_message}}}"
       },
       "color_mapping" : {
+        "field" : "log_level",
+        "mapping" : {
+          "ERROR": "#ff3232",
+          "WARN": "#ff7f24",
+          "DEBUG": "#ffb90f",
+          "TRACE": "#a2cd5a"
+         }
       },
       "source_analysis" : {
         "enabled": true

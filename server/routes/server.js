@@ -1,3 +1,5 @@
+const LOGSTASH_DEFAULT_INDEX = "logstash-";
+
 function getMessageTemplate(handlebar, selected_config) {
   var message_format = selected_config.fields.message_format;
   //Append <a> tags for click to message format except for message field
@@ -90,8 +92,8 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
       var patternInfo = source['logtrail'];
       if (patternInfo) {
         updateSourcePatternIndices(tokensToInsert,patternInfo, sourcePatterns);
-        event['patternInfo'] = patternInfo;
-        event['sourcePattern'] = sourcePatterns[patternInfo.patternId];
+        event['patternInfo'] = patternInfo; //added by logstash plugin
+        event['sourcePattern'] = sourcePatterns[patternInfo.patternId]; //pushed to ES by source analyzer
       }
     }
 
@@ -102,13 +104,15 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
 
     //add required tags to message based on replace indices.
     if (tokensToInsert.length > 0) {
+      //insert tokens on the raw message
+      message = event['raw_message'];
       var messageArr = [];
       for (var j = 0; j < tokensToInsert.length; j++) {
         var lastIndex = j == 0 ? 0 : tokensToInsert[j-1].index;
-        messageArr.push(message.slice(lastIndex, tokensToInsert[j].index));
+        messageArr.push(escape(message.slice(lastIndex, tokensToInsert[j].index)));
         messageArr.push(tokensToInsert[j].text);
       }
-      messageArr.push(message.slice(tokensToInsert[tokensToInsert.length-1].index));
+      messageArr.push(escape(message.slice(tokensToInsert[tokensToInsert.length-1].index)));
       source[selected_config.fields.mapping['message']] = messageArr.join("");
     }
 
@@ -121,6 +125,47 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     responseToClient.push(event);
   }
   return responseToClient;
+}
+
+//get indices of highlight tag and add them to tokensToInsert 
+// with respective html tags
+function replaceHighlightTokens(message, tokensToInsert) {
+  var index = 0;
+  var tokens = message.split('logtrail.highlight.tag');
+  var totalLength = 0;
+  for (var i = 0; i < tokens.length - 1; i++) {
+    var tag = i % 2 == 0? '<span class="highlight">' : '</span>';
+    tokensToInsert.push({
+      index: totalLength + tokens[i].length,
+      text: tag
+    });
+    totalLength = totalLength + tokens[i].length;
+  }
+  return tokens.join('');
+}
+
+//lookup for pattern in sourcePatterns and update tokensToInsert with tags.
+function updateSourcePatternIndices(tokensToInsert, patternInfo, sourcePatterns) {
+  var patternId = patternInfo['patternId'];
+  if (patternId) {
+    var pattern = sourcePatterns[patternId];
+    if (pattern) {
+      var matchIndices = patternInfo['matchIndices'];
+      if (matchIndices) {
+        var handlebar = require('handlebars');
+        var tagTemplate = handlebar.compile('<a data-argnum="{{num}}" class="arg" href>');
+        for (var j = 0; j < matchIndices.length; j++) {
+          var tag = j%2 == 0 ? tagTemplate({
+            num : (j/2) + 1
+          }) : '</a>';
+          tokensToInsert.push({
+            index: matchIndices[j],
+            text: tag
+          });
+        }
+      }
+    }
+  }
 }
 
 
@@ -158,7 +203,7 @@ function loadSourcePatterns(context, server) {
     index: '.logtrail',
     type: 'pattern',
     //scroll: "1m", // TODO :: Use scroll
-    size: 2000
+    size: 8000
   };
   callWithInternalUser('search',request).then(function (resp) {
     var hits = resp.hits.hits;
@@ -250,7 +295,7 @@ module.exports = function (server) {
           }
         };
         var hostnameField = selected_config.fields.mapping.hostname;
-        if (selected_config.es.default_index.startsWith('logstash-')) {
+        if (selected_config.es.default_index.startsWith(LOGSTASH_DEFAULT_INDEX)) {
           hostnameField += ".keyword";
         }
         termQuery.term[hostnameField] = request.payload.hostname;
@@ -321,7 +366,7 @@ module.exports = function (server) {
       }
 
       var hostnameField = selected_config.fields.mapping.hostname;
-      if (selected_config.es.default_index.startsWith('logstash-')) {
+      if (selected_config.es.default_index.startsWith(LOGSTASH_DEFAULT_INDEX)) {
           hostnameField += ".keyword";
       }
       var hostAggRequest = {

@@ -30,8 +30,18 @@ uiModules.get('app/logtrail', []).directive('formatEvent', function() {
           } else {
             scope.closeArgPopup();
             var rect = clickEvent.target.getBoundingClientRect();
-            scope.argPopup.style.left = rect.left - 30;
-            scope.argPopup.style.top = rect.top + 50;
+            var left = rect.left - 30;
+            var top = rect.top + 50;
+            if ((rect.left + 420) > window.innerWidth) {
+              left = left - (rect.left + 450 - window.innerWidth);
+            }
+
+            if ((rect.top + 350) > window.innerHeight) {
+              top = top - (rect.top + 350 - window.innerHeight);
+            }
+
+            scope.argPopup.style.left = left;
+            scope.argPopup.style.top = top;
             scope.argPopup.event = scope.event;
             scope.argPopup.text = text;
             scope.argPopup.argNum = argNum;
