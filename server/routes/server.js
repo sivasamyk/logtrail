@@ -77,13 +77,12 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     var message = source[selected_config.fields.mapping['message']];
     //sanitize html
     var escape = require('lodash.escape');
-    message = escape(message);
     //list of indices and html tags to replace
     //based in highlight and source pattern analysis.
     var tokensToInsert = [];
 
     if (hits[i].highlight) {
-      message = replaceHighlightTokens(message,tokensToInsert);
+      extractHighlightTokens(message,tokensToInsert);
     }
     source[selected_config.fields.mapping['message']] = message;
 
@@ -129,7 +128,7 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
 
 //get indices of highlight tag and add them to tokensToInsert 
 // with respective html tags
-function replaceHighlightTokens(message, tokensToInsert) {
+function extractHighlightTokens(message, tokensToInsert) {
   var index = 0;
   var tokens = message.split('logtrail.highlight.tag');
   var totalLength = 0;
@@ -141,7 +140,6 @@ function replaceHighlightTokens(message, tokensToInsert) {
     });
     totalLength = totalLength + tokens[i].length;
   }
-  return tokens.join('');
 }
 
 //lookup for pattern in sourcePatterns and update tokensToInsert with tags.
@@ -180,8 +178,35 @@ function loadConfigFromES(context,server) {
     //If elasticsearch has config use it.
     context['config'] = resp._source;
     server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
+    updateIndexPatternIds(context.config,server);
   }).catch(function (resp) {
     server.log (['info','status'],`Error while loading config from Elasticsearch. Will use local` );
+    updateIndexPatternIds(context.config,server);
+  });
+}
+
+function updateIndexPatternIds(config,server) {
+  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+  var request = {
+    index: '.kibana',
+    type: 'index-pattern',
+    size: 100
+  };
+  callWithInternalUser('search',request).then(function (resp) {
+    var hits = resp.hits.hits;
+    for (var i = hits.length - 1; i >= 0; i--) {
+      var hit = hits[i];
+      var indexPatternName = hit._source.title;
+      for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+        if (config.index_patterns[i].es.default_index === indexPatternName) {
+          config.index_patterns[i].es.indexPatternId = hit._id;
+          server.log (['info','status'],`Updated index pattern id for ${indexPatternName}`);
+          break;
+        }
+      }
+    }
+  }).catch(function (resp) {
+    server.log (['error','status'],`Error while updating index patterns from ES ...${resp}`);
   });
 }
 
