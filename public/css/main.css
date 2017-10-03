@@ -568,7 +568,7 @@ html,body {
 
 .arg-popup-content > .header {
 	border-bottom: 1px solid #2A3A51;
-	padding: 1em .5em 1em .5em;
+	padding: .7em .5em;
 	display: flex;
 	word-wrap: break-word;
 }
@@ -583,27 +583,22 @@ html,body {
 
 .arg-popup-content > .context {
 	border-bottom: 1px solid #2A3A51;
-	padding: 1em .5em 1em .5em;
+	padding: .7em .5em;
 	display: inline-block;
 	word-wrap: break-word;
 }
 
 .arg-popup-content > .search {
 	border-bottom: 1px solid #2A3A51;
-}
-
-.arg-popup-content > .search > ul {
-	padding: 1em .5em .5em .5em;
-	margin-bottom: 0;
-}
-
-.arg-popup-content > .search > ul > li {
-	list-style: none;
-	padding-bottom: .5em;
+	padding: .7em .5em;
 }
 
 .arg-popup-content > .kibana {
-	padding: 1em .5em;
+	padding: .7em .5em;
+}
+
+.arg-highlight {
+	color: aliceblue;
 }
 
 .highlight-event {
@@ -624,7 +619,7 @@ html,body {
   top: 4px;
   width: 16px;
   height: 16px;
-  opacity: 0.3;
+  opacity: 0.5;
 }
 .close-icon:hover {
   opacity: 1;

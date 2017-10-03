@@ -20,7 +20,7 @@
   <div id='arg-popup' class = 'arg-popup' ng-style = 'argPopup.style' ng-show = "argPopup.show">
     <div class="arg-popup-content">
       <div class="header">
-        <span class="text"><strong>{{ argPopup.text }}</strong></span> : 
+        <span class="text arg-highlight"><strong>{{ argPopup.text }}</strong></span> : 
         <span class="var-name">{{ argPopup.variableName }}</span>
         <span><a href ng-click = 'closeArgPopup()' class="close-icon"></a></span>
       </div>
@@ -28,10 +28,7 @@
         <a href>{{ argPopup.className }}</a> : <a href>{{ argPopup.methodName}}</a>
       </div>
       <div class="search">
-        <ul>
-          <li><a href ng-click="showMessagesContaining()">Show All messages containing <strong>{{argPopup.text}}</strong></a></li>
-          <li><a href ng-click="showSimilarMessagesContaining()">Show Similar messages containing <strong>{{argPopup.text}}</strong></a></li>
-        </ul>
+        Filter <a href ng-click="showMessagesContaining()">All</a> or <a href ng-click="showSimilarMessagesContaining()">Similar</a> messages containing <strong><span class='arg-highlight'>{{argPopup.text}}</span></strong>
       </div>
       <div class="kibana">
         Visualize as <a ng-click="showPieChart()" href>Pie</a> or <a ng-click="showAreaChart()" href>Area</a> chart in Kibana
@@ -43,8 +40,8 @@
     <div class="msg-popup-content">
       <div class="search">
         <ul>
-          <li><a href ng-click="showExactMatches()">Show messages with exact match</a></li>
-          <li ng-show="msgPopup.event.patternInfo"><a href ng-click="showSimilarMessages()">Show messages with similar pattern</a></li>
+          <li><a href ng-click="showExactMatches()">Filter messages with exact match</a></li>
+          <li ng-show="msgPopup.event.patternInfo"><a href ng-click="showSimilarMessages()">Filter messages with similar pattern</a></li>
         </ul>
       </div>
       <span><a href ng-click = 'closeMsgPopup()' class="close-icon"></a></span>
