@@ -20,15 +20,15 @@
   <div id='arg-popup' class = 'arg-popup' ng-style = 'argPopup.style' ng-show = "argPopup.show">
     <div class="arg-popup-content">
       <div class="header">
-        <span class="text arg-highlight"><strong>{{ argPopup.text }}</strong></span> : 
-        <span class="var-name">{{ argPopup.variableName }}</span>
-        <span><a href ng-click = 'closeArgPopup()' class="close-icon"></a></span>
+        <div class="text arg-highlight"><strong>{{ argPopup.text }}</strong></div>
+        <div class="var-name">: {{ argPopup.variableName }} (lt.{{ argPopup.fieldName}})</div>
+        <div><a href ng-click = 'closeArgPopup()' class="close-icon"></a></div>
       </div>
       <div class="context">
-        <a href>{{ argPopup.className }}</a> : <a href>{{ argPopup.methodName}}</a>
+        {{ argPopup.className }} : {{ argPopup.methodName}}
       </div>
       <div class="search">
-        Filter <a href ng-click="showMessagesContaining()">All</a> or <a href ng-click="showSimilarMessagesContaining()">Similar</a> messages containing <strong><span class='arg-highlight'>{{argPopup.text}}</span></strong>
+        Filter <a href ng-click="showMessagesContaining()">All</a> or <a href ng-click="showSimilarMessagesContaining()">Similar</a> messages containing <strong>{{argPopup.text}}</strong>
       </div>
       <div class="kibana">
         Visualize as <a ng-click="showPieChart()" href>Pie</a> or <a ng-click="showAreaChart()" href>Area</a> chart in Kibana

@@ -48,6 +48,7 @@ uiModules.get('app/logtrail', []).directive('formatEvent', function() {
             scope.argPopup.className = scope.event.sourcePattern.context;
             scope.argPopup.methodName = scope.event.sourcePattern.method;
             scope.argPopup.variableName = scope.event.sourcePattern.args[argNum-1];
+            scope.argPopup.fieldName = scope.event.sourcePattern.fields[argNum-1];
             scope.argPopup.argElement = argElement;
             scope.argPopup.argElement.addClass('highlight-arg');
             scope.argPopup.show = true;
