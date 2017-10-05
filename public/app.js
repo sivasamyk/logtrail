@@ -424,8 +424,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $scope.onSearchClick();
   };
 
-  $scope.getLiveTailStatus = function () {
-    $scope.getLiveTailStatus = function () {
+  $scope.getLiveTailIcon = function () {
     if ($scope.liveTailStatus === 'Live') {
       return 'fa-pause';
     } else if ($scope.liveTailStatus === 'Pause') {
