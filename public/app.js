@@ -50,10 +50,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.msgPopup = {
-    plusIcon : true,
-    style : {
-
-    }
+    plusIcon : true
   }
   var updateViewInProgress = false;
   var tailTimer = null;
@@ -460,19 +457,6 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
     $scope.argPopup.show = false;
     $scope.argPopup.event = null;
-  }
-
-  $scope.showMsgPopup = function (clickEvent, event) {
-    var rect = clickEvent.target.getBoundingClientRect();
-    $scope.msgPopup.style.left = rect.left - 30;
-    $scope.msgPopup.style.top = rect.top + 50;
-    $scope.msgPopup.event = event;
-    $scope.msgPopup.show = true;
-  }
-
-  $scope.closeMsgPopup = function () {
-    $scope.msgPopup.show = false;
-    $scope.msgPopup.event = null;
   }
 
   $scope.getEventNgClass = function (event) {

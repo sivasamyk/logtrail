@@ -9,7 +9,13 @@
   </div>
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll ng-class="getEventNgClass(event)" class="event" ng-mouseover="onEventMouseOver(event)" ng-mouseleave="onEventMouseLeave(event)">
-      <span ng-show="getEventNgClass(event) == 'highlight-event'"  class="plus-icon-span"><a ng-click="showMsgPopup($event, event)" href class="plus-icon"/></span>
+      <span class="msg-dropdown">
+        <i ng-show="getEventNgClass(event) == 'highlight-event'" ng-click="showMsgPopup($event, event)" class="msg-popup-icon fa fa-plus-circle" aria-hidden="true"></i>
+        <div class="msg-dropdown-content">
+          <a href ng-click="showExactMatches">Filter messages with exact match</a>
+          <a ng-show="msgPopup.event.patternInfo" ng-click="showSimilarMessages()" href>Filter messages with similar pattern</a>
+        </div>
+      </span>
       <time class="time">{{ event.display_timestamp }}</time>
       <span class='host'><a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a></span>
       <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}:</a></span>
@@ -19,16 +25,18 @@
 
   <div id='arg-popup' class = 'arg-popup' ng-style = 'argPopup.style' ng-show = "argPopup.show">
     <div class="arg-popup-content">
-      <div class="header">
-        <div class="text arg-highlight"><strong>{{ argPopup.text }}</strong></div>
-        <div class="var-name">: {{ argPopup.variableName }} (lt.{{ argPopup.fieldName}})</div>
-        <div><a href ng-click = 'closeArgPopup()' class="close-icon"></a></div>
+      <div>
+        <span class="header">
+          <span class="text arg-highlight"><strong>{{ argPopup.text }}</strong></span>
+          <span class="var-name">: {{ argPopup.variableName }} (lt.{{ argPopup.fieldName}})</span>
+        </span>
+        <i ng-click = 'closeArgPopup()' class="close-icon fa fa-times" aria-hidden="true"></i>
       </div>
       <div class="context">
         {{ argPopup.className }} : {{ argPopup.methodName}}
       </div>
       <div class="search">
-        Filter <a href ng-click="showMessagesContaining()">All</a> or <a href ng-click="showSimilarMessagesContaining()">Similar</a> messages containing <strong>{{argPopup.text}}</strong>
+        Filter <a href ng-click="showMessagesContaining()">All</a> or <a href ng-click="showSimilarMessagesContaining()">Similar</a> messages containing this string
       </div>
       <div class="kibana">
         Visualize as <a ng-click="showPieChart()" href>Pie</a> or <a ng-click="showAreaChart()" href>Area</a> chart in Kibana
@@ -44,7 +52,7 @@
           <li ng-show="msgPopup.event.patternInfo"><a href ng-click="showSimilarMessages()">Filter messages with similar pattern</a></li>
         </ul>
       </div>
-      <span><a href ng-click = 'closeMsgPopup()' class="close-icon"></a></span>
+      <i ng-click = 'closeMsgPopup()' class="close-icon fa fa-times" aria-hidden="true"></i>
     </div>
   </div>
 

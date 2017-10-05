@@ -32,8 +32,8 @@ uiModules.get('app/logtrail', []).directive('formatEvent', function() {
             var rect = clickEvent.target.getBoundingClientRect();
             var left = rect.left - 30;
             var top = rect.top + 50;
-            if ((rect.left + 420) > window.innerWidth) {
-              left = left - (rect.left + 450 - window.innerWidth);
+            if ((rect.left + 440) > window.innerWidth) {
+              left = left - (rect.left + 490 - window.innerWidth);
             }
 
             if ((rect.top + 350) > window.innerHeight) {
