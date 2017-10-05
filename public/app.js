@@ -442,8 +442,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $scope.onSearchClick();
   }
 
-  $scope.getLiveTailStatus = function () {
-    $scope.getLiveTailStatus = function () {
+  $scope.getLiveTailIcon = function () {
     if ($scope.liveTailStatus === 'Live') {
       return 'fa-pause';
     } else if ($scope.liveTailStatus === 'Pause') {
@@ -466,10 +465,6 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     if ($scope.msgPopup.event) {
       if ($scope.msgPopup.event.id == event.id && $scope.msgPopup.show) {
           highlightClass = 'highlight-event';
-      } else if ($scope.msgPopup.event.id == event.id) {
-        if ($scope.msgPopup.plusIcon) {
-          highlightClass = 'highlight-event';
-        }
       }
     }
 

@@ -563,7 +563,7 @@ html,body {
 	max-width: 36em;
 	width: 36em;
 	font-family: Inconsolata;
-	font-size: 13px;
+	font-size: 14px;
 }
 
 .arg-popup-content > div {
@@ -601,6 +601,11 @@ html,body {
 	padding: .7em .5em;
 	word-wrap: break-word;
 	display: block;
+}
+
+.arg-popup-link,.arg-popup-link:hover {
+	color: #ffe4c4;
+	text-decoration: underline;
 }
 
 .arg-popup-content > .kibana {

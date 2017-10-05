@@ -9,8 +9,8 @@
   </div>
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll ng-class="getEventNgClass(event)" class="event" ng-mouseover="onEventMouseOver(event)" ng-mouseleave="onEventMouseLeave(event)">
-      <span class="msg-dropdown">
-        <i ng-show="getEventNgClass(event) == 'highlight-event'" ng-click="showMsgPopup($event, event)" class="msg-popup-icon fa fa-plus-circle" aria-hidden="true"></i>
+      <span class="msg-dropdown" ng-mouseover="msgPopup.show=true" ng-mouseleave="msgPopup.show=false">
+        <i ng-show="msgPopup.plusIcon && msgPopup.event.id === event.id" ng-click="showMsgPopup($event, event)" class="msg-popup-icon fa fa-plus-circle" aria-hidden="true"></i>
         <div class="msg-dropdown-content">
           <a href ng-click="showExactMatches">Filter messages with exact match</a>
           <a ng-show="msgPopup.event.patternInfo" ng-click="showSimilarMessages()" href>Filter messages with similar pattern</a>
@@ -36,23 +36,11 @@
         {{ argPopup.className }} : {{ argPopup.methodName}}
       </div>
       <div class="search">
-        Filter <a href ng-click="showMessagesContaining()">All</a> or <a href ng-click="showSimilarMessagesContaining()">Similar</a> messages containing this string
+        Filter <a class="arg-popup-link" href ng-click="showMessagesContaining()">All</a> or <a class="arg-popup-link" href ng-click="showSimilarMessagesContaining()">Similar</a> messages containing this string
       </div>
       <div class="kibana">
-        Visualize as <a ng-click="showPieChart()" href>Pie</a> or <a ng-click="showAreaChart()" href>Area</a> chart in Kibana
+        Visualize as <a class="arg-popup-link" ng-click="showPieChart()" href>Pie</a> or <a class="arg-popup-link" ng-click="showAreaChart()" href>Area</a> chart in Kibana
       </div>
-    </div>
-  </div>
-
-  <div id='msg-popup'  class='msg-popup' ng-style= 'msgPopup.style' ng-show= 'msgPopup.show'>
-    <div class="msg-popup-content">
-      <div class="search">
-        <ul>
-          <li><a href ng-click="showExactMatches()">Filter messages with exact match</a></li>
-          <li ng-show="msgPopup.event.patternInfo"><a href ng-click="showSimilarMessages()">Filter messages with similar pattern</a></li>
-        </ul>
-      </div>
-      <i ng-click = 'closeMsgPopup()' class="close-icon fa fa-times" aria-hidden="true"></i>
     </div>
   </div>
 
