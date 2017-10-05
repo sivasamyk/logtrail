@@ -425,12 +425,13 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.getLiveTailStatus = function () {
+    $scope.getLiveTailStatus = function () {
     if ($scope.liveTailStatus === 'Live') {
-      return 'PAUSE';
+      return 'fa-pause';
     } else if ($scope.liveTailStatus === 'Pause') {
-      return 'LIVE';
+      return 'fa-play';
     } else {
-      return 'GO LIVE';
+      return 'fa-arrow-circle-o-down';
     }
   };
 
