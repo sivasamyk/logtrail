@@ -6,6 +6,7 @@ import { uiModules } from "ui/modules"
 import sugarDate from 'sugar-date';
 import moment from 'moment-timezone';
 
+import 'typeface-inconsolata';
 import 'ui/autoload/styles';
 import 'plugins/logtrail/css/main.css';
 import 'plugins/logtrail/directives/format_event.js';
