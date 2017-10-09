@@ -1,3 +1,5 @@
+import init_server_context from "./init_server_context.js"
+
 function getMessageTemplate(handlebar, selected_config) {
   var message_format = selected_config.fields.message_format;
   //Append <a> tags for click to message format except for message field
@@ -93,34 +95,11 @@ function convertToClientFormat(selected_config, esResponse) {
   return clientResponse;
 }
 
-function loadConfigFromES(context,server) {
-  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
-  var request = {
-    index: '.logtrail',
-    type: 'config',
-    id: 1
-  };
-  callWithInternalUser('get',request).then(function (resp) {
-    //If elasticsearch has config use it.
-    context['config'] = resp._source;
-    server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
-  }).catch(function (resp) {
-    server.log (['info','status'],`Error while loading config from Elasticsearch. Will use local` );
-  });
-}
-
-function initConfig(context,server) {
-  //by default use local config
-  var config = require('../../logtrail.json');
-  context['config'] = config;
-  //try loading from elasticsearch
-  loadConfigFromES(context, server);
-}
 
 module.exports = function (server) {
 
   var context = {};
-  initConfig(context,server);
+  init_server_context(server,context);
 
   //Search
   server.route({
@@ -194,8 +173,8 @@ module.exports = function (server) {
           }
         };
         var hostnameField = selected_config.fields.mapping.hostname;
-        if (selected_config.es.default_index.startsWith('logstash-')) {
-          hostnameField += ".keyword";
+        if (selected_config.fields['hostname.keyword']) {
+          hostnameField += '.keyword';
         }
         termQuery.term[hostnameField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
@@ -265,8 +244,8 @@ module.exports = function (server) {
       }
 
       var hostnameField = selected_config.fields.mapping.hostname;
-      if (selected_config.es.default_index.startsWith('logstash-')) {
-          hostnameField += ".keyword";
+      if (selected_config.fields['hostname.keyword']) {
+        hostnameField += '.keyword';
       }
       var hostAggRequest = {
         index: selected_config.es.default_index,
