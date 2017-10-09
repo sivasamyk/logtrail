@@ -1,4 +1,4 @@
-const LOGSTASH_DEFAULT_INDEX = "logstash-";
+import init_server_context from "./init_server_context.js";
 
 function getMessageTemplate(handlebar, selected_config) {
   var message_format = selected_config.fields.message_format;
@@ -167,86 +167,10 @@ function updateSourcePatternIndices(tokensToInsert, patternInfo, sourcePatterns)
 }
 
 
-function loadConfigFromES(context,server) {
-  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
-  var request = {
-    index: '.logtrail',
-    type: 'config',
-    id: 1
-  };
-  callWithInternalUser('get',request).then(function (resp) {
-    //If elasticsearch has config use it.
-    context['config'] = resp._source;
-    server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
-    updateIndexPatternIds(context.config,server);
-  }).catch(function (resp) {
-    server.log (['info','status'],`Error while loading config from Elasticsearch. Will use local` );
-    updateIndexPatternIds(context.config,server);
-  });
-}
-
-function updateIndexPatternIds(config,server) {
-  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
-  var request = {
-    index: '.kibana',
-    type: 'index-pattern',
-    size: 100
-  };
-  callWithInternalUser('search',request).then(function (resp) {
-    var hits = resp.hits.hits;
-    for (var i = hits.length - 1; i >= 0; i--) {
-      var hit = hits[i];
-      var indexPatternName = hit._source.title;
-      for (var i = config.index_patterns.length - 1; i >= 0; i--) {
-        if (config.index_patterns[i].es.default_index === indexPatternName) {
-          config.index_patterns[i].es.indexPatternId = hit._id;
-          server.log (['info','status'],`Updated index pattern id for ${indexPatternName}`);
-          break;
-        }
-      }
-    }
-  }).catch(function (resp) {
-    server.log (['error','status'],`Error while updating index patterns from ES ...${resp}`);
-  });
-}
-
-function initConfig(context,server) {
-  //by default use local config
-  var config = require('../../logtrail.json');
-  context['config'] = config;
-  //try loading from elasticsearch
-  loadConfigFromES(context, server);
-}
-
-//for each index, if source analysis is enabled, read the
-//respective patterns file and then create a map of context -> patterns
-function loadSourcePatterns(context, server) {
-  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
-  context['sourcePatterns'] = {};
-
-  var request = {
-    index: '.logtrail',
-    type: 'pattern',
-    //scroll: "1m", // TODO :: Use scroll
-    size: 8000
-  };
-  callWithInternalUser('search',request).then(function (resp) {
-    var hits = resp.hits.hits;
-    for (var i = hits.length - 1; i >= 0; i--) {
-      var hit = hits[i];
-      context.sourcePatterns[hit['_id']] = hit['_source'];
-    }
-    server.log (['info','status'],`Loaded ${hits.length} source patterns from ES ...`);
-  }).catch(function (resp) {
-    server.log (['error','status'],`Error while loading patterns from ES ...${resp}`);
-  });
-}
-
 module.exports = function (server) {
 
   var context = {};
-  initConfig(context,server);
-  loadSourcePatterns(context,server);
+  init_server_context(server,context);
 
   //Search
   server.route({
@@ -320,8 +244,8 @@ module.exports = function (server) {
           }
         };
         var hostnameField = selected_config.fields.mapping.hostname;
-        if (selected_config.es.default_index.startsWith(LOGSTASH_DEFAULT_INDEX)) {
-          hostnameField += ".keyword";
+        if (selected_config.fields['hostname.keyword']) {
+          hostnameField += '.keyword';
         }
         termQuery.term[hostnameField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
@@ -391,8 +315,8 @@ module.exports = function (server) {
       }
 
       var hostnameField = selected_config.fields.mapping.hostname;
-      if (selected_config.es.default_index.startsWith(LOGSTASH_DEFAULT_INDEX)) {
-          hostnameField += ".keyword";
+      if (selected_config.fields['hostname.keyword']) {
+        hostnameField += '.keyword';
       }
       var hostAggRequest = {
         index: selected_config.es.default_index,
