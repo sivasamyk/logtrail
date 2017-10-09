@@ -3,10 +3,10 @@ module.exports = function init_server_context(server, context) {
   var config = require('../../logtrail.json');
   context['config'] = config;
   //try loading from elasticsearch
-  loadConfigFromES(context, server);
+  loadConfigFromES(server, context);
 }
 
-function loadConfigFromES(context,server) {
+function loadConfigFromES(server,context) {
   const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
   var request = {
     index: '.logtrail',
@@ -17,22 +17,22 @@ function loadConfigFromES(context,server) {
     //If elasticsearch has config use it.
     context['config'] = resp._source;
     server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
-    updateKeywordInfo(context['config'],server)
+    updateKeywordInfo(server,context['config'])
   }).catch(function (error) {
     server.log (['error','status'],`Error while loading config from Elasticsearch. Will use local` );
-    updateKeywordInfo(context['config'],server)
+    updateKeywordInfo(server,context['config'])
   });
 }
 
-function updateKeywordInfo(config,server) {
+function updateKeywordInfo(server,config) {
   for (var i = 0; i < config.index_patterns.length; i++) {
     var indexPattern = config.index_patterns[i];
-    updateKeywordInfoForField(indexPattern, 'hostname', server);
-    updateKeywordInfoForField(indexPattern, 'program', server);
+    updateKeywordInfoForField(server,indexPattern, 'hostname');
+    updateKeywordInfoForField(server,indexPattern, 'program');
   }
 }
 
-function updateKeywordInfoForField(indexPattern, field, server) {
+function updateKeywordInfoForField(server, indexPattern, field) {
   const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
   var keywordField = indexPattern.fields.mapping[field] + ".keyword";
   var request = {
