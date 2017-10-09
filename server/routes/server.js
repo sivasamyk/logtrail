@@ -104,8 +104,39 @@ function loadConfigFromES(context,server) {
     //If elasticsearch has config use it.
     context['config'] = resp._source;
     server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
-  }).catch(function (resp) {
-    server.log (['info','status'],`Error while loading config from Elasticsearch. Will use local` );
+    updateKeywordInfo(context['config'],server)
+  }).catch(function (error) {
+    server.log (['error','status'],`Error while loading config from Elasticsearch. Will use local` );
+    updateKeywordInfo(context['config'],server)
+  });
+}
+
+function updateKeywordInfo(config,server) {
+  for (var i = 0; i < config.index_patterns.length; i++) {
+    var indexPattern = config.index_patterns[i];
+    updateKeywordInfoForField(indexPattern, 'hostname', server);
+    updateKeywordInfoForField(indexPattern, 'program', server);
+  }
+}
+
+function updateKeywordInfoForField(indexPattern, field, server) {
+  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+  var keywordField = indexPattern.fields.mapping[field] + ".keyword";
+  var request = {
+    index: indexPattern.es.default_index,
+    size: 1,
+    body : {
+      query: {
+        exists : { field : keywordField }
+      }
+    }
+  };
+  callWithInternalUser('search',request).then(function (resp) {
+    if (resp.hits.hits.length > 0) {
+      indexPattern.fields[field + '.keyword'] = true;
+    }
+  }).catch(function (error) {
+    server.log (['info','status'],`Cannot load keyword field for ${field}. will use non-keyword field` );
   });
 }
 
@@ -194,8 +225,8 @@ module.exports = function (server) {
           }
         };
         var hostnameField = selected_config.fields.mapping.hostname;
-        if (selected_config.es.default_index.startsWith('logstash-')) {
-          hostnameField += ".keyword";
+        if (selected_config.fields['hostname.keyword']) {
+          hostnameField += '.keyword';
         }
         termQuery.term[hostnameField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
@@ -265,8 +296,8 @@ module.exports = function (server) {
       }
 
       var hostnameField = selected_config.fields.mapping.hostname;
-      if (selected_config.es.default_index.startsWith('logstash-')) {
-          hostnameField += ".keyword";
+      if (selected_config.fields['hostname.keyword']) {
+        hostnameField += '.keyword';
       }
       var hostAggRequest = {
         index: selected_config.es.default_index,
