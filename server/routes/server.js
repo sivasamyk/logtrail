@@ -88,7 +88,7 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
 
     //if source analysis is enabled. This won't work for messages with HTML text.
     if (sourcePatterns) {
-      var patternInfo = source['logtrail'];
+      var patternInfo = source['lt'];
       if (patternInfo) {
         updateSourcePatternIndices(tokensToInsert,patternInfo, sourcePatterns);
         event['patternInfo'] = patternInfo; //added by logstash plugin
