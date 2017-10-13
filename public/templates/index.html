@@ -12,7 +12,7 @@
       <span class="msg-dropdown" ng-mouseover="msgPopup.show=true" ng-mouseleave="msgPopup.show=false">
         <i ng-show="msgPopup.plusIcon && msgPopup.event.id === event.id" ng-click="showMsgPopup($event, event)" class="msg-popup-icon fa fa-plus-circle" aria-hidden="true"></i>
         <div class="msg-dropdown-content">
-          <a href ng-click="showExactMatches">Filter messages with exact match</a>
+          <a href ng-click="showExactMatches()">Filter messages with exact match</a>
           <a ng-show="msgPopup.event.patternInfo" ng-click="showSimilarMessages()" href>Filter messages with similar pattern</a>
         </div>
       </span>
@@ -28,12 +28,12 @@
       <div>
         <span class="header">
           <span class="text arg-highlight"><strong>{{ argPopup.text }}</strong></span>
-          <span class="var-name">: {{ argPopup.variableName }} (lt.{{ argPopup.fieldName}})</span>
+          <span class="var-name">: <i> {{ argPopup.variableName }}</i> (lt.{{ argPopup.fieldName}})</span>
         </span>
         <i ng-click = 'closeArgPopup()' class="close-icon fa fa-times" aria-hidden="true"></i>
       </div>
       <div class="context">
-        {{ argPopup.className }} : {{ argPopup.methodName}}
+        <i>{{ argPopup.className }} : {{ argPopup.methodName}}()</i>
       </div>
       <div class="search">
         Filter <a class="arg-popup-link" href ng-click="showMessagesContaining()">All</a> or <a class="arg-popup-link" href ng-click="showSimilarMessagesContaining()">Similar</a> messages containing this string

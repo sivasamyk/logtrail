@@ -10,8 +10,8 @@ import 'typeface-inconsolata';
 import 'ui/autoload/styles';
 import 'plugins/logtrail/css/main.css';
 import 'plugins/logtrail/directives/format_event.js';
-import launchChart from 'plugins/logtrail/kibana_charts.js';
-import ChartType from 'plugins/logtrail/kibana_charts.js';
+import { launchChart } from 'plugins/logtrail/kibana_charts.js';
+import { ChartType } from 'plugins/logtrail/kibana_charts.js';
 
 import template from './templates/index.html';
 
@@ -61,6 +61,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   //Backup for event, with only event Ids as keys
   var eventIds = new Set();
   var url = kbnUrl;
+  var highlight = true;
 
   function init() {
     //init scope vars from get params if available
@@ -132,7 +133,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       rangeType: rangeType,
       order: order,
       hostname: $scope.selectedHost,
-      index: selected_index_config.es.default_index
+      index: selected_index_config.es.default_index,
+      highlight: highlight
     };
 
     console.debug("sending search request with params " + JSON.stringify(request));
@@ -478,7 +480,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   }
 
   $scope.onEventMouseOver = function (event) {
-    if (!$scope.msgPopup.show && !$scope.argPopup.show) {
+    if (!$scope.argPopup.show) {
       $scope.msgPopup.plusIcon = true;
       $scope.msgPopup.event = event;
     }
@@ -492,14 +494,16 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   $scope.showExactMatches = function () {
     var event = $scope.msgPopup.event;
-    $scope.closeMsgPopup();
+    $scope.msgPopup = {};
+    highlight = false;
     $scope.search('"' + event.raw_message + '"');
+    highlight = true; //reset to true
   }
 
   $scope.showSimilarMessages = function () {
     var event = $scope.msgPopup.event;
-    $scope.closeMsgPopup();
-    $scope.search('logtrail.patternId : ' + event.patternInfo.patternId);
+    $scope.msgPopup = {};
+    $scope.search('lt.patternId : ' + event.patternInfo.patternId);
   }
 
   $scope.showMessagesContaining = function () {
@@ -512,17 +516,17 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     var text = $scope.argPopup.text;
     var argNum = $scope.argPopup.argNum;
     var patternInfo = $scope.argPopup.event.patternInfo;
-    var searchString = 'logtrail.patternId:' + patternInfo.patternId + ' AND logtrail.a' + argNum + ':"' + text + '"';
+    var searchString = 'lt.patternId:' + patternInfo.patternId + ' AND lt.a' + argNum + ':"' + text + '"';
     $scope.closeArgPopup();
     $scope.search(searchString);
   }
 
   $scope.showPieChart = function () {
-    launchChart(ChartType.PIE,$scope.argPopup, selected_index_config);
+    launchChart($window,$location.absUrl(), ChartType.PIE,$scope.argPopup, selected_index_config);
   }
 
   $scope.showAreaChart = function () {
-    launchChart(ChartType.AREA,$scope.argPopup, selected_index_config);
+    launchChart($window,$location.absUrl(), ChartType.AREA,$scope.argPopup, selected_index_config);
   }
 
   angular.element($window).bind('scroll', function (event) {

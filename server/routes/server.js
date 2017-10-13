@@ -229,10 +229,13 @@ module.exports = function (server) {
           }
         }
       };
-      //Enable highlightng on message field
-      searchRequest.body.highlight.fields[selected_config.fields.mapping['message']] = {
-        number_of_fragments: 0
-      };
+
+      if (request.payload.highlight) {
+        //Enable highlightng on message field
+        searchRequest.body.highlight.fields[selected_config.fields.mapping['message']] = {
+          number_of_fragments: 0
+        };
+      }
 
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][selected_config.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};

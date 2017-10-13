@@ -16,7 +16,7 @@ uiModules.get('app/logtrail', []).directive('formatEvent', function() {
           var matchIndices = patternInfo.matchIndices;
           var text = scope.event.raw_message.substring(matchIndices[argNum * 2 - 2],matchIndices[argNum * 2 -1]);
           if (event.shiftKey) {
-            var searchString = 'logtrail.patternId:' + patternInfo.patternId + ' AND logtrail.a' + argNum + ':"' + text + '"';
+            var searchString = 'lt.patternId:' + patternInfo.patternId + ' AND lt.a' + argNum + ':"' + text + '"';
             //e.g searchString : logtrail.patternId:AV6ZmVeGVcFBgzHpAO3k AND logtrail.a1:"/10.196.68.149:3570"
             scope.search({
               searchString: searchString

@@ -603,7 +603,7 @@ html,body {
 	display: block;
 }
 
-.arg-popup-link,.arg-popup-link:hover {
+.arg-popup-link,.arg-popup-link:hover,.arg-popup-link:visited {
 	color: #ffe4c4;
 	text-decoration: underline;
 }

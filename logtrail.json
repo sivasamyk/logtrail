@@ -3,7 +3,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "zookeeper",
+        "default_index": "logstash-cassandra",
         "allow_url_parameter": false
       },
       "tail_interval_in_seconds": 10,
@@ -19,7 +19,7 @@
             "timestamp" : "@timestamp",
             "display_timestamp" : "@timestamp",
             "hostname" : "host",
-            "program": "logger_name",
+            "program": "filename",
             "message": "log_message"
         },
         "message_format": "{{{log_message}}}"
@@ -27,14 +27,14 @@
       "color_mapping" : {
         "field" : "log_level",
         "mapping" : {
-          "ERROR": "#ff3232",
-          "WARN": "#ff7f24",
-          "DEBUG": "#ffb90f",
-          "TRACE": "#a2cd5a"
+          "ERROR1": "#ff3232",
+          "WARN2": "#ff7f24",
+          "DEBUG3": "#ffb90f",
+          "TRACE4": "#a2cd5a"
          }
       },
       "source_analysis" : {
-        "enabled": false
+        "enabled": true
       }
     }  
   ]
