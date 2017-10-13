@@ -366,4 +366,15 @@ module.exports = function (server) {
       });
     }  
   });
+
+  server.route({
+    method: 'GET',
+    path: '/logtrail/reload',
+    handler: function (request, reply) {
+      server.log(['info','logtrail'],"Reloading logtrail server context...");
+      context = {};
+      init_server_context(server,context);
+      reply();
+    }
+  });
 };

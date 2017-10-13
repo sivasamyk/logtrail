@@ -84,7 +84,6 @@ function updateIndexPatternIds(server,config) {
       //need to update for 5.x
       if (hit._source.type === 'index-pattern') {
         var indexPatternName = hit._source['index-pattern'].title;
-        console.log(indexPatternName);
         for (var i = config.index_patterns.length - 1; i >= 0; i--) {
           if (config.index_patterns[i].es.default_index === indexPatternName) {
             config.index_patterns[i].es.indexPatternId = hit._id.split(":")[1];
