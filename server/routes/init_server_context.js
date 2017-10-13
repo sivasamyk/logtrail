@@ -7,6 +7,19 @@ module.exports = function init_server_context(server, context) {
   loadSourcePatterns(server, context);
 }
 
+//http://www.tivix.com/blog/making-promises-in-a-synchronous-manner/
+let makeMeLookSync = fn => {
+  let iterator = fn();
+  let loop = result => {
+    !result.done && result.value.then(
+      res => loop(iterator.next(res)),
+      err => loop(iterator.throw(err))
+    );
+  };
+
+  loop(iterator.next());
+};
+
 function loadConfigFromES(server,context) {
   const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
   var request = {
@@ -14,14 +27,15 @@ function loadConfigFromES(server,context) {
     type: 'config',
     id: 1
   };
-  callWithInternalUser('get',request).then(function (resp) {
-    //If elasticsearch has config use it.
-    context['config'] = resp._source;
-    server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
-    updateKeywordInfo(server,context['config']);
-    updateIndexPatternIds(server,context['config']);
-  }).catch(function (error) {
-    server.log (['error','status'],`Error while loading config from Elasticsearch. Will use local` );
+  makeMeLookSync ( function* () {
+    try {
+      let result = yield callWithInternalUser('get',request);
+      //If elasticsearch has config use it.
+      context['config'] = resp._source;
+      server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
+    } catch (error) {
+      server.log (['error','status'],`Error while loading config from Elasticsearch. Will use local` );
+    }
     updateKeywordInfo(server,context['config']);
     updateIndexPatternIds(server,context['config']);
   });
@@ -90,17 +104,34 @@ function loadSourcePatterns(server, context) {
   var request = {
     index: '.logtrail',
     type: 'pattern',
-    //scroll: "1m", // TODO :: Use scroll
-    size: 8000
+    scroll: "1m",
+    size: 500
   };
-  callWithInternalUser('search',request).then(function (resp) {
-    var hits = resp.hits.hits;
-    for (var i = hits.length - 1; i >= 0; i--) {
-      var hit = hits[i];
-      context.sourcePatterns[hit['_id']] = hit['_source'];
+  var loop = true;
+  var scroll_id = null;
+  var method = 'search';
+  var patternCount = 0;
+  makeMeLookSync (function* () {
+    try {
+      while (loop) {
+        var resp = yield callWithInternalUser(method,request);
+        var hits = resp.hits.hits;
+        scroll_id = resp['_scroll_id'];
+        for (var i = hits.length - 1; i >= 0; i--) {
+          var hit = hits[i];
+          context.sourcePatterns[hit['_id']] = hit['_source'];
+          patternCount++;
+        }
+        loop = hits.length > 0;
+        method = 'scroll';
+        request = {
+          "scroll" : "1m",
+          "scroll_id" : scroll_id
+        };
+      }
+      server.log (['info','status','logtrail'],`Loaded ${patternCount} source patterns from ES ...`);
+    } catch (error) {
+      server.log (['error','status','logtrail'],`Error while loading patterns from ES ...${error}`);
     }
-    server.log (['info','status'],`Loaded ${hits.length} source patterns from ES ...`);
-  }).catch(function (resp) {
-    server.log (['error','status'],`Error while loading patterns from ES ...${resp}`);
   });
 }
