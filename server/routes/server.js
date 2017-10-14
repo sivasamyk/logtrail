@@ -1,8 +1,17 @@
+import init_server_context from "./init_server_context.js"
+
 function getMessageTemplate(handlebar, selected_config) {
   var message_format = selected_config.fields.message_format;
   //Append <a> tags for click to message format except for message field
     var message_format_regex = /({{{(\S+)}}})/g; // e.g. {{pid}} : {{syslog_message}}
-    var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>");
+    var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>",
+      {
+      knownHelpers: {
+        log: false,
+        lookup: false
+      },
+      knownHelpersOnly: true
+    });
     var messageField = "{{{" + selected_config.fields.mapping.message + "}}}";
     var message_template = message_format;
 
@@ -29,13 +38,17 @@ function convertToClientFormat(selected_config, esResponse) {
   if (message_format) {
     var handlebar = require('handlebars');
     var message_template = getMessageTemplate(handlebar, selected_config);
-    var template = handlebar.compile(message_template);
+    var template = handlebar.compile(message_template, {
+      knownHelpers: {
+        log: false,
+        lookup: false
+      },
+      knownHelpersOnly: true
+    });
   }
-  var escape = require("escape-html");
   for (var i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
-
     event.id = hits[i]._id;
     var get = require('lodash.get');
     event['timestamp'] = get(source, selected_config.fields.mapping['timestamp']);
@@ -43,10 +56,21 @@ function convertToClientFormat(selected_config, esResponse) {
     event['hostname'] = get(source, selected_config.fields.mapping['hostname']);
     event['program'] = get(source, selected_config.fields.mapping['program']);
 
+
     if ( source[selected_config.fields.mapping['severity']] )
     	event['severity'] = source[selected_config.fields.mapping['severity']].toLowerCase();
     else
     	event['severity'] = source[selected_config.fields.mapping['severity']];
+
+    //Calculate message color, if configured
+    if (selected_config.color_mapping && selected_config.color_mapping.field) {
+      var color_field_val = get(source, selected_config.color_mapping.field);
+      var color = selected_config.color_mapping.mapping[color_field_val];
+      if (color) {
+        event['color'] =  color;
+      }
+    }
+
 
     //Change the source['message'] to highlighter text if available
     if (hits[i].highlight) {
@@ -58,26 +82,39 @@ function convertToClientFormat(selected_config, esResponse) {
     }
 
     var message = source[selected_config.fields.mapping['message']];
+    //sanitize html
+    var escape = require('lodash.escape');
+    message = escape(message);
+    //if highlight is present then replace pre and post tag with html
+    if (hits[i].highlight) {
+      message = message.replace(/logtrail.highlight.pre_tag/g,'<span class="highlight">')
+      message = message.replace(/logtrail.highlight.post_tag/g,'</span>')
+    }
+    source[selected_config.fields.mapping['message']] = message;
+
     //If the user has specified a custom format for message field
     if (message_format) {
       event['message'] = template(source);
     } else {
-      event['message'] = escape(message);
+      event['message'] = message;
     }
-    //console.log(event.message);
     clientResponse.push(event);
   }
   return clientResponse;
 }
 
+
 module.exports = function (server) {
+
+  var context = {};
+  init_server_context(server,context);
 
   //Search
   server.route({
     method: ['POST'],
     path: '/logtrail/search',
     handler: function (request, reply) {
-      var config = require('../../logtrail.json');
+      var config = context.config;
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
 
       var index = request.payload.index;
@@ -122,8 +159,8 @@ module.exports = function (server) {
             }
           },
           highlight : {
-            pre_tags : ["<span class='highlight'>"],
-            post_tags : ["</span>"],
+            pre_tags : ["logtrail.highlight.pre_tag"],
+            post_tags : ["logtrail.highlight.post_tag"],
             fields : {
             }
           }
@@ -131,6 +168,7 @@ module.exports = function (server) {
       };
       //Enable highlightng on message field
       searchRequest.body.highlight.fields[selected_config.fields.mapping['message']] = {
+        number_of_fragments: 0
       };
 
       //By default Set sorting column to timestamp
@@ -143,8 +181,8 @@ module.exports = function (server) {
           }
         };
         var hostnameField = selected_config.fields.mapping.hostname;
-        if (selected_config.es.default_index.startsWith('logstash-')) {
-          hostnameField += ".keyword";
+        if (selected_config.fields['hostname.keyword']) {
+          hostnameField += '.keyword';
         }
         termQuery.term[hostnameField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
@@ -200,7 +238,7 @@ module.exports = function (server) {
     method: ['POST'],
     path: '/logtrail/hosts',
     handler: function (request,reply) {
-      var config = require('../../logtrail.json');
+      var config = context.config;
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var index = request.payload.index;
       var selected_config = config.index_patterns[0];
@@ -214,8 +252,8 @@ module.exports = function (server) {
       }
 
       var hostnameField = selected_config.fields.mapping.hostname;
-      if (selected_config.es.default_index.startsWith('logstash-')) {
-          hostnameField += ".keyword";
+      if (selected_config.fields['hostname.keyword']) {
+        hostnameField += '.keyword';
       }
       var hostAggRequest = {
         index: selected_config.es.default_index,
@@ -258,7 +296,7 @@ module.exports = function (server) {
     handler: function (request, reply) {
       reply({
         ok: true,
-        config: require('../../logtrail.json')
+        config: context.config
       });
     }  
   });

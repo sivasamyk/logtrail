@@ -1,13 +1,13 @@
 # LogTrail - Log Viewer plugin for Kibana
 
-[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 5.5.2](https://img.shields.io/badge/Kibana-v5.5.2-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-5.5.2)
+[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 5.6.3](https://img.shields.io/badge/Kibana-v5.6.3-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-5.6.3)
 [![License](https://img.shields.io/github/license/sivasamyk/logtrail.svg)](https://github.com/sivasamyk/logtrail) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sivasamyk)
 
 Introduction
 ------------
 LogTrail is a plugin for Kibana to view, analyze, search and tail log events from multiple hosts in realtime with devops friendly interface inspired by [Papertrail](https://papertrailapp.com/).
 
-![Events](https://raw.githubusercontent.com/sivasamyk/logtrail/master/screenshot.png)
+![Events](screenshot.png)
 
 Features
 --------
@@ -19,6 +19,7 @@ Features
  - Supports highlighting of search matches
  - Supports multiple Elasticsearch index patterns each with different schemas
  - Can be extended by adding additional fields to log event
+ - Color coding of messages based on field values
 
 Installation
 ------------
@@ -26,9 +27,10 @@ Installation
   - Download and install Elasticsearch , Logstash and Kibana
   - Logtrail is supported and tested with Kibana 4.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
-  - Kibana 5.5.2 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.19/logtrail-5.5.2-0.1.19.zip`
+  - Kibana 5.6.3 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.22/logtrail-5.6.3-0.1.22.zip`
   - Kibana 4.x : `./bin/kibana plugin -i logtrail -u https://github.com/sivasamyk/logtrail/releases/download/0.1.14/logtrail-4.x-0.1.14.tar.gz`
   - Other versions : [https://github.com/sivasamyk/logtrail/releases](https://github.com/sivasamyk/logtrail/releases)
+- Refer [Logtrail Config Examples Repo](https://github.com/sivasamyk/logtrail-config-examples) for sample configurations for syslog, Java app, Kubernetes logs.
 
 
 Configuration
@@ -64,50 +66,12 @@ Edit the following fields:
  - By default each line displayed in the events view is of format:
   `display_timestamp hostname program:message`
  - message_format - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](docs/add_fields.md)
+ - color_mapping - Color code messages based on field values. For more details refer [Color coding messages](docs/color_mapping.md)
  - Any changes in `logtrail.json` requires restart of Kibana
 
 ### If you are starting fresh
-- Before using the plugin make sure there are events indexed in Elasticsearch
-- Configure logstash to receive syslog events
- - Start logstash agent with following configuration to receive syslog events.
-  ```ruby
-  input {
-    tcp {
-      port => 5000 # syslog port. can be changed
-      type => syslog
-    }
-    udp { #optional. required if syslog events are sent using UDP.
-      port => 5000
-      type => syslog
-    }
-  }
-  #Do not change the contents of filter codec
-  filter {
-    if [type] == "syslog" {
-      grok {
-        match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:hostname} %{DATA:program}(?:\[%{POSINT:pid}\])?: %{GREEDYDATA:syslog_message}" }
-      }
-      date {
-        match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
-      }
-    }
-  }
-
-  output {
-    elasticsearch {
-      hosts => ["localhost:9200"]  #change host as required
-    }
-  }
-  ```
-- Configure rsyslog to send data to logstash
-  - In Ubuntu
-      - As root, edit /etc/rsyslog.conf or /etc/syslog.conf to include following line at the end
-      - To send syslog events using TCP `*.*  @@<logstash-agent-ip>:<port>`
-      - To send syslog events using UDP `*.*        @<logstash-agent-ip>:<port>`
-      - Restart rsyslog to activate the changes
-        ```bash
-        sudo service rsyslog restart
-        ```
+- Before using the plugin make sure there are events indexed in Elasticsearch.
+- Refer [logtrail-config-examples](https://github.com/sivasamyk/logtrail-config-examples) repo for sample configurations 
 - Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
   - For more configuration options refer to [Papertrail Configuration Help](http://help.papertrailapp.com/).
 - Beats/Fluentd can also be used to ship events to ES and fields can be mapped using `fields` parameter in `logtrail.json`

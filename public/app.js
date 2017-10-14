@@ -90,36 +90,21 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         selected_index_config = config.index_patterns[0];
       }
       $scope.selected_index_pattern = selected_index_config.es.default_index;
-      checkElasticsearch();
-    });        
-  };
-  
-  function checkElasticsearch() {    
-    var params = {
-      index: selected_index_config.es.default_index
-    };
-    return $http.post(chrome.addBasePath('/logtrail/validate/es'), params).then(function (resp) {
-      if (resp.data.ok) {        
-        console.info('connection to elasticsearch successful');
-        //Initialize app views on validate successful
-        setupHostsList();
-        if ($scope.pickedDateTime == null) {
-          doSearch(null, 'desc', ['overwrite','reverse'], null);
-        } else {
-          var timestamp = Date.create($scope.pickedDateTime).getTime();
-          doSearch('gt','asc', ['overwrite','scrollToTop'],timestamp);
-        }
-        startTailTimer();
-      } else {
-        console.error('validate elasticsearch failed :' , resp);
-        if (resp.data.resp.message) {
-          $scope.errorMessage = resp.data.resp.message;
-        } else {
-          $scope.errorMessage = 'ES Validation failed : ' + resp.data.resp;
-        }
-      }
+      initialize();
     });
   };
+
+  function initialize() {
+    //Initialize app views on validate successful
+    setupHostsList();
+    if ($scope.pickedDateTime == null) {
+      doSearch(null, 'desc', ['overwrite','reverse'], null);
+    } else {
+      var timestamp = Date.create($scope.pickedDateTime).getTime();
+      doSearch('gt','asc', ['overwrite','scrollToTop'],timestamp);
+    }
+    startTailTimer();
+  }
 
   /**
   rangeType - gte or lte
@@ -265,13 +250,13 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       });
     }
 
+    trimEvents(actions.indexOf('append') != -1);
+
     if ($scope.events.length > 0) {
       lastEventTime = Date.create($scope.events[$scope.events.length - 1].timestamp).getTime();
     } else {
       lastEventTime = null;
     }
-
-    trimEvents();
 
     $timeout(function () {
       updateViewInProgress = false;
@@ -291,22 +276,21 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
   };
 
-  function trimEvents() {
+  function trimEvents(append) {
     var eventCount = $scope.events.length;
     if (eventCount > selected_index_config.max_events_to_keep_in_viewer) {
         var noOfItemsToDelete = eventCount - selected_index_config.max_events_to_keep_in_viewer;
-        $scope.events.splice(0, noOfItemsToDelete);
-        var count = noOfItemsToDelete;
-        try {
-          eventIds.forEach(function (eventId) {
-            eventIds.delete(eventId);
-            count--;
-            if(count == 0) {
-              throw "Exception";
-            }
-          });
-        } catch (e) {
-          //Ignore
+        //if append the remove from top
+        var removedEvents = [];
+        if (append) {
+          removedEvents = $scope.events.splice(0,noOfItemsToDelete);
+        } else { //remove from bottom
+          removedEvents = $scope.events.splice(-noOfItemsToDelete);
+        }
+
+        //delete the removed event ids from cache.
+        for (var i = 0; i < removedEvents.length; i++) {
+          eventIds.delete(removedEvents[i].id);
         }
     }
   }
@@ -385,6 +369,14 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
     }
     angular.element('#settings').addClass('ng-hide');
+    //reset index specific states. 
+    // Other fields will be overwritten on successful search
+    $scope.events = [];
+    eventIds.clear();
+    $scope.selectedHost = null; //all systems
+    $scope.hosts = null;
+    $scope.errorMessage = null;
+
     setupHostsList();
     $scope.onSearchClick();
   };
@@ -420,8 +412,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   $scope.onProgramClick = function (program) {
     var programField = selected_index_config.fields.mapping['program'];
-    if (selected_index_config.es.default_index.startsWith('logstash-')) {
-      programField += ".keyword";
+    if (selected_index_config.fields['program.keyword']) {
+      programField += '.keyword';
     }
     $scope.userSearchText =  programField  + ':"' + program + '"';
     $scope.onSearchClick();
@@ -437,13 +429,13 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $scope.onSearchClick();
   };
 
-  $scope.getLiveTailStatus = function () {
+  $scope.getLiveTailIcon = function () {
     if ($scope.liveTailStatus === 'Live') {
-      return 'PAUSE';
+      return 'fa-pause';
     } else if ($scope.liveTailStatus === 'Pause') {
-      return 'LIVE';
+      return 'fa-play';
     } else {
-      return 'GO LIVE';
+      return 'fa-arrow-circle-o-down';
     }
   };
 
@@ -452,7 +444,6 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     if (!updateViewInProgress) {
       //When scroll bar reaches bottom
       var scrollTop = angular.element($window).scrollTop();
-      console.log(scrollTop);
       var scrollPos = angular.element($window).scrollTop() + angular.element($window).height();
       var docHeight = angular.element($document).height();
       if (scrollPos >= docHeight) {
@@ -538,20 +529,6 @@ uiModules.get('app/logtrail').directive('onLastRepeat', function () {
   };
 });
 
-uiModules.get('app/logtrail').directive('compileTemplate', function($compile, $parse) {
-  return {
-    link: function(scope, element, attr){
-      var parsed = $parse(attr.ngBindHtml);
-      function getStringValue() { return (parsed(scope) || '').toString(); }
-
-      //Recompile if the template changes
-      scope.$watch(getStringValue, function() {
-        $compile(element, null, -9999)(scope);  //The -9999 makes it skip directives so that we do not recompile ourselves
-      });
-    }
-  }
-})
-
 uiModules.get('app/logtrail').directive('clickOutside', function ($document) {
   return {
     restrict: 'A',
@@ -572,4 +549,19 @@ uiModules.get('app/logtrail').directive('clickOutside', function ($document) {
       });
     }
   };
+});
+
+//This is required for onClick event in custom message formats
+uiModules.get('app/logtrail').directive('compileTemplate', function($compile, $parse) {
+  return {
+    link: function(scope, element, attr){
+      var parsed = $parse(attr.ngBindHtml);
+      function getStringValue() { return (parsed(scope) || '').toString(); }
+
+      //Recompile if the template changes
+      scope.$watch(getStringValue, function() {
+        $compile(element, null, -9999)(scope);  //The -9999 makes it skip directives so that we do not recompile ourselves
+      });
+    }
+  }
 });

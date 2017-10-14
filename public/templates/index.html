@@ -21,7 +21,8 @@
     <form class="form-inline search-form" ng-submit="onSearchClick()">
       <div class="flex-container-search">
         <input type="text" ng-model="userSearchText" class="search-box form-control flex-item-search"
-            placeholder='Example: "access denied" 1.2.3.4 -sshd'></input>
+            placeholder='"access denied" 1.2.3.4 -sshd' title='Default search field : message'></input>
+        <div class="lucene-hint"><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-query-string-query.html#query-string-syntax" target="_blank">Uses lucene query syntax</a></div>
         <button class="submit btn search-btn flex-item-search" >Search</button>
         <button type="button" id="host-picker-btn" class="btn host-option-select-btn flex-item-search"
           ng-click="showHostPicker()">{{selectedHost == null ? 'All Systems' : selectedHost}}</button>
@@ -37,7 +38,7 @@
           <input class="flex-item-date-picker date-picker-box form-control" type="search"
           placeholder='7:02 am,last friday,jun 9 1:16pm'
           ng-model="userDateTime" ng-change="onDateChange()"></input>
-          <button class="flex-item-date-picker date-picker-submit-btn submit">Seek To</button>
+          <button class="btn flex-item-date-picker date-picker-submit-btn submit">Seek To</button>
           <label class="flex-item-date-picker date-picker-message"
             ng-class="{ 'date-picker-message-error' : !isNullorEmpty(userDateTime)  && (pickedDateTime == null) }">
             {{ (isNullorEmpty(userDateTime)) ? 'Right now' : (pickedDateTime == null ? 'Cannot parse date time' : pickedDateTime)}}</label>
@@ -59,13 +60,14 @@
           <select class="flex-item-settings" ng-model="selected_index_pattern">
             <option ng-repeat="index in index_patterns" ng-value="index">{{index}}</option>
           </select>
-          <button class="flex-item-settings submit">Ok</button>
+          <button class="btn flex-item-settings submit">Ok</button>
         </div>
       </form>
     </div>
 
     <div class="pull-right live-tail-button">
-      <button type="button" class="btn tail-status-btn" ng-click="toggleLiveTail()" >{{getLiveTailStatus()}}</button>
+      <i ng-click="toggleLiveTail()" class="fa fa-3x" ng-class="getLiveTailIcon()"></i>
+    </div>
     </div>
 </div>
 </div>

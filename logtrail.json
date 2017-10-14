@@ -1,9 +1,9 @@
 {
+  "version" : 1,
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "logstash-*",
-        "allow_url_parameter": false
+        "default_index": "logstash-*"
       },
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
@@ -23,6 +23,8 @@
             "severity": "severity"
         },
         "message_format": "{{{syslog_message}}}"
+      },
+      "color_mapping" : {
       }
     }
   ]

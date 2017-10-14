@@ -1,31 +1,44 @@
 {
   "name": "logtrail",
-  "version": "0.1.19",
+  "version": "0.1.22",
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "index.js",
   "kibana": {
-    "version": "5.5.2"
+    "version": "5.6.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sivasamyk/logtrail.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sivasamyk/logtrail/issues"
   },
   "scripts": {
     "lint": "eslint",
     "start": "plugin-helpers start",
-    "test:server": "plugin-helpers test_server",
-    "test:browser": "plugin-helpers test_browser",
+    "test:server": "plugin-helpers test:server",
+    "test:browser": "plugin-helpers test:browser",
     "build": "plugin-helpers build",
-    "postinstall": "plugin-helpers postinstall"
+    "postinstall": "plugin-helpers postinstall",
+    "gather-info": "node gather-info.js"
   },
   "dependencies": {
     "sugar-date": "1.5.1",
-    "escape-html": "1.0.3",
     "handlebars": "4.0.6",
     "lodash.get": "4.4.2",
-    "lodash.set": "4.3.2"
+    "lodash.set": "4.3.2",
+    "lodash.escape": "4.0.1"
   },
   "devDependencies": {
-    "@elastic/eslint-config-kibana": "0.0.2",
-    "babel-eslint": "4.1.8",
-    "eslint": "1.10.3",
-    "eslint-plugin-mocha": "1.1.0",
-    "@elastic/plugin-helpers": "6.0.2"
+    "@elastic/eslint-config-kibana": "^0.6.1",
+    "@elastic/plugin-helpers": "^7.0.0",
+    "babel-eslint": "^7.2.3",
+    "eslint": "^3.19.0",
+    "eslint-plugin-babel": "^4.1.1",
+    "eslint-plugin-import": "^2.3.0",
+    "eslint-plugin-mocha": "^4.9.0",
+    "eslint-plugin-react": "^7.0.1",
+    "expect.js": "^0.3.1"
   }
 }
