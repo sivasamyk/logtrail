@@ -61,7 +61,11 @@ html,body {
     margin-left: 1em;
     border: 2px solid #ccc;
     font-size: 16px;
-    padding-right: 11em;
+    width: 60em;
+}
+
+.search-box.form-control.hint {
+	padding-right: 11em;
 }
 
 .search-form {
@@ -114,72 +118,24 @@ html,body {
 }
 
 .flex-container-search {
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
-    flex-direction: row;
-    -webkit-flex-wrap: no-wrap;
-    -ms-flex-wrap: no-wrap;
-    flex-wrap: no-wrap;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    -webkit-align-content: center;
-    -ms-flex-line-pack: center;
-    align-content: center;
-    -webkit-align-items: center;
-    -ms-flex-align: center;
-    align-items: center;
-		width: auto;
-  }
-
-.flex-item-search:nth-child(1) {
-    -webkit-order: 0;
-    -ms-flex-order: 0;
-    order: 0;
-    -webkit-flex: 0 0 50em;
-    -ms-flex: 0 0 50em;
-    flex: 0 0 50em;
-    -webkit-align-self: auto;
-    -ms-flex-item-align: auto;
-    align-self: auto;
-  }
-
-.flex-item-search:nth-child(2) {
-    -webkit-order: 0;
-    -ms-flex-order: 0;
-    order: 0;
-    -webkit-flex: 0 0 auto;
-    -ms-flex: 0 0 auto;
-    flex: 0 0 auto;
-    -webkit-align-self: auto;
-    -ms-flex-item-align: auto;
-    align-self: auto;
-  }
-
-.flex-item-search:nth-child(3) {
-    -webkit-order: 0;
-    -ms-flex-order: 0;
-    order: 0;
-    -webkit-flex: 0 1 auto;
-    -ms-flex: 0 1 auto;
-    flex: 0 1 auto;
-    -webkit-align-self: auto;
-    -ms-flex-item-align: auto;
-    align-self: auto;
-  }
+	display: flex;
+	flex-direction: row;
+	flex-wrap: no-wrap;
+	justify-content: flex-start;
+	align-content: center;
+	align-items: center;
+	width: auto;
+}
 
 .host-picker {
 	position: absolute;
 	background: white;
 	border: 4px solid rgb(128,128,128);
-  	width: 16em;
-  	height: auto;
-  	border-radius: 6px;
+	width: 16em;
+	height: auto;
+	border-radius: 6px;
 	bottom: 5.5em;
-	left: 58em;
+	left: 71em;
 	padding: 0;
 }
 
@@ -231,6 +187,11 @@ html,body {
 	cursor: pointer;
 }
 
+.host-picker-search {
+	border: 2px solid #84BACC;
+	background: white;
+}
+
 
 .date-picker {
 	position: absolute;
@@ -241,7 +202,7 @@ html,body {
 	height: 7em;
 	border-radius: 6px;
 	bottom: 5.5em;
-	left: 60em;
+	left: 72em;
 }
 
 .date-picker:after, .date-picker:before {
@@ -261,6 +222,7 @@ html,body {
 	border-width: 30px;
 	margin-left: -30px;
 }
+
 .date-picker:before {
 	border-color: rgb(128,128,128,0);
 	border-top-color: white;
@@ -385,7 +347,7 @@ html,body {
 	height: auto;
 	border-radius: 6px;
 	bottom: 5.5em;
-	left: 68em;
+	left: 80em;
 	padding: 0;	
 	color: black;
 	padding: 1em;
@@ -541,5 +503,5 @@ html,body {
 
 .lucene-hint {
 	position: fixed;
-	left: 50em;
+	left: 60em;
 }
