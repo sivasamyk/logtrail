@@ -3,7 +3,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "logstash-syslog"
+        "default_index": "logstash-*"
       },
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
