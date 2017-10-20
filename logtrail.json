@@ -3,8 +3,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "logstash-cassandra",
-        "allow_url_parameter": false
+        "default_index": "logstash-*"
       },
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
@@ -18,23 +17,13 @@
         "mapping" : {
             "timestamp" : "@timestamp",
             "display_timestamp" : "@timestamp",
-            "hostname" : "host",
-            "program": "filename",
-            "message": "log_message"
+            "hostname" : "hostname",
+            "program": "program",
+            "message": "syslog_message"
         },
-        "message_format": "{{{log_message}}}"
+        "message_format": "{{{syslog_message}}}"
       },
       "color_mapping" : {
-        "field" : "log_level",
-        "mapping" : {
-          "ERROR1": "#ff3232",
-          "WARN2": "#ff7f24",
-          "DEBUG3": "#ffb90f",
-          "TRACE4": "#a2cd5a"
-         }
-      },
-      "source_analysis" : {
-        "enabled": true
       }
     }  
   ]
