@@ -187,6 +187,11 @@ html,body {
 	cursor: pointer;
 }
 
+.host-picker-search {
+	border: 2px solid #84BACC;
+	background: white;
+}
+
 
 .date-picker {
 	position: absolute;
