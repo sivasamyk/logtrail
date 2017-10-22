@@ -3,8 +3,6 @@
 [![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 5.6.3](https://img.shields.io/badge/Kibana-v5.6.3-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-5.6.3)
 [![License](https://img.shields.io/github/license/sivasamyk/logtrail.svg)](https://github.com/sivasamyk/logtrail) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sivasamyk)
 
-Introduction
-------------
 LogTrail is a plugin for Kibana to view, analyze, search and tail log events from multiple hosts in realtime with devops friendly interface inspired by [Papertrail](https://papertrailapp.com/).
 
 ![Events](screenshot.png)
