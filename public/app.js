@@ -376,6 +376,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $scope.selectedHost = null; //all systems
     $scope.hosts = null;
     $scope.errorMessage = null;
+    $scope.hostSearchText = null;
 
     setupHostsList();
     $scope.onSearchClick();
