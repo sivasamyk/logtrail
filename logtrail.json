@@ -3,7 +3,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "logstash-*"
+        "default_index": "logstash-cassandra"
       },
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
@@ -17,13 +17,16 @@
         "mapping" : {
             "timestamp" : "@timestamp",
             "display_timestamp" : "@timestamp",
-            "hostname" : "hostname",
-            "program": "program",
-            "message": "syslog_message"
+            "hostname" : "host",
+            "program": "filename",
+            "message": "log_message"
         },
-        "message_format": "{{{syslog_message}}}"
+        "message_format": "{{{log_message}}}"
       },
       "color_mapping" : {
+      },
+      "source_analysis" : {
+        "enabled": true
       }
     }  
   ]
