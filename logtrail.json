@@ -3,7 +3,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "logstash-cassandra"
+        "default_index": "logstash-hadoop"
       },
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
@@ -18,7 +18,7 @@
             "timestamp" : "@timestamp",
             "display_timestamp" : "@timestamp",
             "hostname" : "host",
-            "program": "filename",
+            "program": "logger_name",
             "message": "log_message"
         },
         "message_format": "{{{log_message}}}"
