@@ -514,9 +514,9 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   $scope.showSimilarMessagesContaining = function () {
     var text = $scope.argPopup.text;
-    var argNum = $scope.argPopup.argNum;
+    var fieldName = $scope.argPopup.fieldName;
     var patternInfo = $scope.argPopup.event.patternInfo;
-    var searchString = 'lt.patternId:' + patternInfo.patternId + ' AND lt.a' + argNum + ':"' + text + '"';
+    var searchString = 'lt.patternId:' + patternInfo.patternId + ' AND lt.' + fieldName + ':"' + text + '"';
     $scope.closeArgPopup();
     $scope.search(searchString);
   }
