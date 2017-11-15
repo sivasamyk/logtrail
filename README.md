@@ -23,7 +23,7 @@ Installation
 ------------
 - Prerequisites
   - Download and install Elasticsearch , Logstash and Kibana
-  - Logtrail is supported and tested with Kibana 4.x and 5.x
+  - Logtrail is supported and tested with Kibana 6.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
   - Kibana 6.0.0 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.23/logtrail-6.0.0-0.1.23.zip`
   - Kibana 5.6.4 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.23/logtrail-5.6.4-0.1.23.zip`
@@ -36,7 +36,7 @@ Configuration
 ### If you are already shipping logs/events to Elasticsearch
  - If you have already setup logging infrastructure with events getting indexed in ES,
 you need to map the current event fields in ES to logtrail specific fields. This can by done by editing
-`logtrail.json` file located inside`./plugins/logtrail` directory (for 4.x the directory is `./installedPlugins/logtrail/`).
+`logtrail.json` file located inside`./plugins/logtrail` directory.
 Edit the following fields:
  - default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
       - While using an index name other than `logstash-*`, make sure respective .raw fields are created in ES index.
