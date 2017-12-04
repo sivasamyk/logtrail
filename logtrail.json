@@ -16,7 +16,6 @@
       "fields" : {
         "mapping" : {
             "timestamp" : "@timestamp",
-            "display_timestamp" : "@timestamp",
             "hostname" : "hostname",
             "program": "program",
             "message": "syslog_message"

@@ -52,7 +52,6 @@ function convertToClientFormat(selected_config, esResponse) {
     event.id = hits[i]._id;
     var get = require('lodash.get');
     event['timestamp'] = get(source, selected_config.fields.mapping['timestamp']);
-    event['display_timestamp'] = get(source, selected_config.fields.mapping['display_timestamp']);
     event['hostname'] = get(source, selected_config.fields.mapping['hostname']);
     event['program'] = get(source, selected_config.fields.mapping['program']);
 
