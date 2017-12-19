@@ -1,4 +1,4 @@
-module.exports = function init_server_context(server, context) {
+function initServerContext(server, context) {
 	//by default use local config
   var config = require('../../logtrail.json');
   context['config'] = config;
@@ -17,38 +17,43 @@ function loadConfigFromES(server,context) {
     //If elasticsearch has config use it.
     context['config'] = resp._source;
     server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
-    updateKeywordInfo(server,context['config'])
   }).catch(function (error) {
-    server.log (['error','status'],`Error while loading config from Elasticsearch. Will use local` );
-    updateKeywordInfo(server,context['config'])
+    server.log (['info','status'],`Error while loading config from Elasticsearch. Will use local` );
   });
 }
 
-function updateKeywordInfo(server,config) {
-  for (var i = 0; i < config.index_patterns.length; i++) {
-    var indexPattern = config.index_patterns[i];
-    updateKeywordInfoForField(server,indexPattern, 'hostname');
-    updateKeywordInfoForField(server,indexPattern, 'program');
-  }
-}
-
-function updateKeywordInfoForField(server, indexPattern, field) {
-  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
-  var keywordField = indexPattern.fields.mapping[field] + ".keyword";
-  var request = {
-    index: indexPattern.es.default_index,
-    size: 1,
-    body : {
-      query: {
-        exists : { field : keywordField }
+function updateKeywordInfo(server,indexPattern, fieldKey) {
+  return new Promise((resolve,reject) => {
+    var field = indexPattern.fields.mapping[fieldKey];
+    checkIfFieldIsKeyword(server,indexPattern, field).then(async function(result) {
+      if (result) {
+        indexPattern.fields.mapping[fieldKey + ".keyword"] = field;
+      } else {
+        result = await checkIfFieldIsKeyword(server,indexPattern, field + ".keyword");
+        if (result) {
+          indexPattern.fields.mapping[fieldKey + ".keyword"] = field + ".keyword";
+        }
       }
-    }
-  };
-  callWithInternalUser('search',request).then(function (resp) {
-    if (resp.hits.hits.length > 0) {
-      indexPattern.fields[field + '.keyword'] = true;
-    }
-  }).catch(function (error) {
-    server.log (['info','status'],`Cannot load keyword field for ${field}. will use non-keyword field` );
+      resolve(result);
+    });
   });
 }
+
+function checkIfFieldIsKeyword(server, indexPattern, fieldToCheck) {
+  return new Promise((resolve, reject) => {
+    const adminCluster = server.plugins.elasticsearch.getCluster('admin');
+    var request = {
+      index: indexPattern.es.default_index,
+      fields: fieldToCheck,
+      ignoreUnavailable: true
+    };
+    var resp = adminCluster.callWithInternalUser('fieldCaps',request).then(function(resp) {
+      resolve(resp.fields[fieldToCheck].keyword != null);
+    }).catch(function(error) {
+      server.log (['info','status'],`Cannot load keyword field for ${fieldToCheck}. will use non-keyword field ${error}`);
+      resolve(false);
+    });
+  });
+}
+
+export { initServerContext, updateKeywordInfo };
