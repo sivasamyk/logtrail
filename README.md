@@ -47,7 +47,7 @@ Edit the following fields:
  - display_timestamp_format - Format to display the timestamp in Event Viewer. For list of valid value refer [here](http://momentjs.com/docs/#/displaying/)
  - fields - Edit this parameter to map the event fields in ES to logtrail fields
     - timestamp - maps to @timestamp field inserted by logstash. This will be used for querying internally. Logtrail recommends @timestamp to be stored in UTC in ES.
-    - hostname - hostname from where the events were received. Also used by hostname filter
+    - hostname - hostname from where the events were received. Also used by hostname filter. Hostname field should be of type keyword. For more info checkout [https://github.com/sivasamyk/logtrail/blob/issue/205/docs/how_to.md#1-hostname-field-need-to-be-of-type-keyword](https://github.com/sivasamyk/logtrail/blob/issue/205/docs/how_to.md#1-hostname-field-need-to-be-of-type-keyword)
     - program - program that generated this event.
     - message - actual event message. This field will be used by search.
  - Example:  If the event fields names are @timestamp, host, process, message the mapping should be

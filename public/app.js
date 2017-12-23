@@ -416,8 +416,9 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   $scope.onProgramClick = function (program) {
     var programField = selected_index_config.fields.mapping['program'];
-    if (selected_index_config.fields['program.keyword']) {
-      programField += '.keyword';
+    var programKeywordField = selected_index_config.fields.mapping['program.keyword'];
+    if (programKeywordField) {
+      programField = programKeywordField;
     }
     $scope.userSearchText =  programField  + ':"' + program + '"';
     $scope.onSearchClick();
@@ -508,8 +509,9 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         }
         $scope.hosts.sort();
       } else {
-        console.error('Error while fetching hosts : ' , resp.data.resp.msg);
-        $scope.errorMessage = 'Exception while fetching hosts : ' + resp.data.resp.msg;
+        var message = resp.data.resp.msg ? resp.data.resp.msg : resp.data.resp;
+        console.error('Error while fetching hosts : ' , message);
+        $scope.errorMessage = 'Exception while fetching hosts : ' + message;
       }
     });
   }

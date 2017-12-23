@@ -1,4 +1,4 @@
-import init_server_context from "./init_server_context.js"
+import { initServerContext, updateKeywordInfo } from "./init_server_context.js"
 
 function getMessageTemplate(handlebar, selected_config) {
   var message_format = selected_config.fields.message_format;
@@ -98,7 +98,7 @@ function convertToClientFormat(selected_config, esResponse) {
 module.exports = function (server) {
 
   var context = {};
-  init_server_context(server,context);
+  initServerContext(server,context);
 
   //Search
   server.route({
@@ -205,6 +205,7 @@ module.exports = function (server) {
         searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
       }
       //console.log(JSON.stringify(searchRequest));
+
       callWithRequest(request,'search',searchRequest).then(function (resp) {
         reply({
           ok: true,
@@ -242,9 +243,17 @@ module.exports = function (server) {
         }
       }
 
-      var hostnameField = selected_config.fields.mapping.hostname;
-      if (selected_config.fields['hostname.keyword']) {
-        hostnameField += '.keyword';
+      var hostnameKey = 'hostname.keyword';
+      var hostnameField = selected_config.fields.mapping[hostnameKey];
+      //field mapped to hostname key is not of type keyword.
+      if (hostnameField == null) {
+        var errorMessage = selected_config.fields.mapping['hostname'] + 
+        " field not of type keyword or keyword mapping does not exist."
+        reply({
+          ok: false,
+          resp: errorMessage
+        });
+        return;
       }
       var hostAggRequest = {
         index: selected_config.es.default_index,
@@ -268,6 +277,7 @@ module.exports = function (server) {
           resp: resp.aggregations.hosts.buckets
         });
       }).catch(function (resp) {
+      
         if(resp.isBoom) {
           reply(resp);
         } else {
@@ -284,10 +294,18 @@ module.exports = function (server) {
   server.route({
     method: 'GET',
     path: '/logtrail/config',
-    handler: function (request, reply) {
+    handler: async function (request, reply) {
+      var config = context.config;
+      for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+        var selected_config = config.index_patterns[i];
+        if (selected_config.fields.mapping['hostname.keyword'] == null) {
+          await updateKeywordInfo(server, selected_config, "hostname");
+          await updateKeywordInfo(server, selected_config, "program");
+        }
+      }
       reply({
         ok: true,
-        config: context.config
+        config: config
       });
     }  
   });
