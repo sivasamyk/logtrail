@@ -23,12 +23,11 @@
             placeholder='"access denied" 1.2.3.4 -sshd' title='Default search field : message'></input>
         <div ng-hide="userSearchText !== null && userSearchText.length > 0" class="lucene-hint"><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-query-string-query.html#query-string-syntax" target="_blank">Uses lucene query syntax</a></div>
         <button class="submit btn search-btn flex-item-search" >Search</button>
-        <button type="button" id="host-picker-btn" class="btn host-option-select-btn flex-item-search"
-          ng-click="showHostPicker()">{{selectedHost == null ? 'All Systems' : selectedHost}}</button>
-        <button type="button" id="date-picker-btn" class="time-option-select-btn btn flex-item-search"
-          ng-click="showDatePicker()">{{ isNullorEmpty(userDateTimeSeeked) ? 'Now' : userDateTimeSeeked }}</button>
-        <button type="button" id="settings-btn" class="settings-select-btn btn flex-item-search"
-          ng-click="showSettings()">Settings</button>
+        <button type="button" id="host-picker-btn" class="btn host-option-select-btn flex-item-search">
+          {{selectedHost == null ? 'All Systems' : selectedHost}}</button>
+        <button type="button" id="date-picker-btn" class="time-option-select-btn btn flex-item-search">
+          {{ isNullorEmpty(userDateTimeSeeked) ? 'Now' : userDateTimeSeeked }}</button>
+        <button type="button" id="settings-btn" class="settings-select-btn btn flex-item-search">Settings</button>
       </div>
     </form>
     <div class="date-picker ng-hide" id="date-picker" click-outside>
@@ -47,7 +46,9 @@
 
     <div class="host-picker ng-hide" id="host-picker" click-outside>
       <ul class="host-picker-list">
-        <li ng-repeat="host in hosts" ng-hide="hostSearchText != null && !host.includes(hostSearchText)"><a href ng-click="onHostSelected(host)">{{host}}</a></li>
+        <li ng-repeat="host in hosts" ng-hide="hostSearchText != null && !host.includes(hostSearchText)"><a href ng-click="onHostSelected(host)">{{host}}</a></li>       
+      </ul>
+      <ul class="host-picker-list">
         <li> <a href ng-click="onHostSelected('*')"> [ All Systems ] </a></li>
         <li ng-hide="hosts.length < 11"><input class="host-picker-search" type="search" name="host-search-input" ng-model="hostSearchText"/></li>
       </ul>

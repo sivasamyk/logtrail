@@ -172,7 +172,7 @@ module.exports = function (server) {
           }
         };
         var hostnameField = selected_config.fields.mapping.hostname;
-        if (selected_config.fields['hostname.keyword']) {
+        if (selected_config.fields.mapping['hostname.keyword']) {
           hostnameField += '.keyword';
         }
         termQuery.term[hostnameField] = request.payload.hostname;
