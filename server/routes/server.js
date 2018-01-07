@@ -3,7 +3,7 @@ import { initServerContext, updateKeywordInfo } from "./init_server_context.js"
 function getMessageTemplate(handlebar, selected_config) {
   var message_format = selected_config.fields.message_format;
   //Append <a> tags for click to message format except for message field
-    var message_format_regex = /({{{(\S+)}}})/g; // e.g. {{pid}} : {{syslog_message}}
+    var message_format_regex = /({{{[\[]?([\w+\.\_]+)[\]]?}}})/g; // e.g. {{{[pid]}}} {{{program}}} : {{syslog_message}}
     var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>",
       {
       knownHelpers: {
