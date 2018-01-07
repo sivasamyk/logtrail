@@ -545,6 +545,10 @@ uiModules.get('app/logtrail').directive('clickOutside', function ($document) {
                 e.target.id === 'host-picker-btn' ||
                 e.target.id === 'settings-btn') {
               scope.popup = angular.element('#' + e.target.id.replace('-btn','')).removeClass('ng-hide');
+              var buttonCenter = e.target.getBoundingClientRect().x + (e.target.getBoundingClientRect().width/2);
+              var popupWidth = scope.popup.width();
+              scope.popup.css("left",buttonCenter - (popupWidth/2));
+              scope.popup.css("min-width",popupWidth);
             }
         }
       });
