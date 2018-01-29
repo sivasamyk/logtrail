@@ -504,8 +504,3 @@ html,body {
 .highlight {
 	background-color: #004899;
 }
-
-.lucene-hint {
-	position: fixed;
-	left: 60em;
-}
