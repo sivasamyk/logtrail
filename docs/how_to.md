@@ -23,4 +23,16 @@ While using other ingesters like Fluentd etc, you need to create temapltes with 
 
 #### 2. Update kibana.version in logtrail plugin archive
 
-To update Logtrail plugin to work with your Kibana version, unzip the current logtrail plugin archive and update `kibana.version` to your current version of Kibana. Zip the contents again and install the updated archive. This should work across minor Kibana versions, provided there are no API mismatch between Kibana API used by Logtrail.
+To update Logtrail plugin to work with your Kibana version, unzip the current logtrail plugin archive and update `kibana.version` in `package.json` to your current version of Kibana. Zip the contents again and install the updated archive. This should work across minor Kibana versions, provided there are no API mismatch between Kibana API used by Logtrail.
+
+```json
+{
+  "name": "logtrail",
+  "version": "0.1.26",
+  "description": "Plugin to view, search & tail logs in Kibana",
+  "main": "index.js",
+  "kibana": {
+    "version": "6.2.2"
+	},
+	....
+```
