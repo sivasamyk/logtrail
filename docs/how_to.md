@@ -20,3 +20,7 @@ Elasticsearch 5.x : [https://github.com/logstash-plugins/logstash-output-elastic
 Filebeat template makes beat.hostname field type as keyword.
 
 While using other ingesters like Fluentd etc, you need to create temapltes with required mappings. For more info checkout https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-templates.html
+
+#### 2. Update kibana.version in logtrail plugin archive
+
+To update Logtrail plugin to work with your Kibana version, unzip the current logtrail plugin archive and update `kibana.version` to your current version of Kibana. Zip the contents again and install the updated archive. This should work across minor Kibana versions, provided there are no API mismatch between Kibana API used by Logtrail.
