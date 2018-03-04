@@ -33,6 +33,7 @@ To update Logtrail plugin to work with your Kibana version, unzip the current lo
   "main": "index.js",
   "kibana": {
     "version": "6.2.2"
-	},
-	....
+  },
+ }
+
 ```
