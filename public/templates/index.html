@@ -57,8 +57,8 @@
     <div class="settings ng-hide" id="settings" click-outside>
       <form class="form-inline" ng-submit="onSettingsChange()">
         <div class="flex-container-settings">
-          <label class="flex-item-settings">Index Pattern</label>
-          <select class="flex-item-settings" ng-model="selected_index_pattern">
+          <label class="index-label flex-item-settings">Index Pattern</label>
+          <select class="index-select flex-item-settings" ng-model="selected_index_pattern">
             <option ng-repeat="index in index_patterns" ng-value="index">{{index}}</option>
           </select>
           <button class="btn flex-item-settings submit">Ok</button>
