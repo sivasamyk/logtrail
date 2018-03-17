@@ -1,9 +1,9 @@
 {
   "version" : 1,
   "index_patterns" : [
-    {
+    {      
       "es": {
-        "default_index": "filebeat-*"
+        "default_index": "logstash-*"
       },
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
@@ -16,14 +16,14 @@
       "fields" : {
         "mapping" : {
             "timestamp" : "@timestamp",
-            "hostname" : "beat.hostname",
-            "program": "source",
-            "message": "message"
+            "hostname" : "hostname",
+            "program": "program",
+            "message": "syslog_message"
         },
-        "message_format": "{{{source}}} {{{message}}}"
+        "message_format": "{{{syslog_message}}}"
       },
       "color_mapping" : {
       }
-    }
+    }  
   ]
 }
