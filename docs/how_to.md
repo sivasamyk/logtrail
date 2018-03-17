@@ -37,3 +37,11 @@ To update Logtrail plugin to work with your Kibana version, unzip the current lo
  }
 
 ```
+
+#### 3. Load Logtrail configuration from Elasticsearch
+
+Logtrail can read the configuration from Elasticsearch instead of local `logtrail.json` file. During Kibana startup, Logtrail will look for configuration at `.logtrail` index in Elasticsearch. If available it will use the configuration from this index instead of local `logtrail.json` file. You can upload the contents of `logtrail.json` to Elasticsearch using following command:
+```
+curl -XPUT 'localhost:9200/.logtrail/config/1?pretty' -H 'Content-Type: application/json' -d@<path_to_logtrail.json_file>
+```
+Make sure the Kibana user has read permissions for `.logtrail` index.
