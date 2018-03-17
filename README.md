@@ -38,7 +38,7 @@ Configuration
  - If you have already setup logging infrastructure with events getting indexed in ES,
 you need to map the current event fields in ES to logtrail specific fields. This can by done by editing
 `logtrail.json` file located inside`./plugins/logtrail` directory.
- - Logtrail can read `logtrail.json` configuration from Elasticsearch instead of filesystem. This will be useful sharing same configuration across multiple installations.
+ - Logtrail can read `logtrail.json` configuration from Elasticsearch instead of filesystem. This will be useful sharing same configuration across multiple installations. For more info refer [Load Logtrail configuration from Elasticsearch](https://github.com/sivasamyk/logtrail/blob/master/docs/how_to.md#3-load-logtrail-configuration-from-elasticsearch)
 Edit the following fields:
  - default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
       - While using an index name other than `logstash-*`, make sure respective .raw fields are created in ES index.
