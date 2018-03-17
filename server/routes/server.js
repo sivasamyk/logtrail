@@ -299,8 +299,8 @@ module.exports = function (server) {
       for (var i = config.index_patterns.length - 1; i >= 0; i--) {
         var selected_config = config.index_patterns[i];
         if (selected_config.fields.mapping['hostname.keyword'] == null) {
-          await updateKeywordInfo(server, selected_config, "hostname");
-          await updateKeywordInfo(server, selected_config, "program");
+          await updateKeywordInfo(request, server, selected_config, "hostname");
+          await updateKeywordInfo(request, server, selected_config, "program");
         }
       }
       reply({

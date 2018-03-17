@@ -22,16 +22,16 @@ function loadConfigFromES(server,context) {
   });
 }
 
-function updateKeywordInfo(server,indexPattern, fieldKey) {
+function updateKeywordInfo(request, server, indexPattern, fieldKey) {
   return new Promise((resolve,reject) => {
     var field = indexPattern.fields.mapping[fieldKey];
     //check if the direct field is of type keyword
-    checkIfFieldIsKeyword(server,indexPattern, field).then(async function(result) {
+    checkIfFieldIsKeyword(request, server,indexPattern, field).then(async function(result) {
       if (result) {
         indexPattern.fields.mapping[fieldKey + ".keyword"] = field;
       } else {
         //else check if we have .keyword mapping added by logstash template.
-        result = await checkIfFieldIsKeyword(server,indexPattern, field + ".keyword");
+        result = await checkIfFieldIsKeyword(request, server,indexPattern, field + ".keyword");
         if (result) {
           indexPattern.fields.mapping[fieldKey + ".keyword"] = field + ".keyword";
         }
@@ -41,15 +41,15 @@ function updateKeywordInfo(server,indexPattern, fieldKey) {
   });
 }
 
-function checkIfFieldIsKeyword(server, indexPattern, fieldToCheck) {
+function checkIfFieldIsKeyword(request, server, indexPattern, fieldToCheck) {
   return new Promise((resolve, reject) => {
-    const adminCluster = server.plugins.elasticsearch.getCluster('admin');
-    var request = {
+    const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
+    var payload = {
       index: indexPattern.es.default_index,
       fields: fieldToCheck,
       ignoreUnavailable: true
     };
-    var resp = adminCluster.callWithInternalUser('fieldCaps',request).then(function(resp) {
+    var resp = callWithRequest(request, 'fieldCaps', payload).then(function(resp) {
       resolve(resp.fields[fieldToCheck].keyword != null);
     }).catch(function(error) {
       server.log (['info','status'],`Cannot load keyword field for ${fieldToCheck}. will use non-keyword field ${error}`);
