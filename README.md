@@ -35,36 +35,35 @@ Installation
 Configuration
 -------------
 ### If you are already shipping logs/events to Elasticsearch
- - If you have already setup logging infrastructure with events getting indexed in ES,
+- If you have already setup logging infrastructure with events getting indexed in ES,
 you need to map the current event fields in ES to logtrail specific fields. This can by done by editing
 `logtrail.json` file located inside`./plugins/logtrail` directory.
- - Logtrail can read `logtrail.json` configuration from Elasticsearch instead of filesystem. This will be useful sharing same configuration across multiple installations. For more info refer [Load Logtrail configuration from Elasticsearch](https://github.com/sivasamyk/logtrail/blob/master/docs/how_to.md#3-load-logtrail-configuration-from-elasticsearch)
-Edit the following fields:
- - default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
+- Logtrail can read `logtrail.json` configuration from Elasticsearch instead of filesystem. This will be useful sharing same configuration across multiple installations. For more info refer [Load Logtrail configuration from Elasticsearch](https://github.com/sivasamyk/logtrail/blob/master/docs/how_to.md#3-load-logtrail-configuration-from-elasticsearch)
+- default_index - Elasticsearch index where the syslog events are stored (default: logstash-*)
       - While using an index name other than `logstash-*`, make sure respective .raw fields are created in ES index.
- - default_time_range_in_days - Default time range in days to search when time is not specified using Seek button.
+- default_time_range_in_days - Default time range in days to search when time is not specified using Seek button.
     Example: Value of 30 means logtrail will search only in logs from last 30 days, unless time is specified using Seek button.
     Value of 0 means logtrail will search in all available logs by default.
- - display_timezone - Timezone to display the timestamp in Event Viewer. e.g. `America/Los_Angeles`. Default value of `local` will use the timezone of browser. The time specified in `Seek To` popup will always use browser timezone.
- - display_timestamp_format - Format to display the timestamp in Event Viewer. For list of valid value refer [here](http://momentjs.com/docs/#/displaying/)
- - fields - Edit this parameter to map the event fields in ES to logtrail fields
+- display_timezone - Timezone to display the timestamp in Event Viewer. e.g. `America/Los_Angeles`. Default value of `local` will use the timezone of browser. The time specified in `Seek To` popup will always use browser timezone.
+- display_timestamp_format - Format to display the timestamp in Event Viewer. For list of valid value refer [here](http://momentjs.com/docs/#/displaying/)
+- fields - Edit this parameter to map the event fields in ES to logtrail fields
     - timestamp - maps to @timestamp field inserted by logstash. This will be used for querying internally. Logtrail recommends @timestamp to be stored in UTC in ES.
     - hostname - hostname from where the events were received. Also used by hostname filter. Hostname field should be of type keyword. For more info checkout [Hostname field need to be of type keyword](docs/how_to.md#1-hostname-field-need-to-be-of-type-keyword)
     - program - program that generated this event.
     - message - actual event message. This field will be used by search.
- - Example:  If the event fields names are @timestamp, host, process, message the mapping should be
- ```json
- "mapping" : {
+- Example:  If the event fields names are @timestamp, host, process, message the mapping should be
+```json
+"mapping" : {
         "timestamp" : "@timestamp",
         "hostname" : "host",
         "program": "process",
         "message": "message"
     }
 ```
- - By default each line displayed in the events view is of format:
+- By default each line displayed in the events view is of format:
   `display_timestamp hostname program:message`
- - message_format - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](docs/add_fields.md)
- - color_mapping - Color code messages based on field values. For more details refer [Color coding messages](docs/color_mapping.md)
+- message_format - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](docs/add_fields.md)
+- color_mapping - Color code messages based on field values. For more details refer [Color coding messages](docs/color_mapping.md)
  - Any changes in `logtrail.json` requires restart of Kibana
 
 ### If you are starting fresh
