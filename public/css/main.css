@@ -115,15 +115,55 @@ html,body {
 	color: #258CCD;
 }
 
+.program.Error a {
+	color: #ff3333;
+}
+
 .program a:hover {
 	text-decoration: none;
 }
 
 .message {
-	color: #B0B0B0;
+	color: #B0B0B0;	
 	word-break: break-all;
-	word-wrap: break-word;
-	white-space: pre-wrap;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.message-error a {
+	color: #ff3333;	
+}
+
+.message-warning a {
+	color: #ffff33;	
+}
+
+.message-info a {
+	color: #33cc33;	
+}
+
+.message-debug a {
+	color: #B0B0B0;	
+}
+
+.severity {
+	color: #258CCD;	
+
+
+.severity-error a{
+	color: #ff3333;	
+}
+
+.severity-warning a {
+	color: #ffff33;	
+}
+
+.severity-info a {
+	color: #33cc33;	
+}
+
+.severity-debug a {
+	color: #B0B0B0;	
 }
 
 .flex-container-search {

@@ -55,6 +55,12 @@ function convertToClientFormat(selected_config, esResponse) {
     event['hostname'] = get(source, selected_config.fields.mapping['hostname']);
     event['program'] = get(source, selected_config.fields.mapping['program']);
 
+
+    if ( source[selected_config.fields.mapping['severity']] )
+    	event['severity'] = source[selected_config.fields.mapping['severity']].toLowerCase();
+    else
+    	event['severity'] = source[selected_config.fields.mapping['severity']];
+
     //Calculate message color, if configured
     if (selected_config.color_mapping && selected_config.color_mapping.field) {
       var color_field_val = get(source, selected_config.color_mapping.field);
@@ -64,6 +70,7 @@ function convertToClientFormat(selected_config, esResponse) {
       }
     }
 
+
     //Change the source['message'] to highlighter text if available
     if (hits[i].highlight) {
       var get = require('lodash.get');
@@ -72,6 +79,7 @@ function convertToClientFormat(selected_config, esResponse) {
       set(source, selected_config.fields.mapping['message'], with_highlights);
       source[selected_config.fields.mapping['message']] = hits[i].highlight[selected_config.fields.mapping['message']][0];
     }
+
     var message = source[selected_config.fields.mapping['message']];
     //sanitize html
     var escape = require('lodash.escape');
