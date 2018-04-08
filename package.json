@@ -24,11 +24,12 @@
     "gather-info": "node gather-info.js"
   },
   "dependencies": {
-    "sugar-date": "1.5.1",
+    "ansi-to-html": "^0.6.4",
     "handlebars": "4.0.6",
+    "lodash.escape": "4.0.1",
     "lodash.get": "4.4.2",
     "lodash.set": "4.3.2",
-    "lodash.escape": "4.0.1"
+    "sugar-date": "1.5.1"
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "^0.6.1",

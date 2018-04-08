@@ -5,6 +5,7 @@ import { notify } from 'ui/notify';
 import { uiModules } from "ui/modules"
 import sugarDate from 'sugar-date';
 import moment from 'moment-timezone';
+import AnsiToHtml from 'ansi-to-html';
 
 import 'ui/autoload/styles';
 import 'plugins/logtrail/css/main.css';
@@ -554,6 +555,15 @@ uiModules.get('app/logtrail').directive('clickOutside', function ($document) {
       });
     }
   };
+});
+
+// Directive to convert ANSI codes for colorized log lines
+uiModules.get('app/logtrail').filter('ansiToHtml', function ($sce) {
+  var ansiToHtml = new AnsiToHtml();
+  return function (input, target) {
+    var text = $sce.getTrustedHtml(input);
+    return $sce.trustAsHtml(ansiToHtml.toHtml(text));
+  }
 });
 
 //This is required for onClick event in custom message formats
