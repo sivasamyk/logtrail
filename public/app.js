@@ -16,15 +16,15 @@ const app = uiModules.get('app/logtrail', []);
 
 uiRoutes.enable();
 uiRoutes
-.when('/', {
-  template: template,
-  reloadOnSearch: false
-});
+  .when('/', {
+    template: template,
+    reloadOnSearch: false
+  });
 
 document.title = 'LogTrail - Kibana';
 
 app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
-   $window, $interval, $http, $document, $timeout, $location, $sce) {
+  $window, $interval, $http, $document, $timeout, $location, $sce) {
   $scope.title = 'LogTrail';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
@@ -284,7 +284,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     var eventCount = $scope.events.length;
     if (eventCount > selected_index_config.max_events_to_keep_in_viewer) {
       var noOfItemsToDelete = eventCount - selected_index_config.max_events_to_keep_in_viewer;
-        //if append the remove from top
+      //if append the remove from top
       var removedEvents = [];
       if (append) {
         removedEvents = $scope.events.splice(0,noOfItemsToDelete);
@@ -292,7 +292,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         removedEvents = $scope.events.splice(-noOfItemsToDelete);
       }
 
-        //delete the removed event ids from cache.
+      //delete the removed event ids from cache.
       for (var i = 0; i < removedEvents.length; i++) {
         eventIds.delete(removedEvents[i].id);
       }

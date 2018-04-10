@@ -1,5 +1,5 @@
 function initServerContext(server, context) {
-	//by default use local config
+  //by default use local config
   var config = require('../../logtrail.json');
   context.config = config;
   //try loading from elasticsearch
