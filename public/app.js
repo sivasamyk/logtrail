@@ -2,7 +2,7 @@ import angular from 'angular';
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
 import { notify } from 'ui/notify';
-import { uiModules } from "ui/modules"
+import { uiModules } from 'ui/modules';
 import sugarDate from 'sugar-date';
 import moment from 'moment-timezone';
 import AnsiToHtml from 'ansi-to-html';
@@ -76,8 +76,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
 
       //populate index_patterns
-      for (var i = config.index_patterns.length - 1; i >= 0; i--) {          
-        $scope.index_patterns.push(config.index_patterns[i].es.default_index);          
+      for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+        $scope.index_patterns.push(config.index_patterns[i].es.default_index);
       }
       if($routeParams.i) {
         for (var i = config.index_patterns.length - 1; i >= 0; i--) {
@@ -123,7 +123,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       index: selected_index_config.es.default_index
     };
 
-    console.debug("sending search request with params " + JSON.stringify(request));
+    console.debug('sending search request with params ' + JSON.stringify(request));
     return $http.post(chrome.addBasePath('/logtrail/search'), request).then(function (resp) {
       if (resp.data.ok) {
         updateEventView(resp.data.resp,actions,order);
@@ -147,20 +147,20 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   //formats event based on logtrail.json config
   function formatEvent(event) {
     // display_timestamp based on configured timezone and format
-    var display_timestamp = moment(event['timestamp']);
+    var display_timestamp = moment(event.timestamp);
     if (selected_index_config.display_timestamp_format != null) {
-      var display_timestamp = moment(event['timestamp']);
+      var display_timestamp = moment(event.timestamp);
       if (selected_index_config.display_timezone !== 'local') {
         display_timestamp = display_timestamp.tz(selected_index_config.display_timezone);
       }
-      event['display_timestamp'] = display_timestamp.format(selected_index_config.display_timestamp_format);
+      event.display_timestamp = display_timestamp.format(selected_index_config.display_timestamp_format);
     } else {
-      event['display_timestamp'] = display_timestamp;
+      event.display_timestamp = display_timestamp;
     }
 
     //message format
     if (selected_index_config.fields.message_format) {
-      event['message'] = $sce.trustAsHtml(event['message']);
+      event.message = $sce.trustAsHtml(event.message);
     }
   }
 
@@ -283,19 +283,19 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   function trimEvents(append) {
     var eventCount = $scope.events.length;
     if (eventCount > selected_index_config.max_events_to_keep_in_viewer) {
-        var noOfItemsToDelete = eventCount - selected_index_config.max_events_to_keep_in_viewer;
+      var noOfItemsToDelete = eventCount - selected_index_config.max_events_to_keep_in_viewer;
         //if append the remove from top
-        var removedEvents = [];
-        if (append) {
-          removedEvents = $scope.events.splice(0,noOfItemsToDelete);
-        } else { //remove from bottom
-          removedEvents = $scope.events.splice(-noOfItemsToDelete);
-        }
+      var removedEvents = [];
+      if (append) {
+        removedEvents = $scope.events.splice(0,noOfItemsToDelete);
+      } else { //remove from bottom
+        removedEvents = $scope.events.splice(-noOfItemsToDelete);
+      }
 
         //delete the removed event ids from cache.
-        for (var i = 0; i < removedEvents.length; i++) {
-          eventIds.delete(removedEvents[i].id);
-        }
+      for (var i = 0; i < removedEvents.length; i++) {
+        eventIds.delete(removedEvents[i].id);
+      }
     }
   }
 
@@ -329,7 +329,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     }
   };
 
-  $scope.resetDatePicker = function () {    
+  $scope.resetDatePicker = function () {
     if ($scope.pickedDateTime == null) {
       $scope.userDateTime = null;
     }
@@ -373,7 +373,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       }
     }
     angular.element('#settings').addClass('ng-hide');
-    //reset index specific states. 
+    //reset index specific states.
     // Other fields will be overwritten on successful search
     $scope.events = [];
     eventIds.clear();
@@ -416,7 +416,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   };
 
   $scope.onProgramClick = function (program) {
-    var programField = selected_index_config.fields.mapping['program'];
+    var programField = selected_index_config.fields.mapping.program;
     var programKeywordField = selected_index_config.fields.mapping['program.keyword'];
     if (programKeywordField) {
       programField = programKeywordField;
@@ -449,7 +449,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       var docHeight = angular.element($document).height();
       if (scrollPos >= docHeight) {
         if ($scope.events.length > 0) {
-          doSearch('gte', 'asc', ['append','scrollToView'], lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 ));
+          doSearch('gte', 'asc', ['append','scrollToView'], lastEventTime - (selected_index_config.es_index_time_offset_in_seconds * 1000));
         }
         $scope.$apply(updateLiveTailStatus('Live'));
       } else {
@@ -477,7 +477,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
       var adjustedLastEventTime = null;
       if (lastEventTime) {
-        adjustedLastEventTime = lastEventTime - ( selected_index_config.es_index_time_offset_in_seconds * 1000 );
+        adjustedLastEventTime = lastEventTime - (selected_index_config.es_index_time_offset_in_seconds * 1000);
       }
       doSearch('gte', 'asc', ['append'], adjustedLastEventTime);
     }
@@ -537,20 +537,20 @@ uiModules.get('app/logtrail').directive('clickOutside', function ($document) {
     scope: false,
     link: function (scope, el, attr) {
       $document.on('click', function (e) {
-        if (scope.popup == null || 
+        if (scope.popup == null ||
             (scope.popup !== e.target && !scope.popup[0].contains(e.target))) {
-            if (scope.popup != null) {
-              scope.popup.addClass('ng-hide');
-            }
-            if (e.target.id === 'date-picker-btn' ||
+          if (scope.popup != null) {
+            scope.popup.addClass('ng-hide');
+          }
+          if (e.target.id === 'date-picker-btn' ||
                 e.target.id === 'host-picker-btn' ||
                 e.target.id === 'settings-btn') {
-              scope.popup = angular.element('#' + e.target.id.replace('-btn','')).removeClass('ng-hide');
-              var buttonCenter = e.target.getBoundingClientRect().x + (e.target.getBoundingClientRect().width/2);
-              var popupWidth = scope.popup.width();
-              scope.popup.css("left",buttonCenter - (popupWidth/2));
-              scope.popup.css("min-width",popupWidth);
-            }
+            scope.popup = angular.element('#' + e.target.id.replace('-btn','')).removeClass('ng-hide');
+            var buttonCenter = e.target.getBoundingClientRect().x + (e.target.getBoundingClientRect().width / 2);
+            var popupWidth = scope.popup.width();
+            scope.popup.css('left',buttonCenter - (popupWidth / 2));
+            scope.popup.css('min-width',popupWidth);
+          }
         }
       });
     }
@@ -563,20 +563,20 @@ uiModules.get('app/logtrail').filter('ansiToHtml', function ($sce) {
   return function (input, target) {
     var text = $sce.getTrustedHtml(input);
     return $sce.trustAsHtml(ansiToHtml.toHtml(text));
-  }
+  };
 });
 
 //This is required for onClick event in custom message formats
-uiModules.get('app/logtrail').directive('compileTemplate', function($compile, $parse) {
+uiModules.get('app/logtrail').directive('compileTemplate', function ($compile, $parse) {
   return {
-    link: function(scope, element, attr){
+    link: function (scope, element, attr) {
       var parsed = $parse(attr.ngBindHtml);
       function getStringValue() { return (parsed(scope) || '').toString(); }
 
       //Recompile if the template changes
-      scope.$watch(getStringValue, function() {
+      scope.$watch(getStringValue, function () {
         $compile(element, null, -9999)(scope);  //The -9999 makes it skip directives so that we do not recompile ourselves
       });
     }
-  }
+  };
 });

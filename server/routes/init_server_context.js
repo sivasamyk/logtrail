@@ -1,7 +1,7 @@
 function initServerContext(server, context) {
 	//by default use local config
   var config = require('../../logtrail.json');
-  context['config'] = config;
+  context.config = config;
   //try loading from elasticsearch
   loadConfigFromES(server, context);
 }
@@ -15,10 +15,10 @@ function loadConfigFromES(server,context) {
   };
   callWithInternalUser('get',request).then(function (resp) {
     //If elasticsearch has config use it.
-    context['config'] = resp._source;
-    server.log (['info','status'],`Loaded logtrail config from Elasticsearch`);
+    context.config = resp._source;
+    server.log (['info','status'],'Loaded logtrail config from Elasticsearch');
   }).catch(function (error) {
-    server.log (['info','status'],`Error while loading config from Elasticsearch. Will use local` );
+    server.log (['info','status'],'Error while loading config from Elasticsearch. Will use local');
   });
 }
 
@@ -26,14 +26,14 @@ function updateKeywordInfo(request, server, indexPattern, fieldKey) {
   return new Promise((resolve,reject) => {
     var field = indexPattern.fields.mapping[fieldKey];
     //check if the direct field is of type keyword
-    checkIfFieldIsKeyword(request, server,indexPattern, field).then(async function(result) {
+    checkIfFieldIsKeyword(request, server,indexPattern, field).then(async function (result) {
       if (result) {
-        indexPattern.fields.mapping[fieldKey + ".keyword"] = field;
+        indexPattern.fields.mapping[fieldKey + '.keyword'] = field;
       } else {
         //else check if we have .keyword mapping added by logstash template.
-        result = await checkIfFieldIsKeyword(request, server,indexPattern, field + ".keyword");
+        result = await checkIfFieldIsKeyword(request, server,indexPattern, field + '.keyword');
         if (result) {
-          indexPattern.fields.mapping[fieldKey + ".keyword"] = field + ".keyword";
+          indexPattern.fields.mapping[fieldKey + '.keyword'] = field + '.keyword';
         }
       }
       resolve(result);
@@ -49,9 +49,9 @@ function checkIfFieldIsKeyword(request, server, indexPattern, fieldToCheck) {
       fields: fieldToCheck,
       ignoreUnavailable: true
     };
-    var resp = callWithRequest(request, 'fieldCaps', payload).then(function(resp) {
+    var resp = callWithRequest(request, 'fieldCaps', payload).then(function (resp) {
       resolve(resp.fields[fieldToCheck].keyword != null);
-    }).catch(function(error) {
+    }).catch(function (error) {
       server.log (['info','status'],`Cannot load keyword field for ${fieldToCheck}. will use non-keyword field ${error}`);
       resolve(false);
     });
