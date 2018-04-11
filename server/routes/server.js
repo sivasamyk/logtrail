@@ -1,7 +1,7 @@
 import { initServerContext, updateKeywordInfo } from './init_server_context.js';
 
 function getMessageTemplate(handlebar, selectedConfig) {
-  var messageFormat = selectedConfig.fields.messageFormat;
+  var messageFormat = selectedConfig.fields.message_format;
   //Append <a> tags for click to message format except for message field
   var messageFormatRegex = /({{{[\[]?(\S+?)[\]]?}}})/g; // e.g. {{{[pid]}}} {{{program-name}}} : {{syslog_message}}
   var ngClickTemplate = handlebar.compile('<a class="ng-binding" ng-click="onClick(\'{{name_no_braces}}\',\'{{name}}\')">{{name}}</a>',
@@ -34,7 +34,7 @@ function convertToClientFormat(selectedConfig, esResponse) {
   var clientResponse = [];
   var hits = esResponse.hits.hits;
   var template = null;
-  var messageFormat = selectedConfig.fields.messageFormat;
+  var messageFormat = selectedConfig.fields.message_format;
   if (messageFormat) {
     var handlebar = require('handlebars');
     var messageTemplate = getMessageTemplate(handlebar, selectedConfig);
@@ -46,11 +46,11 @@ function convertToClientFormat(selectedConfig, esResponse) {
       knownHelpersOnly: true
     });
   }
-  for (var i = 0; i < hits.length; i++) {
+  for (let i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
     event.id = hits[i]._id;
-    var get = require('lodash.get');
+    let get = require('lodash.get');
     event.timestamp = get(source, selectedConfig.fields.mapping.timestamp);
     event.hostname = get(source, selectedConfig.fields.mapping.hostname);
     event.program = get(source, selectedConfig.fields.mapping.program);
@@ -111,7 +111,7 @@ module.exports = function (server) {
       var index = request.payload.index;
       var selectedConfig = config.index_patterns[0];
       if (index) {
-        for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+        for (let i = config.index_patterns.length - 1; i >= 0; i--) {
           if (config.index_patterns[i].es.default_index === index) {
             selectedConfig = config.index_patterns[i];
             break;
@@ -235,7 +235,7 @@ module.exports = function (server) {
       var index = request.payload.index;
       var selectedConfig = config.index_patterns[0];
       if (index) {
-        for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+        for (let i = config.index_patterns.length - 1; i >= 0; i--) {
           if (config.index_patterns[i].es.default_index === index) {
             selectedConfig = config.index_patterns[i];
             break;
@@ -296,7 +296,7 @@ module.exports = function (server) {
     path: '/logtrail/config',
     handler: async function (request, reply) {
       var config = context.config;
-      for (var i = config.index_patterns.length - 1; i >= 0; i--) {
+      for (let i = config.index_patterns.length - 1; i >= 0; i--) {
         var selectedConfig = config.index_patterns[i];
         if (selectedConfig.fields.mapping['hostname.keyword'] == null) {
           await updateKeywordInfo(request, server, selectedConfig, 'hostname');
