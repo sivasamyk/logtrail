@@ -11,12 +11,8 @@
   <ul class="events">
     <li id="{{ event.id }}" ng-repeat="event in events" on-last-repeat infinite-scroll>
       <time>{{ event.display_timestamp }}</time>
-      <span class='host'>
-        <a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a>
-      </span>
-      <span class='program'>
-        <a ng-click="onProgramClick(event.program)">{{ event.program }}:</a>
-      </span>
+      <span class='host'><a href ng-click="onHostSelected(event.hostname)">{{ event.hostname }}</a></span>
+      <span class='program'><a ng-click="onProgramClick(event.program)">{{ event.program }}:</a></span>
       <span class="message" ng-style="event.color? {color: event.color} : ''" ng-bind-html="event.message | ansiToHtml" compile-template
       />
     </li>
