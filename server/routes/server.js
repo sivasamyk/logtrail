@@ -66,7 +66,6 @@ function convertToClientFormat(selectedConfig, esResponse) {
 
     //Change the source['message'] to highlighter text if available
     if (hits[i].highlight) {
-      var get = require('lodash.get');
       var set = require('lodash.set');
       var withHighlights = get(hits[i].highlight, [selectedConfig.fields.mapping.message,0]);
       set(source, selectedConfig.fields.mapping.message, withHighlights);
