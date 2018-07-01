@@ -121,7 +121,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
       rangeType: rangeType,
       order: order,
       hostname: $scope.selectedHost,
-      index: selectedIndexConfig.es.default_index
+      config: selectedIndexConfig
     };
 
     console.debug('sending search request with params ' + JSON.stringify(request));
@@ -418,9 +418,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   $scope.onProgramClick = function (program) {
     var programField = selectedIndexConfig.fields.mapping.program;
-    var programKeywordField = selectedIndexConfig.fields.mapping['program.keyword'];
-    if (programKeywordField) {
-      programField = programKeywordField;
+    let appendKeyword = selectedIndexConfig.fields.append_keyword;
+    if (appendKeyword == undefined) {
+      programField += ('.keyword');
+    } else if (appendKeyword.length > 0) {
+      programField += ('.' + appendKeyword);
     }
     $scope.userSearchText =  programField  + ':"' + program + '"';
     $scope.onSearchClick();
@@ -501,7 +503,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   function setupHostsList() {
     var params = {
-      index: selectedIndexConfig.es.default_index
+      config: selectedIndexConfig
     };
     $http.post(chrome.addBasePath('/logtrail/hosts'),params).then(function (resp) {
       if (resp.data.ok) {

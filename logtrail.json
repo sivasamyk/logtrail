@@ -1,5 +1,5 @@
 {
-  "version" : 1,
+  "version" : 2,
   "index_patterns" : [
     {      
       "es": {
@@ -20,7 +20,8 @@
             "program": "source",
             "message": "message"
         },
-        "message_format": "{{{message}}}"
+        "message_format": "{{{message}}}",
+        "append_keyword" : "keyword"
       },
       "color_mapping" : {
       }

@@ -1,5 +1,3 @@
-import { initServerContext, updateKeywordInfo } from './init_server_context.js';
-
 function getMessageTemplate(handlebar, selectedConfig) {
   var messageFormat = selectedConfig.fields.message_format;
   //Append <a> tags for click to message format except for message field
@@ -96,28 +94,13 @@ function convertToClientFormat(selectedConfig, esResponse) {
 
 module.exports = function (server) {
 
-  var context = {};
-  initServerContext(server,context);
-
   //Search
   server.route({
     method: ['POST'],
     path: '/logtrail/search',
     handler: function (request, reply) {
-      var config = context.config;
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
-
-      var index = request.payload.index;
-      var selectedConfig = config.index_patterns[0];
-      if (index) {
-        for (let i = config.index_patterns.length - 1; i >= 0; i--) {
-          if (config.index_patterns[i].es.default_index === index) {
-            selectedConfig = config.index_patterns[i];
-            break;
-          }
-        }
-      }
-
+      var selectedConfig = request.payload.config;
       var searchText = request.payload.searchText;
 
       if (searchText == null || searchText.length === 0) {
@@ -171,8 +154,11 @@ module.exports = function (server) {
           }
         };
         var hostnameField = selectedConfig.fields.mapping.hostname;
-        if (selectedConfig.fields.mapping['hostname.keyword']) {
-          hostnameField += '.keyword';
+        let appendKeyword = selectedConfig.fields.append_keyword;
+        if (appendKeyword == undefined) {
+          hostnameField += ('.keyword');
+        } else if (appendKeyword.length > 0) {
+          hostnameField += ('.' + appendKeyword);
         }
         termQuery.term[hostnameField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
@@ -229,30 +215,16 @@ module.exports = function (server) {
     method: ['POST'],
     path: '/logtrail/hosts',
     handler: function (request,reply) {
-      var config = context.config;
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
+      var selectedConfig = request.payload.config;
       var index = request.payload.index;
-      var selectedConfig = config.index_patterns[0];
-      if (index) {
-        for (let i = config.index_patterns.length - 1; i >= 0; i--) {
-          if (config.index_patterns[i].es.default_index === index) {
-            selectedConfig = config.index_patterns[i];
-            break;
-          }
-        }
-      }
-
-      var hostnameKey = 'hostname.keyword';
-      var hostnameField = selectedConfig.fields.mapping[hostnameKey];
-      //field mapped to hostname key is not of type keyword.
-      if (hostnameField == null) {
-        var errorMessage = selectedConfig.fields.mapping.hostname +
-        ' field not of type keyword or keyword mapping does not exist.';
-        reply({
-          ok: false,
-          resp: errorMessage
-        });
-        return;
+      
+      var hostnameField = selectedConfig.fields.mapping.hostname;
+      let appendKeyword = selectedConfig.fields.append_keyword;
+      if (appendKeyword == undefined) {
+        hostnameField += ('.keyword');
+      } else if (appendKeyword.length > 0) {
+        hostnameField += ('.' + appendKeyword);
       }
       var hostAggRequest = {
         index: selectedConfig.es.default_index,
@@ -294,14 +266,7 @@ module.exports = function (server) {
     method: 'GET',
     path: '/logtrail/config',
     handler: async function (request, reply) {
-      var config = context.config;
-      for (let i = config.index_patterns.length - 1; i >= 0; i--) {
-        var selectedConfig = config.index_patterns[i];
-        if (selectedConfig.fields.mapping['hostname.keyword'] == null) {
-          await updateKeywordInfo(request, server, selectedConfig, 'hostname');
-          await updateKeywordInfo(request, server, selectedConfig, 'program');
-        }
-      }
+      var config = await loadConfig(server);
       reply({
         ok: true,
         config: config
@@ -309,3 +274,23 @@ module.exports = function (server) {
     }
   });
 };
+
+function loadConfig(server) {
+  return new Promise((resolve, reject) => {
+    const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+    var request = {
+      index: '.logtrail',
+      type: 'config',
+      id: 1
+    };
+    callWithInternalUser('get',request).then(function (resp) {
+      //If elasticsearch has config use it.
+      resolve(resp._source);
+      server.log (['info','status'],'Loaded logtrail config from Elasticsearch');
+    }).catch(function (error) {
+      server.log (['info','status'],'Error while loading config from Elasticsearch. Will use local');
+      var config = require('../../logtrail.json');
+      resolve(config);
+    });
+  });
+}

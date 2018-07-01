@@ -25,7 +25,7 @@ Installation
   - Download and install Elasticsearch , Logstash and Kibana
   - Logtrail is supported and tested with Kibana 6.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
-  - Kibana 6.3.0 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.27/logtrail-6.3.0-0.1.27.zip`
+  - Kibana 6.3.0 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.28/logtrail-6.3.0-0.1.28.zip`
   - Kibana 5.6.5 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.23/logtrail-5.6.5-0.1.23.zip`
   - Other versions : [https://github.com/sivasamyk/logtrail/releases](https://github.com/sivasamyk/logtrail/releases)
 - Kibana requires exact match of plugin version to the Kibana version. If you can't find logtrail plugin release for a Kibana release, follow the instrcutions [here](docs/how_to.md#2-update-kibanaversion-in-logtrail-plugin-archive) to update Kibana version in your logtrail plugin archive.
@@ -58,6 +58,7 @@ Configuration
 - By default each line displayed in the events view is of format:
   `display_timestamp hostname program:message`
 - `message_format` - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](docs/add_fields.md)
+- `append_keyword` - Specifies the keyword suffix to be appended for hostname & program fields. Set it to `""` to not append any suffix.
 - `color_mapping` - Color code messages based on field values. For more details refer [Color coding messages](docs/color_mapping.md)
 - Any changes in `logtrail.json` requires restart of Kibana
 - Logtrail can read `logtrail.json` configuration from Elasticsearch instead of filesystem. This will be useful when sharing same configuration across multiple installations. For more info refer [Load Logtrail configuration from Elasticsearch](https://github.com/sivasamyk/logtrail/blob/master/docs/how_to.md#3-load-logtrail-configuration-from-elasticsearch)

@@ -1,6 +1,6 @@
 language: node_js
 node_js:
   - "node"
-  - "6.11.1"
+  - "8.11.0"
 script:
   - npm run build
