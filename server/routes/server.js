@@ -154,11 +154,11 @@ module.exports = function (server) {
           }
         };
         var hostnameField = selectedConfig.fields.mapping.hostname;
-        let appendKeyword = selectedConfig.fields.append_keyword;
-        if (appendKeyword == undefined) {
+        let keywordSuffix = selectedConfig.fields.keyword_suffix;
+        if (keywordSuffix == undefined) {
           hostnameField += ('.keyword');
-        } else if (appendKeyword.length > 0) {
-          hostnameField += ('.' + appendKeyword);
+        } else if (keywordSuffix.length > 0) {
+          hostnameField += ('.' + keywordSuffix);
         }
         termQuery.term[hostnameField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
@@ -220,11 +220,11 @@ module.exports = function (server) {
       var index = request.payload.index;
       
       var hostnameField = selectedConfig.fields.mapping.hostname;
-      let appendKeyword = selectedConfig.fields.append_keyword;
-      if (appendKeyword == undefined) {
+      let keywordSuffix = selectedConfig.fields.keyword_suffix;
+      if (keywordSuffix == undefined) {
         hostnameField += ('.keyword');
-      } else if (appendKeyword.length > 0) {
-        hostnameField += ('.' + appendKeyword);
+      } else if (keywordSuffix.length > 0) {
+        hostnameField += ('.' + keywordSuffix);
       }
       var hostAggRequest = {
         index: selectedConfig.es.default_index,
