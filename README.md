@@ -58,7 +58,7 @@ Configuration
 - By default each line displayed in the events view is of format:
   `display_timestamp hostname program:message`
 - `message_format` - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](docs/add_fields.md)
-- `append_keyword` - Specifies the keyword suffix to be appended for hostname & program fields. Set it to `""` to not append any suffix.
+- `keyword_suffix` - Specifies the keyword suffix to be appended for hostname & program fields. Set it to `""` to not append any suffix.
 - `color_mapping` - Color code messages based on field values. For more details refer [Color coding messages](docs/color_mapping.md)
 - Any changes in `logtrail.json` requires restart of Kibana
 - Logtrail can read `logtrail.json` configuration from Elasticsearch instead of filesystem. This will be useful when sharing same configuration across multiple installations. For more info refer [Load Logtrail configuration from Elasticsearch](https://github.com/sivasamyk/logtrail/blob/master/docs/how_to.md#3-load-logtrail-configuration-from-elasticsearch)

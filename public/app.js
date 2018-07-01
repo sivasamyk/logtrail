@@ -418,11 +418,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   $scope.onProgramClick = function (program) {
     var programField = selectedIndexConfig.fields.mapping.program;
-    let appendKeyword = selectedIndexConfig.fields.append_keyword;
-    if (appendKeyword == undefined) {
+    let keywordSuffix = selectedIndexConfig.fields.keyword_suffix;
+    if (keywordSuffix == undefined) {
       programField += ('.keyword');
-    } else if (appendKeyword.length > 0) {
-      programField += ('.' + appendKeyword);
+    } else if (keywordSuffix.length > 0) {
+      programField += ('.' + keywordSuffix);
     }
     $scope.userSearchText =  programField  + ':"' + program + '"';
     $scope.onSearchClick();
