@@ -21,7 +21,7 @@
             "message": "message"
         },
         "message_format": "{{{message}}}",
-        "keyword_prefix" : "keyword"
+        "keyword_suffix" : "keyword"
       },
       "color_mapping" : {
       }
