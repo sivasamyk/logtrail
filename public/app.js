@@ -52,30 +52,11 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   var eventIds = new Set();
 
   function init() {
-    //init scope vars from get params if available
-    if ($routeParams.q) {
-      $scope.userSearchText = $routeParams.q === '*' ? null : $routeParams.q;
-      searchText = $routeParams.q;
-    }
-
-    if ($routeParams.h) {
-      $scope.selectedHost = $routeParams.h === 'All' ? null : $routeParams.h;
-    }
-
-    if ($routeParams.t) {
-      if ($routeParams.t === 'Now' || $routeParams.t == null) {
-        $scope.pickedDateTime = null;
-        $scope.userDateTime = null;
-      } else {
-        $scope.pickedDateTime = convertStringToDate($routeParams.t);
-        $scope.userDateTimeSeeked = $routeParams.t;
-      }
-    }
+    
     $http.get(chrome.addBasePath('/logtrail/config')).then(function (resp) {
       if (resp.data.ok) {
         config = resp.data.config;
       }
-
       //populate index_patterns
       for (let i = config.index_patterns.length - 1; i >= 0; i--) {
         $scope.index_patterns.push(config.index_patterns[i].es.default_index);
@@ -92,6 +73,29 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         selectedIndexConfig = config.index_patterns[0];
       }
       $scope.selected_index_pattern = selectedIndexConfig.es.default_index;
+
+      //init scope vars from get params if available
+      if ($routeParams.q) {
+        $scope.userSearchText = $routeParams.q === '*' ? null : $routeParams.q;
+        searchText = $routeParams.q;
+      } else if (selectedIndexConfig.default_search) {
+        $scope.userSearchText = selectedIndexConfig.default_search;
+        searchText = selectedIndexConfig.default_search
+      }
+
+      if ($routeParams.h) {
+        $scope.selectedHost = $routeParams.h === 'All' ? null : $routeParams.h;
+      }
+
+      if ($routeParams.t) {
+        if ($routeParams.t === 'Now' || $routeParams.t == null) {
+          $scope.pickedDateTime = null;
+          $scope.userDateTime = null;
+        } else {
+          $scope.pickedDateTime = convertStringToDate($routeParams.t);
+          $scope.userDateTimeSeeked = $routeParams.t;
+        }
+      }
       initialize();
     });
   };

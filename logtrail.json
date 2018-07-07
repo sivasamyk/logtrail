@@ -13,6 +13,7 @@
       "default_time_range_in_days" : 0,
       "max_hosts": 100,
       "max_events_to_keep_in_viewer": 5000,
+      "default_search": "",
       "fields" : {
         "mapping" : {
             "timestamp" : "@timestamp",
