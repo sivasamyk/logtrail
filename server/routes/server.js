@@ -7,8 +7,8 @@ function getMessageTemplate(handlebar, selectedConfig) {
       knownHelpers: {
         log: false,
         lookup: false
-      },
-      knownHelpersOnly: true
+      }
+      //, knownHelpersOnly: true
     });
   var messageField = '{{{' + selectedConfig.fields.mapping.message + '}}}';
   var messageTemplate = messageFormat;
@@ -28,20 +28,28 @@ function getMessageTemplate(handlebar, selectedConfig) {
   return messageTemplate; //<a class="ng-binding" ng-click="onClick('pid','{{pid}}')">{{pid}}</a> : {{syslog_message}}
 }
 
+function handlebars() {
+  var handlebar = require('handlebars');
+  handlebar.registerHelper('json', function(context) {
+    return JSON.stringify(context);
+  });
+  return handlebar
+}
+
 function convertToClientFormat(selectedConfig, esResponse) {
   var clientResponse = [];
   var hits = esResponse.hits.hits;
   var template = null;
   var messageFormat = selectedConfig.fields.message_format;
   if (messageFormat) {
-    var handlebar = require('handlebars');
+    handlebar = handlebars()
     var messageTemplate = getMessageTemplate(handlebar, selectedConfig);
     template = handlebar.compile(messageTemplate, {
       knownHelpers: {
         log: false,
         lookup: false
-      },
-      knownHelpersOnly: true
+      }
+      //, knownHelpersOnly: true
     });
   }
   for (let i = 0; i < hits.length; i++) {
@@ -218,7 +226,7 @@ module.exports = function (server) {
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var selectedConfig = request.payload.config;
       var index = request.payload.index;
-      
+
       var hostnameField = selectedConfig.fields.mapping.hostname;
       let keywordSuffix = selectedConfig.fields.keyword_suffix;
       if (keywordSuffix == undefined) {
