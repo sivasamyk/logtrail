@@ -42,7 +42,7 @@ function convertToClientFormat(selectedConfig, esResponse) {
   var template = null;
   var messageFormat = selectedConfig.fields.message_format;
   if (messageFormat) {
-    handlebar = handlebars()
+    var handlebar = handlebars()
     var messageTemplate = getMessageTemplate(handlebar, selectedConfig);
     template = handlebar.compile(messageTemplate, {
       knownHelpers: {
