@@ -8,7 +8,6 @@ function getMessageTemplate(handlebar, selectedConfig) {
         log: false,
         lookup: false
       }
-      //, knownHelpersOnly: true
     });
   var messageField = '{{{' + selectedConfig.fields.mapping.message + '}}}';
   var messageTemplate = messageFormat;
@@ -48,8 +47,8 @@ function convertToClientFormat(selectedConfig, esResponse) {
       knownHelpers: {
         log: false,
         lookup: false
-      }
-      //, knownHelpersOnly: true
+      },
+      knownHelpersOnly: true
     });
   }
   for (let i = 0; i < hits.length; i++) {
