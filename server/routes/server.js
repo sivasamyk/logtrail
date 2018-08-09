@@ -47,8 +47,7 @@ function convertToClientFormat(selectedConfig, esResponse) {
       knownHelpers: {
         log: false,
         lookup: false
-      },
-      knownHelpersOnly: true
+      }
     });
   }
   for (let i = 0; i < hits.length; i++) {
