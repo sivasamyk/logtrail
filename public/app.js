@@ -129,6 +129,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     };
 
     console.debug('sending search request with params ' + JSON.stringify(request));
+    $scope.errorMessage = null;
     return $http.post(chrome.addBasePath('/logtrail/search'), request).then(function (resp) {
       if (resp.data.ok) {
         updateEventView(resp.data.resp,actions,order);
