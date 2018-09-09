@@ -280,13 +280,26 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         var timestamp = Date.create($scope.pickedDateTime).getTime();
         $scope.noEventErrorStartTime = moment(timestamp).format('MMMM Do YYYY, h:mm:ss a');
       } else {
-        if (selectedIndexConfig.default_time_range_in_days !== 0) {
-          $scope.noEventErrorStartTime = moment().subtract(
-            selectedIndexConfig.default_time_range_in_days,'days').startOf('day').format('MMMM Do YYYY, h:mm:ss a');
+        var timestamp = getDefaultTimeRangeToSearch(selectedIndexConfig);
+        if (timestamp) {
+          $scope.noEventErrorStartTime = moment(timestamp).format('MMMM Do YYYY, h:mm:ss a');
         }
       }
     }
   };
+
+  function getDefaultTimeRangeToSearch(config) {
+    var defaultTimeRangeToSearch = null;
+    var moment = require('moment');
+    if (selectedConfig.default_time_range_in_minutes !== 0) {
+      defaultTimeRangeToSearch = moment().subtract(
+        selectedConfig.default_time_range_in_minutes,'minutes').valueOf();
+    } else if (selectedConfig.default_time_range_in_days !== 0) {
+      defaultTimeRangeToSearch = moment().subtract(
+        selectedConfig.default_time_range_in_days,'days').startOf('day').valueOf();
+    }
+    return defaultTimeRangeToSearch;
+  }
 
   function trimEvents(append) {
     var eventCount = $scope.events.length;
