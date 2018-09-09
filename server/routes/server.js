@@ -242,13 +242,20 @@ module.exports = function (server) {
       };
 
       callWithRequest(request,'search',hostAggRequest).then(function (resp) {
-        //console.log(JSON.stringify(resp));//.aggregations.hosts.buckets);
+        if (!resp.aggregations) {
+          reply({
+            ok: false,
+            resp: {
+              msg: 'Check if the index pattern ' + selectedConfig.es.default_index + ' exists'
+            }
+          });
+          return;
+        }
         reply({
           ok: true,
           resp: resp.aggregations.hosts.buckets
         });
       }).catch(function (resp) {
-
         if(resp.isBoom) {
           reply(resp);
         } else {
