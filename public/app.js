@@ -291,12 +291,13 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   function getDefaultTimeRangeToSearch(config) {
     var defaultTimeRangeToSearch = null;
     var moment = require('moment');
-    if (selectedConfig.default_time_range_in_minutes !== 0) {
+    if (selectedIndexConfig.default_time_range_in_minutes && 
+      selectedIndexConfig.default_time_range_in_minutes !== 0) {
       defaultTimeRangeToSearch = moment().subtract(
-        selectedConfig.default_time_range_in_minutes,'minutes').valueOf();
-    } else if (selectedConfig.default_time_range_in_days !== 0) {
+        selectedIndexConfig.default_time_range_in_minutes,'minutes').valueOf();
+    } else if (selectedIndexConfig.default_time_range_in_days !== 0) {
       defaultTimeRangeToSearch = moment().subtract(
-        selectedConfig.default_time_range_in_days,'days').startOf('day').valueOf();
+        selectedIndexConfig.default_time_range_in_days,'days').startOf('day').valueOf();
     }
     return defaultTimeRangeToSearch;
   }

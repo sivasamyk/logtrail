@@ -94,7 +94,8 @@ function convertToClientFormat(selectedConfig, esResponse) {
 function getDefaultTimeRangeToSearch(selectedConfig) {
   var defaultTimeRangeToSearch = null;
   var moment = require('moment');
-  if (selectedConfig.default_time_range_in_minutes !== 0) {
+  if (selectedConfig.default_time_range_in_minutes && 
+    selectedConfig.default_time_range_in_minutes !== 0) {
     defaultTimeRangeToSearch = moment().subtract(
       selectedConfig.default_time_range_in_minutes,'minutes').valueOf();
   } else if (selectedConfig.default_time_range_in_days !== 0) {
