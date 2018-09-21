@@ -3,7 +3,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "logstash-*"
+        "default_index": "filebeat-*"
       },
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
@@ -17,11 +17,11 @@
       "fields" : {
         "mapping" : {
             "timestamp" : "@timestamp",
-            "hostname" : "host",
-            "program": "url",
-            "message": "agent"
+            "hostname" : "beat.hostname",
+            "program": "source",
+            "message": "message"
         },
-        "message_format": "{{{agent}}}",
+        "message_format": "{{{message}}}",
         "keyword_suffix" : "keyword"
       },
       "color_mapping" : {
