@@ -1,9 +1,9 @@
 {
-  "version" : 1,
+  "version" : 2,
   "index_patterns" : [
     {
       "es": {
-        "default_index": "logstash-hadoop"
+(??)        "default_index": "logstash-*"
       },
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
@@ -13,55 +13,21 @@
       "default_time_range_in_days" : 0,
       "max_hosts": 100,
       "max_events_to_keep_in_viewer": 5000,
+      "default_search": "",
       "fields" : {
         "mapping" : {
             "timestamp" : "@timestamp",
-            "display_timestamp" : "@timestamp",
-            "hostname" : "host",
-            "program": "logger_name",
-            "message": "log_message"
+            "hostname" : "beat.hostname",
+            "program": "source",
+            "message": "message"
         },
-        "message_format": "{{{log_message}}}"
+        "message_format": "{{{message}}}",
+        "keyword_suffix" : "keyword"
       },
       "color_mapping" : {
       },
       "source_analysis" : {
         "enabled": true
-      }
-    },
-    {
-      "es": {
-        "default_index": "logstash-syslog",
-        "allow_url_parameter": false
-      },
-      "tail_interval_in_seconds": 10,
-      "es_index_time_offset_in_seconds": 0,
-      "display_timezone": "Etc/UTC",
-      "display_timestamp_format": "MMM DD HH:mm:ss",
-      "max_buckets": 500,
-      "default_time_range_in_days" : 0,
-      "max_hosts": 100,
-      "max_events_to_keep_in_viewer": 5000,
-      "fields" : {
-        "mapping" : {
-            "timestamp" : "@timestamp",
-            "display_timestamp" : "@timestamp",
-            "hostname" : "hostname",
-            "program": "program",
-            "message": "syslog_message"
-        },
-        "message_format": "{{{pid}}} | {{{syslog_message}}}"
-      },
-      "color_mapping" : {
-        "field": "level",
-        "mapping" : {
-          "0": "#ff0000",
-          "1": "#ff3232",
-          "2": "#ff4c4c",
-          "3": "#ff7f24",
-          "4": "#ffb90f",
-          "5": "#a2cd5a"
-        }
       }
     }
   ]

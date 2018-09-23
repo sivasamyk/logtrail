@@ -1,44 +1,44 @@
-import init_server_context from "./init_server_context.js";
-
-function getMessageTemplate(handlebar, selected_config) {
-  var message_format = selected_config.fields.message_format;
+(??)import init_server_context from "./init_server_context.js"
+(??)
+(??)function getMessageTemplate(handlebar, selected_config) {
+(??)  var message_format = selected_config.fields.message_format;
   //Append <a> tags for click to message format except for message field
-    var message_format_regex = /({{{(\S+)}}})/g; // e.g. {{pid}} : {{syslog_message}}
-    var ng_click_template = handlebar.compile("<a class=\"ng-binding\" ng-click=\"onClick('{{name_no_braces}}','{{name}}')\">{{name}}</a>",
-      {
+  var messageFormatRegex = /({{{[\[]?(\S+?)[\]]?}}})/g; // e.g. {{{[pid]}}} {{{program-name}}} : {{syslog_message}}
+  var ngClickTemplate = handlebar.compile('<a class="ng-binding" ng-click="onClick(\'{{name_no_braces}}\',\'{{name}}\')">{{name}}</a>',
+    {
       knownHelpers: {
         log: false,
         lookup: false
       },
       knownHelpersOnly: true
     });
-    var messageField = "{{{" + selected_config.fields.mapping.message + "}}}";
-    var message_template = message_format;
+  var messageField = selectedConfig.fields.mapping.message;
+  var messageTemplate = messageFormat;
 
-    var match = message_format_regex.exec(message_format);
-    while (match !== null) {
-      if (match[0] !== messageField) {
-        var context = {
-          name : match[0],
-          name_no_braces : match[2]
-        };        
-        var with_click = ng_click_template(context);
-        message_template = message_template.replace(match[0], with_click);
-      }
-      match = message_format_regex.exec(message_format);
+  var match = messageFormatRegex.exec(messageFormat);
+  while (match !== null) {
+    if (match[2] !== messageField) {
+      var context = {
+        name : match[0],
+        name_no_braces : match[2]
+      };
+      var messageWithClickAttr = ngClickTemplate(context);
+      messageTemplate = messageTemplate.replace(match[0], messageWithClickAttr);
     }
-    return message_template; //<a class="ng-binding" ng-click="onClick('pid','{{pid}}')">{{pid}}</a> : {{syslog_message}}
+    match = messageFormatRegex.exec(messageFormat);
+  }
+  return messageTemplate; //<a class="ng-binding" ng-click="onClick('pid','{{pid}}')">{{pid}}</a> : {{syslog_message}}
 }
 
-function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
-  var responseToClient = [];
+function convertToClientFormat(selectedConfig, esResponse) {
+  var clientResponse = [];
   var hits = esResponse.hits.hits;
-
-  var message_format = selected_config.fields.message_format;
-  if (message_format) {
+  var template = null;
+  var messageFormat = selectedConfig.fields.message_format;
+  if (messageFormat) {
     var handlebar = require('handlebars');
-    var message_template = getMessageTemplate(handlebar, selected_config);
-    var template = handlebar.compile(message_template, {
+    var messageTemplate = getMessageTemplate(handlebar, selectedConfig);
+    template = handlebar.compile(messageTemplate, {
       knownHelpers: {
         log: false,
         lookup: false
@@ -46,35 +46,33 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
       knownHelpersOnly: true
     });
   }
-  for (var i = 0; i < hits.length; i++) {
+  for (let i = 0; i < hits.length; i++) {
     var event = {};
     var source =  hits[i]._source;
     event.id = hits[i]._id;
-    var get = require('lodash.get');
-    event['timestamp'] = get(source, selected_config.fields.mapping['timestamp']);
-    event['display_timestamp'] = get(source, selected_config.fields.mapping['display_timestamp']);
-    event['hostname'] = get(source, selected_config.fields.mapping['hostname']);
-    event['program'] = get(source, selected_config.fields.mapping['program']);
+    let get = require('lodash.get');
+    event.timestamp = get(source, selectedConfig.fields.mapping.timestamp);
+    event.hostname = get(source, selectedConfig.fields.mapping.hostname);
+    event.program = get(source, selectedConfig.fields.mapping.program);
     event['raw_message'] = get(source, selected_config.fields.mapping['message']);
 
     //Calculate message color, if configured
-    if (selected_config.color_mapping && selected_config.color_mapping.field) {
-      var color_field_val = get(source, selected_config.color_mapping.field);
-      var color = selected_config.color_mapping.mapping[color_field_val];
+    if (selectedConfig.color_mapping && selectedConfig.color_mapping.field) {
+      var colorField = get(source, selectedConfig.color_mapping.field);
+      var color = selectedConfig.color_mapping.mapping[colorField];
       if (color) {
-        event['color'] =  color;
+        event.color =  color;
       }
     }
 
     //Change the source['message'] to highlighter text if available
     if (hits[i].highlight) {
-      var get = require('lodash.get');
       var set = require('lodash.set');
-      var with_highlights = get(hits[i].highlight, [selected_config.fields.mapping['message'],0]);
-      set(source, selected_config.fields.mapping['message'], with_highlights);
-      source[selected_config.fields.mapping['message']] = hits[i].highlight[selected_config.fields.mapping['message']][0];
+      var withHighlights = get(hits[i].highlight, [selectedConfig.fields.mapping.message,0]);
+      set(source, selectedConfig.fields.mapping.message, withHighlights);
+      source[selectedConfig.fields.mapping.message] = hits[i].highlight[selectedConfig.fields.mapping.message][0];
     }
-    var message = source[selected_config.fields.mapping['message']];
+    var message = source[selectedConfig.fields.mapping.message];
     //sanitize html
     var escape = require('lodash.escape');
     //list of indices and html tags to replace
@@ -82,9 +80,10 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     var tokensToInsert = [];
 
     if (hits[i].highlight) {
-      extractHighlightTokens(message,tokensToInsert);
+      message = message.replace(/logtrail.highlight.pre_tag/g,'<span class="highlight">');
+      message = message.replace(/logtrail.highlight.post_tag/g,'</span>');
     }
-    source[selected_config.fields.mapping['message']] = message;
+    source[selectedConfig.fields.mapping.message] = message;
 
     //if source analysis is enabled. This won't work for messages with HTML text.
     if (sourcePatterns) {
@@ -116,10 +115,10 @@ function convertToClientFormat(selected_config, esResponse, sourcePatterns) {
     }
 
     //If the user has specified a custom format for message field
-    if (message_format) {
-      event['message'] = template(source);
+    if (messageFormat) {
+      event.message = template(source);
     } else {
-      event['message'] = message;
+      event.message = message;
     }
     responseToClient.push(event);
   }
@@ -166,79 +165,74 @@ function updateSourcePatternIndices(tokensToInsert, patternInfo, sourcePatterns)
   }
 }
 
+function getDefaultTimeRangeToSearch(selectedConfig) {
+  var defaultTimeRangeToSearch = null;
+  var moment = require('moment');
+  if (selectedConfig.default_time_range_in_minutes && 
+    selectedConfig.default_time_range_in_minutes !== 0) {
+    defaultTimeRangeToSearch = moment().subtract(
+      selectedConfig.default_time_range_in_minutes,'minutes').valueOf();
+  } else if (selectedConfig.default_time_range_in_days !== 0) {
+    defaultTimeRangeToSearch = moment().subtract(
+      selectedConfig.default_time_range_in_days,'days').startOf('day').valueOf();
+  }
+  return defaultTimeRangeToSearch;
+}
 
 module.exports = function (server) {
-
-  var context = {};
-  init_server_context(server,context);
 
   //Search
   server.route({
     method: ['POST'],
     path: '/logtrail/search',
     handler: function (request, reply) {
-      var config = context.config;
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
-
-      var index = request.payload.index;
-      var selected_config = config.index_patterns[0];
-      if (index) {
-        for (var i = config.index_patterns.length - 1; i >= 0; i--) {
-          if (config.index_patterns[i].es.default_index === index) {
-            selected_config = config.index_patterns[i];
-            break;
-          }
-        }
-      }
-
+      var selectedConfig = request.payload.config;
       var searchText = request.payload.searchText;
 
       if (searchText == null || searchText.length === 0) {
-          searchText = '*';
+        searchText = '*';
       }
 
-      //Search Request bbody
+      //Search Request body
       var searchRequest = {
-        index: selected_config.es.default_index,
-        size: selected_config.max_buckets,
+        index: selectedConfig.es.default_index,
+        size: selectedConfig.max_buckets,
         body : {
           sort : [{}],
           query : {
-              bool : {
-                must :{
-                    query_string : {
-                      analyze_wildcard: true,
-                      default_field : selected_config.fields.mapping['message'],
-                      query : searchText
-                    }
-                },
-                filter: {
-                  bool : {
-                    must : [
-                    ],
-	                  must_not:[],
-                  }
+            bool : {
+              must :{
+                query_string : {
+                  analyze_wildcard: true,
+                  default_field : selectedConfig.fields.mapping.message,
+                  query : searchText
                 }
+              },
+              filter: {
+                bool : {
+                  must : [
+                  ],
+	                  must_not:[],
+                }
+              }
             }
           },
           highlight : {
-            pre_tags : ["logtrail.highlight.tag"],
-            post_tags : ["logtrail.highlight.tag"],
+            pre_tags : ['logtrail.highlight.pre_tag'],
+            post_tags : ['logtrail.highlight.post_tag'],
             fields : {
             }
           }
         }
       };
-
-      if (request.payload.highlight) {
-        //Enable highlightng on message field
-        searchRequest.body.highlight.fields[selected_config.fields.mapping['message']] = {
-          number_of_fragments: 0
-        };
-      }
+      //Enable highlightng on message field
+      searchRequest.body.highlight.fields[selectedConfig.fields.mapping.message] = {
+        number_of_fragments: 0
+      };
 
       //By default Set sorting column to timestamp
-      searchRequest.body.sort[0][selected_config.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
+      searchRequest.body.sort[0][selectedConfig.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
       //If hostname is present then term query.
       if (request.payload.hostname != null) {
@@ -246,22 +240,24 @@ module.exports = function (server) {
           term : {
           }
         };
-        var hostnameField = selected_config.fields.mapping.hostname;
-        if (selected_config.fields['hostname.keyword']) {
-          hostnameField += '.keyword';
+        var hostnameField = selectedConfig.fields.mapping.hostname;
+        let keywordSuffix = selectedConfig.fields.keyword_suffix;
+        if (keywordSuffix == undefined) {
+          hostnameField += ('.keyword');
+        } else if (keywordSuffix.length > 0) {
+          hostnameField += ('.' + keywordSuffix);
         }
         termQuery.term[hostnameField] = request.payload.hostname;
         searchRequest.body.query.bool.filter.bool.must.push(termQuery);
       }
 
-      //If no time range is present get events based on default selected_config
+      //If no time range is present get events based on default selectedConfig
       var timestamp = request.payload.timestamp;
       var rangeType = request.payload.rangeType;
       if (timestamp == null) {
-        if (selected_config.default_time_range_in_days !== 0) {
-          var moment = require('moment');
-          timestamp = moment().subtract(
-            selected_config.default_time_range_in_days,'days').startOf('day').valueOf();
+        let defaultTimeRange = getDefaultTimeRangeToSearch(selectedConfig);
+        if (defaultTimeRange) {
+          timestamp = defaultTimeRange;
           rangeType = 'gte';
         }
       }
@@ -274,22 +270,23 @@ module.exports = function (server) {
           }
         };
         var range = rangeQuery.range;
-        range[selected_config.fields.mapping.timestamp] = {};
-        range[selected_config.fields.mapping.timestamp][rangeType] = timestamp;
-        range[selected_config.fields.mapping.timestamp].format = 'epoch_millis';
+        range[selectedConfig.fields.mapping.timestamp] = {};
+        range[selectedConfig.fields.mapping.timestamp][rangeType] = timestamp;
+        range[selectedConfig.fields.mapping.timestamp].format = 'epoch_millis';
         searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
       }
       //console.log(JSON.stringify(searchRequest));
+
       callWithRequest(request,'search',searchRequest).then(function (resp) {
         reply({
           ok: true,
-          resp: convertToClientFormat(selected_config, resp, context.sourcePatterns)
+          resp: convertToClientFormat(selectedConfig, resp)
         });
       }).catch(function (resp) {
         if (resp.isBoom) {
           reply(resp);
         } else {
-          server.log(['error'],"Error while executing search : " + resp);
+          console.error('Error while executing search',resp);
           reply({
             ok: false,
             resp: resp
@@ -299,37 +296,31 @@ module.exports = function (server) {
     }
   });
 
- //Get All Systems
+  //Get All Systems
   server.route({
     method: ['POST'],
     path: '/logtrail/hosts',
     handler: function (request,reply) {
-      var config = context.config;
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
+      var selectedConfig = request.payload.config;
       var index = request.payload.index;
-      var selected_config = config.index_patterns[0];
-      if (index) {
-        for (var i = config.index_patterns.length - 1; i >= 0; i--) {
-          if (config.index_patterns[i].es.default_index === index) {
-            selected_config = config.index_patterns[i];
-            break;
-          }
-        }
-      }
-
-      var hostnameField = selected_config.fields.mapping.hostname;
-      if (selected_config.fields['hostname.keyword']) {
-        hostnameField += '.keyword';
+      
+      var hostnameField = selectedConfig.fields.mapping.hostname;
+      let keywordSuffix = selectedConfig.fields.keyword_suffix;
+      if (keywordSuffix == undefined) {
+        hostnameField += ('.keyword');
+      } else if (keywordSuffix.length > 0) {
+        hostnameField += ('.' + keywordSuffix);
       }
       var hostAggRequest = {
-        index: selected_config.es.default_index,
+        index: selectedConfig.es.default_index,
         body : {
           size: 0,
           aggs: {
             hosts: {
               terms: {
                 field: hostnameField,
-                size: selected_config.max_hosts
+                size: selectedConfig.max_hosts
               }
             }
           }
@@ -337,7 +328,15 @@ module.exports = function (server) {
       };
 
       callWithRequest(request,'search',hostAggRequest).then(function (resp) {
-        //console.log(JSON.stringify(resp));//.aggregations.hosts.buckets);
+        if (!resp.aggregations) {
+          reply({
+            ok: false,
+            resp: {
+              msg: 'Check if the index pattern ' + selectedConfig.es.default_index + ' exists'
+            }
+          });
+          return;
+        }
         reply({
           ok: true,
           resp: resp.aggregations.hosts.buckets
@@ -346,7 +345,7 @@ module.exports = function (server) {
         if(resp.isBoom) {
           reply(resp);
         } else {
-          server.log(['error'],"Error while fetching hosts" + resp);
+          console.error('Error while fetching hosts',resp);
           reply({
             ok: false,
             resp: resp
@@ -359,12 +358,13 @@ module.exports = function (server) {
   server.route({
     method: 'GET',
     path: '/logtrail/config',
-    handler: function (request, reply) {
+    handler: async function (request, reply) {
+      var config = await loadConfig(server);
       reply({
         ok: true,
-        config: context.config
+        config: config
       });
-    }  
+    }
   });
 
   server.route({
@@ -378,3 +378,23 @@ module.exports = function (server) {
     }
   });
 };
+
+function loadConfig(server) {
+  return new Promise((resolve, reject) => {
+    const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+    var request = {
+      index: '.logtrail',
+      type: 'config',
+      id: 1
+    };
+    callWithInternalUser('get',request).then(function (resp) {
+      //If elasticsearch has config use it.
+      resolve(resp._source);
+      server.log (['info','status'],'Loaded logtrail config from Elasticsearch');
+    }).catch(function (error) {
+      server.log (['info','status'],'Error while loading config from Elasticsearch. Will use local');
+      var config = require('../../logtrail.json');
+      resolve(config);
+    });
+  });
+}

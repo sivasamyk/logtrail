@@ -40,6 +40,10 @@ html,body {
 	margin-left: 1em;
 	font-weight: bold;
 	color: black;
+	max-width: 20em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .time-option-select-btn {
@@ -83,6 +87,8 @@ html,body {
 	padding-bottom: 5em;
 	padding-top: .5em;
 	box-shadow: -4px 0 3px rgba(0,0,0,.2);
+	line-height: 16px;
+	font-weight: 600;
 }
 
 .host {
@@ -93,6 +99,9 @@ html,body {
 	color: #B58900;
 }
 
+.btn {
+	background: #FFFFFF;
+}
 
 .host a:hover {
 	text-decoration: none;
@@ -128,14 +137,14 @@ html,body {
 }
 
 .host-picker {
-	position: absolute;
+	position: fixed;
 	background: white;
 	border: 4px solid rgb(128,128,128);
-	width: 16em;
+	max-width: 50em;
+	min-width: 15em;
 	height: auto;
 	border-radius: 6px;
-	bottom: 5.5em;
-	left: 71em;
+	bottom: 5.6em;
 	padding: 0;
 }
 
@@ -185,24 +194,25 @@ html,body {
 .host-picker-list > li > a {
 	text-decoration: underline;
 	cursor: pointer;
+	font-weight: 600;
 }
 
 .host-picker-search {
 	border: 2px solid #84BACC;
 	background: white;
+	width: 90%;
 }
 
 
 .date-picker {
-	position: absolute;
+	position: fixed;
 	background: white;
 	border: 4px solid rgb(128,128,128);
 	padding: 1em;
 	width: 25em;
 	height: 7em;
 	border-radius: 6px;
-	bottom: 5.5em;
-	left: 72em;
+	bottom: 5.6em;
 }
 
 .date-picker:after, .date-picker:before {
@@ -235,6 +245,7 @@ html,body {
 	margin-left: .2em;
 	font-weight: bold;
 	color: black;
+	background-color: darkgray;
 }
 
 .flex-container-date-picker > .submit:enabled:hover {
@@ -253,7 +264,7 @@ html,body {
 	text-align: right;
 	padding-top: .5em;
 	font-family: verdana;
-  	font-size: 11px;
+	font-size: 11px;
 	color: #006600;
 }
 
@@ -267,28 +278,28 @@ html,body {
 	padding-top: .1em;
 	padding-bottom: .1em;
 	font-family: verdana;
-    font-size: 10px;
+	font-size: 10px;
 }
 
 .flex-container-date-picker {
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
-    flex-direction: row;
-    -webkit-flex-wrap: wrap;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    -webkit-align-content: stretch;
-    -ms-flex-line-pack: stretch;
-    align-content: stretch;
-    -webkit-align-items: stretch;
-    -ms-flex-align: stretch;
-    align-items: stretch;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
+	-webkit-flex-wrap: wrap;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	-webkit-justify-content: flex-start;
+	-ms-flex-pack: start;
+	justify-content: flex-start;
+	-webkit-align-content: stretch;
+	-ms-flex-line-pack: stretch;
+	align-content: stretch;
+	-webkit-align-items: stretch;
+	-ms-flex-align: stretch;
+	align-items: stretch;
  }
 
 .flex-item-date-picker:nth-child(1) {
@@ -319,9 +330,9 @@ html,body {
     -webkit-order: 0;
     -ms-flex-order: 0;
     order: 0;
-    -webkit-flex: 1 0 37em;
-    -ms-flex: 1 0 37em;
-    flex: 1 0 37em;
+    -webkit-flex: 1 0 auto;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
     -webkit-align-self: auto;
     -ms-flex-item-align: auto;
     align-self: auto;
@@ -340,14 +351,13 @@ html,body {
 }
 
 .settings {
-	position: absolute;
+	position: fixed;
 	background: white;
 	border: 4px solid rgb(128,128,128);
 	width: 20em;
 	height: auto;
 	border-radius: 6px;
-	bottom: 5.5em;
-	left: 68em;
+	bottom: 5.6em;
 	padding: 0;	
 	color: black;
 	padding: 1em;
@@ -377,6 +387,15 @@ html,body {
 	margin-left: -36px;
 }
 
+.index-label {
+	padding-bottom: .5em;
+}
+
+.index-select {
+	height: 25px;
+	font-weight: 600;
+	font-size: 13px;
+}
 
 .flex-container-settings > .submit:enabled:hover {
 	background-color: rgb(204,204,204);
