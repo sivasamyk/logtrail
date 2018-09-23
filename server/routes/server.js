@@ -1,7 +1,7 @@
-(??)import init_server_context from "./init_server_context.js"
-(??)
-(??)function getMessageTemplate(handlebar, selected_config) {
-(??)  var message_format = selected_config.fields.message_format;
+import init_server_context from "./init_server_context.js"
+
+function getMessageTemplate(handlebar, selectedConfig) {
+  var messageFormat = selectedConfig.fields.message_format;
   //Append <a> tags for click to message format except for message field
   var messageFormatRegex = /({{{[\[]?(\S+?)[\]]?}}})/g; // e.g. {{{[pid]}}} {{{program-name}}} : {{syslog_message}}
   var ngClickTemplate = handlebar.compile('<a class="ng-binding" ng-click="onClick(\'{{name_no_braces}}\',\'{{name}}\')">{{name}}</a>',
@@ -31,7 +31,7 @@
 }
 
 function convertToClientFormat(selectedConfig, esResponse) {
-  var clientResponse = [];
+  var responseToClient = [];
   var hits = esResponse.hits.hits;
   var template = null;
   var messageFormat = selectedConfig.fields.message_format;
@@ -54,7 +54,7 @@ function convertToClientFormat(selectedConfig, esResponse) {
     event.timestamp = get(source, selectedConfig.fields.mapping.timestamp);
     event.hostname = get(source, selectedConfig.fields.mapping.hostname);
     event.program = get(source, selectedConfig.fields.mapping.program);
-    event['raw_message'] = get(source, selected_config.fields.mapping['message']);
+    event['raw_message'] = get(source, selectedConfig.fields.mapping['message']);
 
     //Calculate message color, if configured
     if (selectedConfig.color_mapping && selectedConfig.color_mapping.field) {
@@ -111,7 +111,7 @@ function convertToClientFormat(selectedConfig, esResponse) {
         messageArr.push(tokensToInsert[j].text);
       }
       messageArr.push(escape(message.slice(tokensToInsert[tokensToInsert.length-1].index)));
-      source[selected_config.fields.mapping['message']] = messageArr.join("");
+      source[selectedConfig.fields.mapping['message']] = messageArr.join("");
     }
 
     //If the user has specified a custom format for message field
@@ -123,22 +123,6 @@ function convertToClientFormat(selectedConfig, esResponse) {
     responseToClient.push(event);
   }
   return responseToClient;
-}
-
-//get indices of highlight tag and add them to tokensToInsert 
-// with respective html tags
-function extractHighlightTokens(message, tokensToInsert) {
-  var index = 0;
-  var tokens = message.split('logtrail.highlight.tag');
-  var totalLength = 0;
-  for (var i = 0; i < tokens.length - 1; i++) {
-    var tag = i % 2 == 0? '<span class="highlight">' : '</span>';
-    tokensToInsert.push({
-      index: totalLength + tokens[i].length,
-      text: tag
-    });
-    totalLength = totalLength + tokens[i].length;
-  }
 }
 
 //lookup for pattern in sourcePatterns and update tokensToInsert with tags.

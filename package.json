@@ -30,7 +30,8 @@
     "lodash.get": "4.4.2",
     "lodash.set": "4.3.2",
     "sugar-date": "1.5.1",
-    "moment": "2.22.2"
+    "moment": "2.22.2",
+    "typeface-inconsolata": "0.0.35"
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "link:../../kibana/packages/eslint-config-kibana",
