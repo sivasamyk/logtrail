@@ -160,6 +160,9 @@ module.exports = function (server) {
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][selectedConfig.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
+      //apoland - secondary sort on "offset" column for log entries submitted within the same timestamp
+      searchRequest.body.sort[0].push("offset")
+	    
       //If hostname is present then term query.
       if (request.payload.hostname != null) {
         var termQuery = {
