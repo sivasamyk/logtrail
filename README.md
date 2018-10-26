@@ -22,7 +22,7 @@ Features
 Installation
 ------------
 - Prerequisites
-  - Download and install Elasticsearch , Logstash and Kibana
+  - Download and install Elasticsearch and Kibana
   - Logtrail is supported and tested with Kibana 6.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
   - Kibana 6.4.2 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.30/logtrail-6.4.2-0.1.30.zip`
