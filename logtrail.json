@@ -25,7 +25,8 @@
         "keyword_suffix" : "keyword"
       },
       "color_mapping" : {
-      }
+      },
+      "sort": ["@timestamp"]
     }
   ]
 }
