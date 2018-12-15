@@ -4,7 +4,7 @@
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "index.js",
   "kibana": {
-    "version": "6.5.0"
+    "version": "6.5.1"
   },
   "repository": {
     "type": "git",
