@@ -22,7 +22,8 @@
             "message": "message"
         },
         "message_format": "{{{message}}}",
-        "keyword_suffix" : "keyword"
+        "keyword_suffix" : "keyword",
+        "secondary_sort_field": "offset"
       },
       "color_mapping" : {
       }

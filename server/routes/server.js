@@ -160,6 +160,14 @@ module.exports = function (server) {
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][selectedConfig.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
+      // If secondary sorting field is present then set secondary sort.
+      let secondarySortField = selectedConfig.fields.secondary_sort_field;
+      if (secondarySortField != undefined) {
+        if (secondarySortField.length > 0) {
+          searchRequest.body.sort.push(secondarySortField)
+        }
+      }
+
       //If hostname is present then term query.
       if (request.payload.hostname != null) {
         var termQuery = {
