@@ -1,6 +1,6 @@
 # LogTrail - Log Viewer plugin for Kibana
 
-[![Build Status](https://travis-ci.org/sivasamyk/logtrail.svg?branch=master)](https://travis-ci.org/sivasamyk/logtrail) [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 6.3.2](https://img.shields.io/badge/Kibana-v6.3.2-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-6.3.2)
+[![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 6.5.4](https://img.shields.io/badge/Kibana-v6.5.4-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-6.5.4)
 [![License](https://img.shields.io/github/license/sivasamyk/logtrail.svg)](https://github.com/sivasamyk/logtrail) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sivasamyk)
 
 LogTrail is a plugin for Kibana to view, analyze, search and tail log events from multiple hosts in realtime with devops friendly interface inspired by [Papertrail](https://papertrailapp.com/).
@@ -22,11 +22,11 @@ Features
 Installation
 ------------
 - Prerequisites
-  - Download and install Elasticsearch , Logstash and Kibana
+  - Download and install Elasticsearch and Kibana
   - Logtrail is supported and tested with Kibana 6.x and 5.x
 - Install logtrail plugin (requires restart of Kibana after install)
-  - Kibana 6.3.2 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.29/logtrail-6.3.2-0.1.29.zip`
-  - Kibana 5.6.5 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.23/logtrail-5.6.5-0.1.23.zip`
+  - Kibana 6.5.4 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.30/logtrail-6.5.4-0.1.30.zip`
+  - Kibana 5.6.5 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.23/logtrail-5.6.5.4.1.23.zip`
   - Other versions : [https://github.com/sivasamyk/logtrail/releases](https://github.com/sivasamyk/logtrail/releases)
 - Kibana requires exact match of plugin version to the Kibana version. If you can't find logtrail plugin release for a Kibana release, follow the instrcutions [here](docs/how_to.md#2-update-kibanaversion-in-logtrail-plugin-archive) to update Kibana version in your logtrail plugin archive.
 - Refer [Logtrail Config Examples Repo](https://github.com/sivasamyk/logtrail-config-examples) for sample configurations for syslog, Java app, Kubernetes logs.
@@ -35,7 +35,6 @@ Configuration
 -------------
 - Logtrail can be configured by editing following fields present in `logtrail.json` file located inside`./plugins/logtrail` directory.
 - `default_index` - Elasticsearch index where the syslog events are stored (default: logstash-*)
-      - While using an index name other than `logstash-*`, make sure respective .raw fields are created in ES index.
 - `default_time_range_in_days` - Default time range in days to search when time is not specified using Seek button.
     Example: Value of 30 means logtrail will search only in logs from last 30 days, unless time is specified using Seek button.
     Value of 0 means logtrail will search in all available logs by default.

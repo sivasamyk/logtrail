@@ -102,14 +102,16 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
 
   function initialize() {
     //Initialize app views on validate successful
-    setupHostsList();
-    if ($scope.pickedDateTime == null) {
-      doSearch(null, 'desc', ['overwrite','reverse'], null);
-    } else {
-      var timestamp = Date.create($scope.pickedDateTime).getTime();
-      doSearch('gt','asc', ['overwrite','scrollToTop'],timestamp);
-    }
-    startTailTimer();
+    setupHostsList().then(function() {
+      if ($scope.pickedDateTime == null) {
+        doSearch(null, 'desc', ['overwrite','reverse'], null);
+      } else {
+        var timestamp = Date.create($scope.pickedDateTime).getTime();
+        doSearch('gt','asc', ['overwrite','scrollToTop'],timestamp);
+      }
+      startTailTimer();
+    });
+    
   }
 
   /**
@@ -129,6 +131,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     };
 
     console.debug('sending search request with params ' + JSON.stringify(request));
+    $scope.errorMessage = null;
     return $http.post(chrome.addBasePath('/logtrail/search'), request).then(function (resp) {
       if (resp.data.ok) {
         updateEventView(resp.data.resp,actions,order);
@@ -277,13 +280,27 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         var timestamp = Date.create($scope.pickedDateTime).getTime();
         $scope.noEventErrorStartTime = moment(timestamp).format('MMMM Do YYYY, h:mm:ss a');
       } else {
-        if (selectedIndexConfig.default_time_range_in_days !== 0) {
-          $scope.noEventErrorStartTime = moment().subtract(
-            selectedIndexConfig.default_time_range_in_days,'days').startOf('day').format('MMMM Do YYYY, h:mm:ss a');
+        var timestamp = getDefaultTimeRangeToSearch(selectedIndexConfig);
+        if (timestamp) {
+          $scope.noEventErrorStartTime = moment(timestamp).format('MMMM Do YYYY, h:mm:ss a');
         }
       }
     }
   };
+
+  function getDefaultTimeRangeToSearch(config) {
+    var defaultTimeRangeToSearch = null;
+    var moment = require('moment');
+    if (selectedIndexConfig.default_time_range_in_minutes && 
+      selectedIndexConfig.default_time_range_in_minutes !== 0) {
+      defaultTimeRangeToSearch = moment().subtract(
+        selectedIndexConfig.default_time_range_in_minutes,'minutes').valueOf();
+    } else if (selectedIndexConfig.default_time_range_in_days !== 0) {
+      defaultTimeRangeToSearch = moment().subtract(
+        selectedIndexConfig.default_time_range_in_days,'days').startOf('day').valueOf();
+    }
+    return defaultTimeRangeToSearch;
+  }
 
   function trimEvents(append) {
     var eventCount = $scope.events.length;
@@ -387,8 +404,9 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     $scope.errorMessage = null;
     $scope.hostSearchText = null;
 
-    setupHostsList();
-    $scope.onSearchClick();
+    setupHostsList().then(function() {
+      $scope.onSearchClick();
+    });
   };
 
   $scope.isNullorEmpty = function (string) {
@@ -509,18 +527,22 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     var params = {
       config: selectedIndexConfig
     };
-    $http.post(chrome.addBasePath('/logtrail/hosts'),params).then(function (resp) {
-      if (resp.data.ok) {
-        $scope.hosts = [];
-        for (var i = resp.data.resp.length - 1; i >= 0; i--) {
-          $scope.hosts.push(resp.data.resp[i].key);
+    return new Promise((resolve, reject) => {
+      $http.post(chrome.addBasePath('/logtrail/hosts'),params).then(function (resp) {
+        if (resp.data.ok) {
+          $scope.hosts = [];
+          for (var i = resp.data.resp.length - 1; i >= 0; i--) {
+            $scope.hosts.push(resp.data.resp[i].key);
+          }
+          $scope.hosts.sort();
+          resolve(true);
+        } else {
+          var message = resp.data.resp.msg ? resp.data.resp.msg : JSON.stringify(resp.data.resp);
+          console.error('Error while fetching hosts : ' , message);
+          $scope.errorMessage = 'Cannot fetch hosts : ' + message;
+          reject(false);
         }
-        $scope.hosts.sort();
-      } else {
-        var message = resp.data.resp.msg ? resp.data.resp.msg : resp.data.resp;
-        console.error('Error while fetching hosts : ' , message);
-        $scope.errorMessage = 'Exception while fetching hosts : ' + message;
-      }
+      });
     });
   }
 

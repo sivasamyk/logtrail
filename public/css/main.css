@@ -194,6 +194,7 @@ html,body {
 .host-picker-list > li > a {
 	text-decoration: underline;
 	cursor: pointer;
+	font-weight: 600;
 }
 
 .host-picker-search {

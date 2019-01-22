@@ -9,12 +9,12 @@ function getMessageTemplate(handlebar, selectedConfig) {
         lookup: false
       }
     });
-  var messageField = '{{{' + selectedConfig.fields.mapping.message + '}}}';
+  var messageField = selectedConfig.fields.mapping.message;
   var messageTemplate = messageFormat;
 
   var match = messageFormatRegex.exec(messageFormat);
   while (match !== null) {
-    if (match[0] !== messageField) {
+    if (match[2] !== messageField) {
       var context = {
         name : match[0],
         name_no_braces : match[2]
@@ -97,6 +97,19 @@ function convertToClientFormat(selectedConfig, esResponse) {
   return clientResponse;
 }
 
+function getDefaultTimeRangeToSearch(selectedConfig) {
+  var defaultTimeRangeToSearch = null;
+  var moment = require('moment');
+  if (selectedConfig.default_time_range_in_minutes && 
+    selectedConfig.default_time_range_in_minutes !== 0) {
+    defaultTimeRangeToSearch = moment().subtract(
+      selectedConfig.default_time_range_in_minutes,'minutes').valueOf();
+  } else if (selectedConfig.default_time_range_in_days !== 0) {
+    defaultTimeRangeToSearch = moment().subtract(
+      selectedConfig.default_time_range_in_days,'days').startOf('day').valueOf();
+  }
+  return defaultTimeRangeToSearch;
+}
 
 module.exports = function (server) {
 
@@ -113,7 +126,7 @@ module.exports = function (server) {
         searchText = '*';
       }
 
-      //Search Request bbody
+      //Search Request body
       var searchRequest = {
         index: selectedConfig.es.default_index,
         size: selectedConfig.max_buckets,
@@ -153,6 +166,14 @@ module.exports = function (server) {
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][selectedConfig.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
+      // If secondary sorting field is present then set secondary sort.
+      let secondarySortField = selectedConfig.fields.secondary_sort_field;
+      if (secondarySortField != undefined) {
+        if (secondarySortField.length > 0) {
+          searchRequest.body.sort.push(secondarySortField)
+        }
+      }
+
       //If hostname is present then term query.
       if (request.payload.hostname != null) {
         var termQuery = {
@@ -174,10 +195,9 @@ module.exports = function (server) {
       var timestamp = request.payload.timestamp;
       var rangeType = request.payload.rangeType;
       if (timestamp == null) {
-        if (selectedConfig.default_time_range_in_days !== 0) {
-          var moment = require('moment');
-          timestamp = moment().subtract(
-            selectedConfig.default_time_range_in_days,'days').startOf('day').valueOf();
+        let defaultTimeRange = getDefaultTimeRangeToSearch(selectedConfig);
+        if (defaultTimeRange) {
+          timestamp = defaultTimeRange;
           rangeType = 'gte';
         }
       }
@@ -248,13 +268,20 @@ module.exports = function (server) {
       };
 
       callWithRequest(request,'search',hostAggRequest).then(function (resp) {
-        //console.log(JSON.stringify(resp));//.aggregations.hosts.buckets);
+        if (!resp.aggregations) {
+          reply({
+            ok: false,
+            resp: {
+              msg: 'Check if the index pattern ' + selectedConfig.es.default_index + ' exists'
+            }
+          });
+          return;
+        }
         reply({
           ok: true,
           resp: resp.aggregations.hosts.buckets
         });
       }).catch(function (resp) {
-
         if(resp.isBoom) {
           reply(resp);
         } else {
