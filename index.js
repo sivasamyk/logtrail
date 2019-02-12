@@ -10,7 +10,7 @@ export default function (kibana) {
       app: {
         title: 'LogTrail',
         description: 'Plugin to view, search & tail logs in Kibana',
-        icon: 'plugins/logtrail/icon.svg',
+        // icon: 'plugins/logtrail/icon.svg',
         euiIconType: 'logtrailApp',
         main: 'plugins/logtrail/app',
         url: '/app/logtrail'
