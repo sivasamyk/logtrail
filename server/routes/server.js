@@ -1,3 +1,5 @@
+import Boom from 'boom';
+
 function getMessageTemplate(handlebar, selectedConfig) {
   var messageFormat = selectedConfig.fields.message_format;
   //Append <a> tags for click to message format except for message field
@@ -111,7 +113,7 @@ module.exports = function (server) {
   server.route({
     method: ['POST'],
     path: '/logtrail/search',
-    handler: function (request, reply) {
+    handler: async function (request, h) {
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var selectedConfig = request.payload.config;
       var searchText = request.payload.searchText;
@@ -210,23 +212,19 @@ module.exports = function (server) {
         searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
       }
       //console.log(JSON.stringify(searchRequest));
-
-      callWithRequest(request,'search',searchRequest).then(function (resp) {
-        reply({
+      try {
+        const resp = await callWithRequest(request,'search',searchRequest);
+        return {
           ok: true,
           resp: convertToClientFormat(selectedConfig, resp)
-        });
-      }).catch(function (resp) {
-        if (resp.isBoom) {
-          reply(resp);
-        } else {
-          console.error('Error while executing search',resp);
-          reply({
-            ok: false,
-            resp: resp
-          });
-        }
-      });
+        };
+      } catch(e) {
+        console.error('Error while executing search', e);
+        return {
+          ok: false,
+          resp: e
+        };
+      }
     }
   });
 
@@ -234,7 +232,7 @@ module.exports = function (server) {
   server.route({
     method: ['POST'],
     path: '/logtrail/hosts',
-    handler: function (request,reply) {
+    handler: async function (request, h) {
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var selectedConfig = request.payload.config;
       var index = request.payload.index;
@@ -260,44 +258,39 @@ module.exports = function (server) {
           }
         }
       };
-
-      callWithRequest(request,'search',hostAggRequest).then(function (resp) {
+      try {
+        const resp = await callWithRequest(request,'search',hostAggRequest);
         if (!resp.aggregations) {
-          reply({
+          return {
             ok: false,
             resp: {
               msg: 'Check if the index pattern ' + selectedConfig.es.default_index + ' exists'
             }
-          });
-          return;
+          };
         }
-        reply({
+        return {
           ok: true,
           resp: resp.aggregations.hosts.buckets
-        });
-      }).catch(function (resp) {
-        if(resp.isBoom) {
-          reply(resp);
-        } else {
-          console.error('Error while fetching hosts',resp);
-          reply({
-            ok: false,
-            resp: resp
-          });
-        }
-      });
+        };
+      } catch(e) {
+        console.error('Error while fetching hosts',e);
+        return {
+          ok: false,
+          resp: e
+        };
+      }
     }
   });
 
   server.route({
     method: 'GET',
     path: '/logtrail/config',
-    handler: async function (request, reply) {
+    handler: async function (request) {
       var config = await loadConfig(server);
-      reply({
+      return {
         ok: true,
         config: config
-      });
+      };
     }
   });
 };
