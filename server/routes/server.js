@@ -1,5 +1,3 @@
-import Boom from 'boom';
-
 function getMessageTemplate(handlebar, selectedConfig) {
   var messageFormat = selectedConfig.fields.message_format;
   //Append <a> tags for click to message format except for message field

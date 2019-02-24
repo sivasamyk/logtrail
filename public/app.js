@@ -1,12 +1,12 @@
 import angular from 'angular';
 import chrome from 'ui/chrome';
 import uiRoutes from 'ui/routes';
-import { notify } from 'ui/notify';
 import { uiModules } from 'ui/modules';
 import sugarDate from 'sugar-date';
 import moment from 'moment-timezone';
 import AnsiToHtml from 'ansi-to-html';
 
+import 'ui/autoload/modules';
 import 'ui/autoload/styles';
 import 'plugins/logtrail/css/main.css';
 
@@ -24,7 +24,9 @@ uiRoutes
 document.title = 'LogTrail - Kibana';
 
 app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
-  $window, $interval, $http, $document, $timeout, $location, $sce) {
+  $window, $interval, $http, $document, $timeout, $location, $sce, Notifier) {
+  
+  const notify = new Notifier();  
   $scope.title = 'LogTrail';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
@@ -36,7 +38,6 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   $scope.hosts = null;
   $scope.selectedHost = null;
   $scope.firstEventReached = false;
-  $scope.errorMessage = null;
   $scope.noEventErrorStartTime = null;
   $scope.showNoEventsMessage = false;
   $scope.index_patterns = [];
@@ -131,19 +132,17 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     };
 
     console.debug('sending search request with params ' + JSON.stringify(request));
-    $scope.errorMessage = null;
     return $http.post(chrome.addBasePath('/logtrail/search'), request).then(function (resp) {
       if (resp.data.ok) {
         updateEventView(resp.data.resp,actions,order);
       } else {
         console.error('Error while fetching events ' , resp);
-        $scope.errorMessage = 'Exception while executing search query :' + resp.data.resp.msg;
+        notify.error('Exception while executing search query :' + resp.data.resp.msg);
       }
     });
   };
 
   function removeDuplicates(newEventsFromServer) {
-    var BreakException = {};
     for (let i = newEventsFromServer.length - 1; i >= 0; i--) {
       var newEvent = newEventsFromServer[i];
       if (eventIds.has(newEvent.id)) {
@@ -401,7 +400,6 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
     eventIds.clear();
     $scope.selectedHost = null; //all systems
     $scope.hosts = null;
-    $scope.errorMessage = null;
     $scope.hostSearchText = null;
 
     setupHostsList().then(function() {
@@ -538,8 +536,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
           resolve(true);
         } else {
           var message = resp.data.resp.msg ? resp.data.resp.msg : JSON.stringify(resp.data.resp);
-          console.error('Error while fetching hosts : ' , message);
-          $scope.errorMessage = 'Cannot fetch hosts : ' + message;
+          console.error('Error while fetching hosts : ' + message);
+          notify.error('Cannot fetch hosts : ' + message);
           reject(false);
         }
       });
