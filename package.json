@@ -1,10 +1,10 @@
 {
   "name": "logtrail",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "index.js",
   "kibana": {
-    "version": "6.4.1"
+    "version": "6.6.1"
   },
   "repository": {
     "type": "git",
@@ -29,8 +29,9 @@
     "lodash.escape": "4.0.1",
     "lodash.get": "4.4.2",
     "lodash.set": "4.3.2",
+    "moment": "2.22.2",
     "sugar-date": "1.5.1",
-    "moment": "2.22.2"
+    "yarn": "^1.13.0"
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "link:../../kibana/packages/eslint-config-kibana",

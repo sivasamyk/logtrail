@@ -111,7 +111,7 @@ module.exports = function (server) {
   server.route({
     method: ['POST'],
     path: '/logtrail/search',
-    handler: function (request, reply) {
+    handler: async function (request, h) {
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var selectedConfig = request.payload.config;
       var searchText = request.payload.searchText;
@@ -161,8 +161,18 @@ module.exports = function (server) {
       searchRequest.body.sort[0][selectedConfig.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
       //apoland - secondary sort on "offset" column for log entries submitted within the same timestamp
-      searchRequest.body.sort.push("offset")
+      searchRequest.body.sort.push({"offset": {'order':request.payload.order})
 	    
+      // If secondary sorting field is present then set secondary sort.
+      /*
+      let secondarySortField = selectedConfig.fields.secondary_sort_field;
+      if (secondarySortField != undefined) {
+        if (secondarySortField.length > 0) {
+          searchRequest.body.sort.push(secondarySortField)
+        }
+      }
+      */
+
       //If hostname is present then term query.
       if (request.payload.hostname != null) {
         var termQuery = {
@@ -204,24 +214,20 @@ module.exports = function (server) {
         range[selectedConfig.fields.mapping.timestamp].format = 'epoch_millis';
         searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
       }
-      //console.log(JSON.stringify(searchRequest));
-
-      callWithRequest(request,'search',searchRequest).then(function (resp) {
-        reply({
+      console.log(JSON.stringify(searchRequest));
+      try {
+        const resp = await callWithRequest(request,'search',searchRequest);
+        return {
           ok: true,
           resp: convertToClientFormat(selectedConfig, resp)
-        });
-      }).catch(function (resp) {
-        if (resp.isBoom) {
-          reply(resp);
-        } else {
-          console.error('Error while executing search',resp);
-          reply({
-            ok: false,
-            resp: resp
-          });
-        }
-      });
+        };
+      } catch(e) {
+        console.error('Error while executing search', e);
+        return {
+          ok: false,
+          resp: e
+        };
+      }
     }
   });
 
@@ -229,7 +235,7 @@ module.exports = function (server) {
   server.route({
     method: ['POST'],
     path: '/logtrail/hosts',
-    handler: function (request,reply) {
+    handler: async function (request, h) {
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var selectedConfig = request.payload.config;
       var index = request.payload.index;
@@ -255,44 +261,39 @@ module.exports = function (server) {
           }
         }
       };
-
-      callWithRequest(request,'search',hostAggRequest).then(function (resp) {
+      try {
+        const resp = await callWithRequest(request,'search',hostAggRequest);
         if (!resp.aggregations) {
-          reply({
+          return {
             ok: false,
             resp: {
               msg: 'Check if the index pattern ' + selectedConfig.es.default_index + ' exists'
             }
-          });
-          return;
+          };
         }
-        reply({
+        return {
           ok: true,
           resp: resp.aggregations.hosts.buckets
-        });
-      }).catch(function (resp) {
-        if(resp.isBoom) {
-          reply(resp);
-        } else {
-          console.error('Error while fetching hosts',resp);
-          reply({
-            ok: false,
-            resp: resp
-          });
-        }
-      });
+        };
+      } catch(e) {
+        console.error('Error while fetching hosts',e);
+        return {
+          ok: false,
+          resp: e
+        };
+      }
     }
   });
 
   server.route({
     method: 'GET',
     path: '/logtrail/config',
-    handler: async function (request, reply) {
+    handler: async function (request) {
       var config = await loadConfig(server);
-      reply({
+      return {
         ok: true,
         config: config
-      });
+      };
     }
   });
 };

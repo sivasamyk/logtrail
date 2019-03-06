@@ -1,8 +1,4 @@
 <div class="container-fluid console" ng-controller="logtrail">
-  <div class="alert alert-danger logtrail-error" ng-show="errorMessage != null">
-    <a ng-click="errorMessage = null" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-    <strong>Error! </strong> {{ errorMessage }}
-  </div>
   <div class='no-event-message' ng-show='events.length !== 0 && firstEventReached'>Oldest event reached.</div>
   <div class='no-event-message' ng-show='showNoEventsMessage'>No events found.
     <br>
