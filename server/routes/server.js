@@ -209,6 +209,7 @@ module.exports = function (server) {
         range[selectedConfig.fields.mapping.timestamp].format = 'epoch_millis';
         searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
       }
+      //console.log(JSON.stringify(searchRequest));
       try {
         const resp = await callWithRequest(request,'search',searchRequest);
         return {
