@@ -164,7 +164,7 @@ module.exports = function (server) {
       let secondarySortField = selectedConfig.fields.secondary_sort_field;
       if (secondarySortField != undefined) {
         if (secondarySortField.length > 0) {
-          searchRequest.body.sort.push({secondarySortField: {'order':request.payload.order}})
+          searchRequest.body.sort[0][secondarySortField] = {'order':request.payload.order}
         }
       }
 
