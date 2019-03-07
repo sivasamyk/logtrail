@@ -159,19 +159,14 @@ module.exports = function (server) {
 
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][selectedConfig.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
-
-      //apoland - secondary sort on "offset" column for log entries submitted within the same timestamp
-      searchRequest.body.sort.push({"offset": {'order':request.payload.order})
 	    
       // If secondary sorting field is present then set secondary sort.
-      /*
       let secondarySortField = selectedConfig.fields.secondary_sort_field;
       if (secondarySortField != undefined) {
         if (secondarySortField.length > 0) {
-          searchRequest.body.sort.push(secondarySortField)
+          searchRequest.body.sort.push({secondarySortField: {'order':request.payload.order}})
         }
       }
-      */
 
       //If hostname is present then term query.
       if (request.payload.hostname != null) {
@@ -214,7 +209,6 @@ module.exports = function (server) {
         range[selectedConfig.fields.mapping.timestamp].format = 'epoch_millis';
         searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
       }
-      console.log(JSON.stringify(searchRequest));
       try {
         const resp = await callWithRequest(request,'search',searchRequest);
         return {
