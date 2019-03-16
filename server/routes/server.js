@@ -1,21 +1,27 @@
+/**
+ * 뷰에 보여질 로그 메시지 템플릿 생성
+ * @param handlebar handlebar
+ * @param selectedConfig 로그 설정값
+ * @returns {*} 메시지 템플릿
+ */
 function getMessageTemplate(handlebar, selectedConfig) {
   var messageFormat = selectedConfig.fields.message_format;
   //Append <a> tags for click to message format except for message field
   var messageFormatRegex = /({{{[\[]?(\S+?)[\]]?}}})/g; // e.g. {{{[pid]}}} {{{program-name}}} : {{syslog_message}}
   var ngClickTemplate = handlebar.compile('<a class="ng-binding" ng-click="onClick(\'{{name_no_braces}}\',\'{{name}}\')">{{name}}</a>',
-    {
-      knownHelpers: {
-        log: false,
-        lookup: false
-      },
-      knownHelpersOnly: true
-    });
-  var messageField = selectedConfig.fields.mapping.message;
+      {
+        knownHelpers: {
+          log: false,
+          lookup: false
+        },
+        knownHelpersOnly: true
+      });
+  var messageField = '{{{' + selectedConfig.fields.mapping.message + '}}}';
   var messageTemplate = messageFormat;
 
   var match = messageFormatRegex.exec(messageFormat);
   while (match !== null) {
-    if (match[2] !== messageField) {
+    if (match[0] !== messageField) {
       var context = {
         name : match[0],
         name_no_braces : match[2]
@@ -91,27 +97,94 @@ function convertToClientFormat(selectedConfig, esResponse) {
   return clientResponse;
 }
 
-function getDefaultTimeRangeToSearch(selectedConfig) {
-  var defaultTimeRangeToSearch = null;
-  var moment = require('moment');
-  if (selectedConfig.default_time_range_in_minutes && 
-    selectedConfig.default_time_range_in_minutes !== 0) {
-    defaultTimeRangeToSearch = moment().subtract(
-      selectedConfig.default_time_range_in_minutes,'minutes').valueOf();
-  } else if (selectedConfig.default_time_range_in_days !== 0) {
-    defaultTimeRangeToSearch = moment().subtract(
-      selectedConfig.default_time_range_in_days,'days').startOf('day').valueOf();
+//쿠키 sid 값 생성용
+let sidCnt = 0;
+
+//응답 코드
+const SUCC_CODE = '0000';//성공
+const FAIL_CODE = '9999';//실패
+
+/**
+ * 세션 조회
+ * @param server
+ * @param request
+ * @returns {*} 세션정보
+ */
+function getSession(server, request) {
+  //쿠키 값 가져오기
+  let sid = request.state['sid'];
+
+  //쿠키 값 체크
+  let isMatch = server.auth.api.checkSession(sid);
+
+  if( isMatch ) {
+    //server.log (['info','status'],'session match');
+    return server.auth.api.cache.get(sid.sid);
+  } else {
+    //server.log (['info','status'],'session un match');
+    return false;
   }
-  return defaultTimeRangeToSearch;
 }
 
-module.exports = function (server) {
+/**
+ * 쿠기 sid 생성
+ * @returns {string} sid
+ */
+function makeSid() {
+  sidCnt++;
+  if(sidCnt >= 100) sidCnt = 0;
 
-  //Search
-  server.route({
-    method: ['POST'],
-    path: '/logtrail/search',
-    handler: function (request, reply) {
+  return new Date().toISOString().split('T')[0] + '-' + sidCnt + '-' +Math.round(Math.random()*100000);
+}
+
+export default function (server) {
+
+  const login = async function (request, reply) {
+    server.log (['info','status'],'login');
+
+    let user = await require('../../user.json');
+    let list = user.list;
+
+    let loginId = request.payload.id;
+    let loginPw = request.payload.pw;
+
+    let targetUser;
+
+    targetUser = ( list.filter( i=> (i.id == loginId && i.pw == loginPw) ) )[0];
+
+    let resCode = { 'code' : FAIL_CODE };
+
+    if(targetUser){
+      resCode = { 'code' : SUCC_CODE} ;
+
+      //쿠키값 세팅
+      let sid = makeSid();
+      request.cookieAuth.set({sid});
+      server.auth.api.cache.set(sid, targetUser.id);
+    }
+
+    server.log (['info','status'],'login result => loginId => '+loginId+' / targetUser =>'+JSON.stringify(targetUser));
+
+    return reply(resCode);
+  };
+
+  //검색
+  const eSearch = function (request, reply) {
+    //세션 체크
+    let session = getSession(server,request);
+
+    if( !session ) {
+      request.cookieAuth.clear();
+      reply({
+        ok: false,
+        resp: {msg:'세션 만료'},
+        code:'999'
+      });
+    } else {
+      //요청시마다 세션 유지 시간 연장
+      server.auth.api.cache.set(session.sid, session.id);
+
+      //로그 조회
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
       var selectedConfig = request.payload.config;
       var searchText = request.payload.searchText;
@@ -160,6 +233,12 @@ module.exports = function (server) {
       //By default Set sorting column to timestamp
       searchRequest.body.sort[0][selectedConfig.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
 
+      var sercondSortFiled = selectedConfig.secondary_sort_field;
+
+      if(sercondSortFiled != undefined && sercondSortFiled.length > 0){
+        searchRequest.body.sort.push(sercondSortFiled);
+      }
+
       //If hostname is present then term query.
       if (request.payload.hostname != null) {
         var termQuery = {
@@ -181,9 +260,10 @@ module.exports = function (server) {
       var timestamp = request.payload.timestamp;
       var rangeType = request.payload.rangeType;
       if (timestamp == null) {
-        let defaultTimeRange = getDefaultTimeRangeToSearch(selectedConfig);
-        if (defaultTimeRange) {
-          timestamp = defaultTimeRange;
+        if (selectedConfig.default_time_range_in_days !== 0) {
+          var moment = require('moment');
+          timestamp = moment().subtract(
+              selectedConfig.default_time_range_in_days,'days').startOf('day').valueOf();
           rangeType = 'gte';
         }
       }
@@ -220,96 +300,159 @@ module.exports = function (server) {
         }
       });
     }
-  });
+  };
 
-  //Get All Systems
-  server.route({
-    method: ['POST'],
-    path: '/logtrail/hosts',
-    handler: function (request,reply) {
-      const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
-      var selectedConfig = request.payload.config;
-      var index = request.payload.index;
-      
-      var hostnameField = selectedConfig.fields.mapping.hostname;
-      let keywordSuffix = selectedConfig.fields.keyword_suffix;
-      if (keywordSuffix == undefined) {
-        hostnameField += ('.keyword');
-      } else if (keywordSuffix.length > 0) {
-        hostnameField += ('.' + keywordSuffix);
-      }
-      var hostAggRequest = {
-        index: selectedConfig.es.default_index,
-        body : {
-          size: 0,
-          aggs: {
-            hosts: {
-              terms: {
-                field: hostnameField,
-                size: selectedConfig.max_hosts
-              }
+  //호스트 리스트 조회
+  const getHostList = function (request,reply) {
+    const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
+    var selectedConfig = request.payload.config;
+    var index = request.payload.index;
+
+    var hostnameField = selectedConfig.fields.mapping.hostname;
+    let keywordSuffix = selectedConfig.fields.keyword_suffix;
+    if (keywordSuffix == undefined) {
+      hostnameField += ('.keyword');
+    } else if (keywordSuffix.length > 0) {
+      hostnameField += ('.' + keywordSuffix);
+    }
+    var hostAggRequest = {
+      index: selectedConfig.es.default_index,
+      body : {
+        size: 0,
+        aggs: {
+          hosts: {
+            terms: {
+              field: hostnameField,
+              size: selectedConfig.max_hosts
             }
           }
         }
-      };
+      }
+    };
 
-      callWithRequest(request,'search',hostAggRequest).then(function (resp) {
-        if (!resp.aggregations) {
-          reply({
-            ok: false,
-            resp: {
-              msg: 'Check if the index pattern ' + selectedConfig.es.default_index + ' exists'
-            }
-          });
-          return;
-        }
+    callWithRequest(request,'search',hostAggRequest).then(function (resp) {
+      reply({
+        ok: true,
+        resp: resp.aggregations.hosts.buckets
+      });
+    }).catch(function (resp) {
+
+      if(resp.isBoom) {
+        reply(resp);
+      } else {
+        console.error('Error while fetching hosts',resp);
         reply({
-          ok: true,
-          resp: resp.aggregations.hosts.buckets
+          ok: false,
+          resp: resp
         });
-      }).catch(function (resp) {
-        if(resp.isBoom) {
-          reply(resp);
-        } else {
-          console.error('Error while fetching hosts',resp);
-          reply({
-            ok: false,
-            resp: resp
-          });
+      }
+    });
+  };
+
+  //로그 설정 파일 로드
+  async function loadConfig(server,request) {
+    server.log (['info','status'],'loadingConfig file from logtrail.json');
+
+    let logtrailConfig = await require('../../logtrail.json');//인덱스 정보
+
+    server.log (['info','status'],'loadingUser file from user.json');
+
+    let userConfig = await require('../../user.json');//계정 정보
+
+    server.log (['info','status'],'loading config success');
+
+    let curUser = getSession(server, request).id;
+
+    let indexList;
+    indexList = (userConfig.list.filter(user => user.id == curUser))[0].indexList;
+
+    if(indexList) {
+
+      let resultIndex = [];
+
+      if(indexList == '*') {
+        resultIndex = logtrailConfig.index_patterns;
+      } else {
+        //현재 로그인한 유저의 인덱스 리스트만 가져옴
+        for(var j=0; j<indexList.length; j++){
+
+          for(var i=0; i<logtrailConfig.index_patterns.length; i++) {
+
+            if(logtrailConfig.index_patterns[i].es.default_index == indexList[j]){
+              resultIndex.push(logtrailConfig.index_patterns[i]);
+            }
+          }
         }
+      }
+
+      return { "version": logtrailConfig.version, "index_patterns": resultIndex};
+
+    } else {
+      server.log (['error','status'],'not found matched indexList, user => '+curUser);
+      return {};
+    }
+
+  }
+
+  //Check Login Session
+  server.route({
+    method: 'GET',
+    path: '/auth_logtrail/checkSession',
+    handler: function (request, reply) {
+      reply({
+        ok: true,
+        session: getSession(server, request)
       });
     }
   });
 
+  //Search
+  server.route({
+    method: ['POST'],
+    path: '/auth_logtrail/search',
+    handler: eSearch
+  });
+
+  //Get Host List
+  server.route({
+    method: ['POST'],
+    path: '/auth_logtrail/hosts',
+    handler: getHostList
+  });
+
+  //Get Config
   server.route({
     method: 'GET',
-    path: '/logtrail/config',
+    path: '/auth_logtrail/config',
     handler: async function (request, reply) {
-      var config = await loadConfig(server);
+      let config = await loadConfig(server,request);
       reply({
         ok: true,
         config: config
       });
     }
   });
-};
 
-function loadConfig(server) {
-  return new Promise((resolve, reject) => {
-    const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
-    var request = {
-      index: '.logtrail',
-      type: 'config',
-      id: 1
-    };
-    callWithInternalUser('get',request).then(function (resp) {
-      //If elasticsearch has config use it.
-      resolve(resp._source);
-      server.log (['info','status'],'Loaded logtrail config from Elasticsearch');
-    }).catch(function (error) {
-      server.log (['info','status'],'Error while loading config from Elasticsearch. Will use local');
-      var config = require('../../logtrail.json');
-      resolve(config);
-    });
+  //로그인
+  server.route({
+    path: '/auth_logtrail/login',
+    method: 'POST',
+    handler: login
+  });
+
+  //로그아웃
+  server.route({
+    method: 'GET',
+    path: '/auth_logtrail/logout',
+    handler: function (request, reply) {
+      let sid = request.state['sid'];
+      if(sid.sid) server.auth.api.cache.drop(sid.sid);
+
+      request.cookieAuth.clear();
+
+      reply({
+        ok: true
+      });
+    }
   });
 }

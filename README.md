@@ -1,68 +1,143 @@
-# LogTrail - Log Viewer plugin for Kibana
+# LogTrail - Log Viewer plugin for Kibana + 로그인 + 권한별 index 선택 기능
 
-[![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 6.4.2](https://img.shields.io/badge/Kibana-v6.4.2-blue.svg)](https://www.elastic.co/downloads/past-releases/kibana-6.4.2)
-[![License](https://img.shields.io/github/license/sivasamyk/logtrail.svg)](https://github.com/sivasamyk/logtrail) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sivasamyk)
+LogTrail에 자세한 내용은 [여기](https://github.com/sivasamyk/logtrail/)를 참고하세요
 
-LogTrail is a plugin for Kibana to view, analyze, search and tail log events from multiple hosts in realtime with devops friendly interface inspired by [Papertrail](https://papertrailapp.com/).
+로그인 기능과 권한별 index 선택 기능을 추가했습니다.\
+***(부가적으로 메뉴 한글화,날짜 표기 형식 ,로그 정렬에 파일 오프셋 옵션을 추가했습니다.)***
 
 ![Events](screenshot.png)
 
-Features
---------
- - View, analyze and search log events from a centralized interface
- - Clean & simple devops friendly interface
- - Live tail
- - Filter aggregated logs by hosts and program
- - Quickly seek to logs based on time
- - Supports highlighting of search matches
- - Supports multiple Elasticsearch index patterns each with different schemas
- - Can be extended by adding additional fields to log event
- - Color coding of messages based on field values
+##설명
+외부 인터넷망이 가능한 테스트 서버에서 kibana 개발 환경 구성 후\
+업무망 pc에서 소스만 개발하는 방법을 설명합니다.
 
-Installation
-------------
-- Prerequisites
-  - Download and install Elasticsearch , Logstash and Kibana
-  - Logtrail is supported and tested with Kibana 6.x and 5.x
-- Install logtrail plugin (requires restart of Kibana after install)
-  - Kibana 6.4.2 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.30/logtrail-6.4.2-0.1.30.zip`
-  - Kibana 5.6.5 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.23/logtrail-5.6.5-0.1.23.zip`
-  - Other versions : [https://github.com/sivasamyk/logtrail/releases](https://github.com/sivasamyk/logtrail/releases)
-- Kibana requires exact match of plugin version to the Kibana version. If you can't find logtrail plugin release for a Kibana release, follow the instrcutions [here](docs/how_to.md#2-update-kibanaversion-in-logtrail-plugin-archive) to update Kibana version in your logtrail plugin archive.
-- Refer [Logtrail Config Examples Repo](https://github.com/sivasamyk/logtrail-config-examples) for sample configurations for syslog, Java app, Kubernetes logs.
+##환경 구성 (Kibana 6.4 기준)
 
-Configuration
--------------
-- Logtrail can be configured by editing following fields present in `logtrail.json` file located inside`./plugins/logtrail` directory.
-- `default_index` - Elasticsearch index where the syslog events are stored (default: logstash-*)
-- `default_time_range_in_days` - Default time range in days to search when time is not specified using Seek button.
-    Example: Value of 30 means logtrail will search only in logs from last 30 days, unless time is specified using Seek button.
-    Value of 0 means logtrail will search in all available logs by default.
-- `display_timezone` - Timezone to display the timestamp in Event Viewer. e.g. `America/Los_Angeles`. Default value of `local` will use the timezone of browser. The time specified in `Seek To` popup will always use browser timezone.
-- `display_timestamp_format` - Format to display the timestamp in Event Viewer. For list of valid value refer [here](http://momentjs.com/docs/#/displaying/)
-- `default_search` - if specified, this will applied as default search text while launching logtrail. The value can be any search text. e.g. `ssh` - shows all logs with `ssh` in message field. or `log_level:SEVERE` - shows all logs where `log_level` field is `SEVERE`. The field name should be a valid field in elasticsearch document. The default search field is the field mapped to `message`.
-- `fields` - Edit this parameter to map the event fields in ES to logtrail fields
-    - `timestamp` - maps to @timestamp field inserted by logstash. This will be used for querying internally. Logtrail recommends @timestamp to be stored in UTC in ES.
-    - `hostname` - hostname from where the events were received. Also used by hostname filter. Hostname field should be of type keyword. For more info checkout [Hostname field need to be of type keyword](docs/how_to.md#1-hostname-field-need-to-be-of-type-keyword)
-    - `program` - program that generated this event.
-    - `message` - actual event message. This field will be used by search.
-- Example:  If the event fields names are @timestamp, host, process, message the mapping should be
-```json
-"mapping" : {
-        "timestamp" : "@timestamp",
-        "hostname" : "host",
-        "program": "process",
-        "message": "message"
-    }
+1.nvm 설치
+``` bash
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+source ~/.bashrc
+nvm install v8.11.4
+nvm use 8.11.4
 ```
-- By default each line displayed in the events view is of format:
-  `display_timestamp hostname program:message`
-- `message_format` - Used to add additional fields to be shown for log event. For more details refer [Adding additional fields](docs/add_fields.md)
-- `keyword_suffix` - Specifies the keyword suffix to be appended for hostname & program fields. Set it to `""` to not append any suffix. If not specified (`undefined`) logtrail will append `keyword`.
-- `color_mapping` - Color code messages based on field values. For more details refer [Color coding messages](docs/color_mapping.md)
-- Any changes in `logtrail.json` requires restart of Kibana
-- Logtrail can read `logtrail.json` configuration from Elasticsearch instead of filesystem. This will be useful when sharing same configuration across multiple installations. For more info refer [Load Logtrail configuration from Elasticsearch](https://github.com/sivasamyk/logtrail/blob/master/docs/how_to.md#3-load-logtrail-configuration-from-elasticsearch)
-- Refer [logtrail-config-examples](https://github.com/sivasamyk/logtrail-config-examples) repo for sample configurations 
-- Logs & Events from Windows, Java, Python, PHP, Perl, Ruby, Android, Docker, .Net can be shipped using syslog protocol.
-  - For more configuration options refer to [Papertrail Configuration Help](http://help.papertrailapp.com/).
-- Beats/Fluentd can also be used to ship events to ES and fields can be mapped using `fields` parameter in `logtrail.json`
+2.yarn 설치
+``` bash
+npm install -g yarn
+```
+3.Kibana 개발 환경 구성
+``` bash
+git clone 키바나 다운로드 경로 or curl -o 등 키바나 프로젝트 다운로드
+cd kibana
+yarn kbn bootstrap
+# 이후 es 등 설정이 필요함 여기서는 파이도 테스트 서버 개발 설정으로 대치
+vi config/kibana.yml
+ server.port: 포트번호
+ server.host: "0.0.0.0"
+ elasticsearch.url: "http://ip주소:포트번호"
+```
+4.플러그인 기본 구조 자동 생성
+``` bash
+npm install -g yo generator-kibana-plugin
+#플러그인 디렉토리와 키바나 디렉토리는 같은 위치에 있어야함
+ls -l
+ kibana
+ my-new-plugin  #여기다가 폴더 생성
+
+cd my-new-plugin
+yo kibana-plugin
+```
+5.실행
+```
+cd 플러그인소스있는폴더
+(nvm use 버전 nvm use --delete-prefix v8.11.4 )
+npm start -- --config config/kibana.yml
+#아래 로그 확인 후 브라우저에서 접속
+optmzr    log   [08:08:32.578] [info][optimize] Optimization success in 197.35 seconds
+http://ip주소:포트번호/
+```
+
+##개발
+
+1.프로젝트 구성
+   * package.json\
+   프로젝트 ROOT 디렉토리의 package.json\
+   아래와 같이 작성하되 플러그인이름은 폴더 이름과 동일하게 작성되어 합니다.
+        ```javascript
+        {
+          "name": "플러그인이름",
+          "version": "1.0.0"
+        }
+        ```
+   * index.js 파일\
+   주 모듈 파일로 kibana 플러그인에 전달할 데이터를 여기에 작성합니다.
+        ```javascript
+        export default function (kibana) {
+          return new kibana.Plugin({ ... });
+        }
+        ```
+   * public 디렉토리\
+   클라이언트 브라우저에 보여지는 내용들은 이 폴더 안에 작성합니다.
+
+2.플러그인 타입
+   * visType\
+   새로운 visualization 타입이 필요할 경우 
+   * apps\
+   별도 메뉴로 구성된 앱 (본 프로젝트는 여기에 해당)
+   * fildFormats\
+   필드 포멧을 추가할 경우
+
+3.프로젝트 설명
+  * 기본 베이스 프로젝트인 logtrail 소스에서 로그인 기능을 추가한 버전입니다.\
+  키바나 플러그인 개발시 x-pack(유료) 비활성화 상태에서는 ***hapi-auth-cookie*** 사용에 제약이 있습니다.\
+  따라서 클라이언트엔 쿠키로 sid 저장, 서버에 sid 값에 따라 sid, 사용자id, 쿠키 만료 시간을 서버에 저장하여 로그인 세션을 구현였습니다.\
+  플러그인 초기화시 세션 기능에 필요한 함수, 변수들을 선언후 router에서 세션을 검사하도록 구현되어있습니다.
+   
+##플러그인 적용
+플러그인 개발 완료후 배포 방법 설명
+
+1.개발된 파일을 zip파일로 압축합니다. ( 아래 명령어 실행 )
+```
+#플러그인 디렉토리 안에서
+npm run build
+cd build
+#zip 파일 확인
+```
+
+2.kibana 플러그인 쉘을 통해 설치 합니다.
+```bash
+kibana/bin/kibana-plugin install file:///경로/플러그인명.zip
+```
+
+3.플러그인 재설치 방법
+```bash
+kibana/bin/kibana-plugin list
+#플러그인명칭 확인
+
+kibana/bin/kibana-plugin remove 플러그인명
+#실행 안되면 재설치
+```
+
+##설정 파일
+기본 설정 파일 형식은 [여기](https://github.com/sivasamyk/logtrail#configuration) 참고
+계정 정보는 프로젝트 root 디렉토리에 user.json파일로 작성합니다.
+```
+{
+  "list": [
+    {
+      "id": "super",
+      "pw": "password",
+      "indexList": "*" //모든 인덱스를 조회할 계정은 '*' 로 설정
+    },
+    {
+      "id": "apiUser",
+      "pw": "password",
+      "indexList": ["api*"] //나머지는 배열 형식으로 작성
+    },
+    {
+      "id": "admUser",
+      "pw": "password",
+      "indexList": ["adm*"]
+    }
+  ]
+}
+```

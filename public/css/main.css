@@ -1,3 +1,4 @@
+/* 로그 뷰 페이지 */
 html,body {
 	height:100%;
 }
@@ -41,9 +42,9 @@ html,body {
 	font-weight: bold;
 	color: black;
 	max-width: 20em;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 .time-option-select-btn {
@@ -61,11 +62,11 @@ html,body {
 }
 
 .search-box.form-control {
-    height: 2.4em;
-    margin-left: 1em;
-    border: 2px solid #ccc;
-    font-size: 16px;
-    width: 60em;
+	height: 2.4em;
+	margin-left: 1em;
+	border: 2px solid #ccc;
+	font-size: 16px;
+	width: 60em;
 }
 
 .search-box.form-control.hint {
@@ -194,7 +195,6 @@ html,body {
 .host-picker-list > li > a {
 	text-decoration: underline;
 	cursor: pointer;
-	font-weight: 600;
 }
 
 .host-picker-search {
@@ -253,10 +253,10 @@ html,body {
 }
 
 .date-picker-box.form-control {
-    height: 2.4em;
-    margin-left: .2em;
-    border: 2px solid #ccc;
-    font-size: 16px;
+	height: 2.4em;
+	margin-left: .2em;
+	border: 2px solid #ccc;
+	font-size: 16px;
 }
 
 .date-picker-message {
@@ -300,43 +300,43 @@ html,body {
 	-webkit-align-items: stretch;
 	-ms-flex-align: stretch;
 	align-items: stretch;
- }
+}
 
 .flex-item-date-picker:nth-child(1) {
-    -webkit-order: 0;
-    -ms-flex-order: 0;
-    order: 0;
-    -webkit-flex: 0 0 17.5em;
-    -ms-flex: 0 0 14em;
-    flex: 0 0 14em;
-    -webkit-align-self: auto;
-    -ms-flex-item-align: auto;
-    align-self: auto;
- }
+	-webkit-order: 0;
+	-ms-flex-order: 0;
+	order: 0;
+	-webkit-flex: 0 0 17.5em;
+	-ms-flex: 0 0 14em;
+	flex: 0 0 14em;
+	-webkit-align-self: auto;
+	-ms-flex-item-align: auto;
+	align-self: auto;
+}
 
 .flex-item-date-picker:nth-child(2) {
-    -webkit-order: 0;
-    -ms-flex-order: 0;
-    order: 0;
-    -webkit-flex: 0 0 auto;
-    -ms-flex: 0 0 auto;
-    flex: 0 0 auto;
-    -webkit-align-self: auto;
-    -ms-flex-item-align: auto;
-    align-self: auto;
- }
+	-webkit-order: 0;
+	-ms-flex-order: 0;
+	order: 0;
+	-webkit-flex: 0 0 auto;
+	-ms-flex: 0 0 auto;
+	flex: 0 0 auto;
+	-webkit-align-self: auto;
+	-ms-flex-item-align: auto;
+	align-self: auto;
+}
 
 .flex-item-date-picker:nth-child(3) {
-    -webkit-order: 0;
-    -ms-flex-order: 0;
-    order: 0;
-    -webkit-flex: 1 0 auto;
-    -ms-flex: 1 0 auto;
-    flex: 1 0 auto;
-    -webkit-align-self: auto;
-    -ms-flex-item-align: auto;
-    align-self: auto;
- }
+	-webkit-order: 0;
+	-ms-flex-order: 0;
+	order: 0;
+	-webkit-flex: 1 0 auto;
+	-ms-flex: 1 0 auto;
+	flex: 1 0 auto;
+	-webkit-align-self: auto;
+	-ms-flex-item-align: auto;
+	align-self: auto;
+}
 
 .flex-item-date-picker:nth-child(4) {
 	-webkit-order: 0;
@@ -358,7 +358,7 @@ html,body {
 	height: auto;
 	border-radius: 6px;
 	bottom: 5.6em;
-	padding: 0;	
+	padding: 0;
 	color: black;
 	padding: 1em;
 }
@@ -407,63 +407,63 @@ html,body {
 }
 
 .flex-container-settings {
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    -webkit-flex-wrap: nowrap;
-    -ms-flex-wrap: nowrap;
-    flex-wrap: nowrap;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    -webkit-align-content: stretch;
-    -ms-flex-line-pack: stretch;
-    align-content: stretch;
-    -webkit-align-items: flex-start;
-    -ms-flex-align: start;
-    align-items: flex-start;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	-webkit-flex-wrap: nowrap;
+	-ms-flex-wrap: nowrap;
+	flex-wrap: nowrap;
+	-webkit-justify-content: flex-start;
+	-ms-flex-pack: start;
+	justify-content: flex-start;
+	-webkit-align-content: stretch;
+	-ms-flex-line-pack: stretch;
+	align-content: stretch;
+	-webkit-align-items: flex-start;
+	-ms-flex-align: start;
+	align-items: flex-start;
 }
 
 .flex-item-settings:nth-child(1) {
-    -webkit-order: 0;
-    -ms-flex-order: 0;
-    order: 0;
-    -webkit-flex: 0 1 auto;
-    -ms-flex: 0 1 auto;
-    flex: 0 1 auto;
-    -webkit-align-self: flex-start;
-    -ms-flex-item-align: start;
-    align-self: flex-start;
+	-webkit-order: 0;
+	-ms-flex-order: 0;
+	order: 0;
+	-webkit-flex: 0 1 auto;
+	-ms-flex: 0 1 auto;
+	flex: 0 1 auto;
+	-webkit-align-self: flex-start;
+	-ms-flex-item-align: start;
+	align-self: flex-start;
 }
 
 .flex-item-settings:nth-child(2) {
-    -webkit-order: 0;
-    -ms-flex-order: 0;
-    order: 0;
-    -webkit-flex: 0 1 auto;
-    -ms-flex: 0 1 auto;
-    flex: 0 1 auto;
-    -webkit-align-self: stretch;
-    -ms-flex-item-align: stretch;
-    align-self: stretch;
-    padding: .3em;
+	-webkit-order: 0;
+	-ms-flex-order: 0;
+	order: 0;
+	-webkit-flex: 0 1 auto;
+	-ms-flex: 0 1 auto;
+	flex: 0 1 auto;
+	-webkit-align-self: stretch;
+	-ms-flex-item-align: stretch;
+	align-self: stretch;
+	padding: .3em;
 }
 
 .flex-item-settings:nth-child(3) {
-    -webkit-order: 0;
-    -ms-flex-order: 0;
-    order: 0;
-    -webkit-flex: 0 1 auto;
-    -ms-flex: 0 1 auto;
-    flex: 0 1 auto;
-    -webkit-align-self: flex-end;
-    -ms-flex-item-align: end;
-    align-self: flex-end;
-    margin-top: .5em;
-    background-color: darkgray;
+	-webkit-order: 0;
+	-ms-flex-order: 0;
+	order: 0;
+	-webkit-flex: 0 1 auto;
+	-ms-flex: 0 1 auto;
+	flex: 0 1 auto;
+	-webkit-align-self: flex-end;
+	-ms-flex-item-align: end;
+	align-self: flex-end;
+	margin-top: .5em;
+	background-color: darkgray;
 }
 
 
@@ -502,8 +502,8 @@ html,body {
 	text-align: center;
 	padding-top: 2em;
 	padding-bottom: 1em;
-  font-size: xx-large;
-  font-family: inherit;
+	font-size: xx-large;
+	font-family: inherit;
 }
 
 .no-event-message > .time-range {
@@ -523,4 +523,94 @@ html,body {
 .lucene-hint {
 	position: fixed;
 	left: 60em;
+}
+.logout {
+	padding-right:2em;
+}
+
+.logout-btn {
+	background-color: #993831;
+	display: inline-block;
+	margin-bottom: 0;
+	font-weight: normal;
+	text-align: center;
+	vertical-align: middle;
+	-ms-touch-action: manipulation;
+	touch-action: manipulation;
+	cursor: pointer;
+	background-image: none;
+	border: 1px solid transparent;
+	white-space: nowrap;
+	padding: 5px 15px;
+	font-size: 14px;
+	line-height: 1.42857143;
+	border-radius: 4px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+/* 로그인 페이지 */
+
+.login-content {
+	margin:0;
+	padding:0;
+	font-family: 'Lato', sans-serif;
+}
+
+.login-form-wrap {
+	background: radial-gradient(ellipse at center,  rgba(81,112,173,1) 0%, rgb(0, 85, 113) 100%);
+	border:1px solid #2d416d;
+	box-shadow: 0 1px #5670A4 inset, 0 0 10px 5px rgba(0, 0, 0, 0.1);
+	border-radius: 5px;
+	width: 360px;
+	height: 380px;
+	margin: 60px auto;
+	padding: 50px 30px 0 30px;
+	text-align: center;
+}
+
+.login-title {
+	margin: 0 0 50px 0;
+	padding: 0;
+	font-size: 26px;
+	color: #fff;
+}
+.login-text {
+	margin-top: 40px;
+}
+.login-text > a {
+	font-size: 14px;
+	color: #fff;
+	text-decoration: none;
+	font-weight: 400;
+}
+
+.login-input {
+	width: 100%;
+	border: 1px solid #314d89;
+	outline: none;
+	padding: 12px 20px;
+	color: #afafaf;
+	font-weight: 400;
+	font-family: 'Lato', sans-serif;
+	cursor:pointer;
+}
+
+.login-btn {
+	font-family: 'Lato', sans-serif;
+	font-weight: 400;
+	background: linear-gradient(to bottom,  rgba(224,224,224,1) 0%,rgba(206,206,206,1) 100%);
+	display: block;
+	margin: 20px auto 0 auto;
+	width: 100%;
+	border: none;
+	border-radius: 3px;
+	padding: 8px;
+	font-size: 17px;
+	color: #636363;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+	font-weight: 700;
+	box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.17), 0 1px 0 rgba(255, 255, 255, 0.36) inset;
 }

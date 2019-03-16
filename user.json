@@ -1,0 +1,19 @@
+{
+  "list": [
+    {
+      "id": "super",
+      "pw": "password",
+      "indexList": "*"
+    },
+    {
+      "id": "apiUser",
+      "pw": "password",
+      "indexList": ["api*"]
+    },
+    {
+      "id": "admUser",
+      "pw": "password",
+      "indexList": ["adm*"]
+    }
+  ]
+}

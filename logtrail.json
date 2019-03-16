@@ -1,31 +1,56 @@
 {
   "version" : 2,
   "index_patterns" : [
-    {      
-      "es": {
-        "default_index": "filebeat-*"
-      },
+    {
+      "es": { "default_index": "api*"  },
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
       "display_timezone": "local",
-      "display_timestamp_format": "MMM DD HH:mm:ss",
+      "display_timestamp_format": "YYYY MM DD HH:mm:ss",
       "max_buckets": 500,
-      "default_time_range_in_days" : 0,
+      "default_time_range_in_days" : 1,
       "max_hosts": 100,
       "max_events_to_keep_in_viewer": 5000,
       "default_search": "",
+      "secondary_sort_field": "offset",
       "fields" : {
-        "mapping" : {
-            "timestamp" : "@timestamp",
-            "hostname" : "beat.hostname",
-            "program": "source",
-            "message": "message"
+        "mapping" : {	"timestamp" : "@timestamp",
+          "hostname" : "beat.hostname",
+          "program": "source",
+          "message": "message",
+          "log_level": "log_level",
+          "host_thread": "host_thread",
+          "offset": "offset"
         },
-        "message_format": "{{{message}}}",
-        "keyword_suffix" : "keyword"
-      },
-      "color_mapping" : {
-      }
+        "message_format": "{{{host_thread}}} {{{log_level}}} {{{message}}}",
+        "keyword_suffix" : "keyword"},
+      "color_mapping" : { "field":"log_level","mapping": {"ERROR": "#FF0000","WARN": "#FFEF96","DEBUG": "#B5E7A0","TRACE": "#CFE0E8"} }
+    }
+    ,{
+      "es": { "default_index": "admin*"  },
+      "tail_interval_in_seconds": 10,
+      "es_index_time_offset_in_seconds": 0,
+      "display_timezone": "local",
+      "display_timestamp_format": "YYYY MM DD HH:mm:ss",
+      "max_buckets": 500,
+      "default_time_range_in_days" : 1,
+      "max_hosts": 100,
+      "max_events_to_keep_in_viewer": 5000,
+      "default_search": "",
+      "secondary_sort_field": "offset",
+      "fields" : {
+        "mapping" : {	"timestamp" : "@timestamp",
+          "hostname" : "beat.hostname",
+          "program": "source",
+          "message": "message",
+          "log_level": "log_level",
+          "host_thread": "host_thread",
+          "offset": "offset"
+        },
+        "message_format": "{{{host_thread}}} {{{log_level}}} {{{message}}}",
+        "keyword_suffix" : "keyword"},
+      "color_mapping" : { "field":"log_level","mapping": {"ERROR": "#FF0000","WARN": "#FFEF96","DEBUG": "#B5E7A0","TRACE": "#CFE0E8"} }
     }
   ]
 }
+
