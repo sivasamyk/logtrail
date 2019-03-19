@@ -48,7 +48,7 @@ function convertToClientFormat(selectedConfig, esResponse) {
     var event = {};
     var source =  hits[i]._source;
     event.id = hits[i]._id;
-    let get = require('lodash.get');
+    let get = require('lodash/get');
     event.timestamp = get(source, selectedConfig.fields.mapping.timestamp);
     event.hostname = get(source, selectedConfig.fields.mapping.hostname);
     event.program = get(source, selectedConfig.fields.mapping.program);
@@ -64,14 +64,14 @@ function convertToClientFormat(selectedConfig, esResponse) {
 
     //Change the source['message'] to highlighter text if available
     if (hits[i].highlight) {
-      var set = require('lodash.set');
+      var set = require('lodash/set');
       var withHighlights = get(hits[i].highlight, [selectedConfig.fields.mapping.message,0]);
       set(source, selectedConfig.fields.mapping.message, withHighlights);
       source[selectedConfig.fields.mapping.message] = hits[i].highlight[selectedConfig.fields.mapping.message][0];
     }
     var message = source[selectedConfig.fields.mapping.message];
     //sanitize html
-    var escape = require('lodash.escape');
+    var escape = require('lodash/escape');
     message = escape(message);
     //if highlight is present then replace pre and post tag with html
     if (hits[i].highlight) {
