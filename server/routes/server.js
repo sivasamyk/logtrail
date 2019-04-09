@@ -69,7 +69,7 @@ function convertToClientFormat(selectedConfig, esResponse) {
       set(source, selectedConfig.fields.mapping.message, withHighlights);
       source[selectedConfig.fields.mapping.message] = hits[i].highlight[selectedConfig.fields.mapping.message][0];
     }
-    var message = source[selectedConfig.fields.mapping.message];
+    var message = get(source, selectedConfig.fields.mapping.message);
     //sanitize html
     var escape = require('lodash/escape');
     message = escape(message);
