@@ -1,35 +1,52 @@
 {
   "name": "auth_logtrail",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "logtrail with login",
   "main": "index.js",
   "kibana": {
-    "version": "6.4.3"
+    "version": "7.2.1"
   },
-
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/parkjungwoong/logtrail.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/parkjungwoong/logtrail.git/issues"
+  },
   "scripts": {
-    "lint": "eslint",
+    "preinstall": "node ../../preinstall_check",
+    "kbn": "node ../../scripts/kbn",
+    "es": "node ../../scripts/es",
+    "lint": "eslint .",
     "start": "plugin-helpers start",
     "test:server": "plugin-helpers test:server",
     "test:browser": "plugin-helpers test:browser",
     "build": "plugin-helpers build",
-    "postinstall": "plugin-helpers postinstall"
+    "clean": "rm -rf node_modules; rm -rf yarn.lock"
   },
   "dependencies": {
+    "@kbn/i18n": "link:../../packages/kbn-i18n",
     "ansi-to-html": "^0.6.4",
     "handlebars": "4.0.6",
-    "lodash.escape": "4.0.1",
-    "lodash.get": "4.4.2",
-    "lodash.set": "4.3.2",
-    "moment": "^2.24.0",
-    "sugar-date": "1.5.1"
+    "lodash": "4.17.11",
+    "moment": "2.22.2",
+    "sugar-date": "1.5.1",
+    "yarn": "^1.13.0"
   },
   "devDependencies": {
-    "@elastic/eslint-config-kibana": "0.0.2",
-    "@elastic/plugin-helpers": "^6.0.0",
-    "babel-eslint": "4.1.8",
-    "chai": "^3.5.0",
-    "eslint": "1.10.3",
-    "eslint-plugin-mocha": "1.1.0"
+    "@elastic/eslint-config-kibana": "link:../../packages/eslint-config-kibana",
+    "@elastic/eslint-import-resolver-kibana": "link:../../packages/kbn-eslint-import-resolver-kibana",
+    "@kbn/expect": "link:../../packages/kbn-expect",
+    "@kbn/plugin-helpers": "link:../../packages/kbn-plugin-helpers",
+    "babel-eslint": "^8.0.2",
+    "eslint": "^4.11.0",
+    "eslint-plugin-babel": "^4.1.1",
+    "eslint-plugin-import": "^2.3.0",
+    "eslint-plugin-jest": "^21.3.2",
+    "eslint-plugin-mocha": "^4.9.0",
+    "eslint-plugin-prefer-object-spread": "^1.2.1",
+    "eslint-plugin-react": "^7.0.1",
+    "expect.js": "^0.3.1"
   }
 }

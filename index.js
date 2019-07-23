@@ -16,12 +16,10 @@ export default function (kibana) {
 
 
       translations: [
-        resolve(__dirname, './translations/es.json')
       ],
 
 
       hacks: [
-        'plugins/auth_logtrail/hack'
       ]
 
     },
