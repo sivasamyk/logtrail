@@ -4,7 +4,7 @@
   "description": "logtrail with login",
   "main": "index.js",
   "kibana": {
-    "version": "7.2.1"
+    "version": "7.2.0"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,6 @@
     "clean": "rm -rf node_modules; rm -rf yarn.lock"
   },
   "dependencies": {
-    "@kbn/i18n": "link:../../packages/kbn-i18n",
     "ansi-to-html": "^0.6.4",
     "handlebars": "4.0.6",
     "lodash": "4.17.11",
