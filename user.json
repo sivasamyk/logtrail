@@ -2,18 +2,16 @@
   "list": [
     {
       "id": "super",
-      "pw": "password",
       "indexList": "*"
     },
     {
-      "id": "apiUser",
-      "pw": "password",
-      "indexList": ["api*"]
+      "id": "myuoong",
+      "indexList": ["log-*"]
     },
     {
-      "id": "admUser",
+      "id": "pjw",
       "pw": "password",
-      "indexList": ["adm*"]
+      "indexList": ["log2-*"]
     }
   ]
 }

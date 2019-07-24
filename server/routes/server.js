@@ -1,32 +1,46 @@
-/**
- * 뷰에 보여질 로그 메시지 템플릿 생성
- * @param handlebar handlebar
- * @param selectedConfig 로그 설정값
- * @returns {*} 메시지 템플릿
+/*
+ * Licensed to Elasticsearch B.V. under one or more contributor
+ * license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright
+ * ownership. Elasticsearch B.V. licenses this file to you under
+ * the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-function getMessageTemplate(handlebar, selectedConfig) {
-  var messageFormat = selectedConfig.fields.message_format;
-  //Append <a> tags for click to message format except for message field
-  var messageFormatRegex = /({{{[\[]?(\S+?)[\]]?}}})/g; // e.g. {{{[pid]}}} {{{program-name}}} : {{syslog_message}}
-  var ngClickTemplate = handlebar.compile('<a class="ng-binding" ng-click="onClick(\'{{name_no_braces}}\',\'{{name}}\')">{{name}}</a>',
-      {
-        knownHelpers: {
-          log: false,
-          lookup: false
-        },
-        knownHelpersOnly: true
-      });
-  var messageField = '{{{' + selectedConfig.fields.mapping.message + '}}}';
-  var messageTemplate = messageFormat;
 
-  var match = messageFormatRegex.exec(messageFormat);
+
+function getMessageTemplate(handlebar, selectedConfig) {
+  const messageFormat = selectedConfig.fields.message_format;
+  //Append <a> tags for click to message format except for message field
+  const messageFormatRegex = /({{{[\[]?(\S+?)[\]]?}}})/g; // e.g. {{{[pid]}}} {{{program-name}}} : {{syslog_message}}
+  const ngClickTemplate = handlebar.compile('<a class="ng-binding" ng-click="onClick(\'{{name_no_braces}}\',\'{{name}}\')">{{name}}</a>',
+    {
+      knownHelpers: {
+        log: false,
+        lookup: false
+      },
+      knownHelpersOnly: true
+    });
+  const messageField = selectedConfig.fields.mapping.message;
+  let messageTemplate = messageFormat;
+
+  let match = messageFormatRegex.exec(messageFormat);
   while (match !== null) {
-    if (match[0] !== messageField) {
-      var context = {
-        name : match[0],
-        name_no_braces : match[2]
+    if (match[2] !== messageField) {
+      const context = {
+        name: match[0],
+        name_no_braces: match[2]
       };
-      var messageWithClickAttr = ngClickTemplate(context);
+      const messageWithClickAttr = ngClickTemplate(context);
       messageTemplate = messageTemplate.replace(match[0], messageWithClickAttr);
     }
     match = messageFormatRegex.exec(messageFormat);
@@ -35,13 +49,13 @@ function getMessageTemplate(handlebar, selectedConfig) {
 }
 
 function convertToClientFormat(selectedConfig, esResponse) {
-  var clientResponse = [];
-  var hits = esResponse.hits.hits;
-  var template = null;
-  var messageFormat = selectedConfig.fields.message_format;
+  const clientResponse = [];
+  const hits = esResponse.hits.hits;
+  let template = null;
+  const messageFormat = selectedConfig.fields.message_format;
   if (messageFormat) {
-    var handlebar = require('handlebars');
-    var messageTemplate = getMessageTemplate(handlebar, selectedConfig);
+    const handlebar = require('handlebars');
+    const messageTemplate = getMessageTemplate(handlebar, selectedConfig);
     template = handlebar.compile(messageTemplate, {
       knownHelpers: {
         log: false,
@@ -51,18 +65,18 @@ function convertToClientFormat(selectedConfig, esResponse) {
     });
   }
   for (let i = 0; i < hits.length; i++) {
-    var event = {};
-    var source =  hits[i]._source;
+    const event = {};
+    const source =  hits[i]._source;
     event.id = hits[i]._id;
-    let get = require('lodash.get');
+    const get = require('lodash/get');
     event.timestamp = get(source, selectedConfig.fields.mapping.timestamp);
     event.hostname = get(source, selectedConfig.fields.mapping.hostname);
     event.program = get(source, selectedConfig.fields.mapping.program);
 
     //Calculate message color, if configured
     if (selectedConfig.color_mapping && selectedConfig.color_mapping.field) {
-      var colorField = get(source, selectedConfig.color_mapping.field);
-      var color = selectedConfig.color_mapping.mapping[colorField];
+      const colorField = get(source, selectedConfig.color_mapping.field);
+      const color = selectedConfig.color_mapping.mapping[colorField];
       if (color) {
         event.color =  color;
       }
@@ -70,19 +84,19 @@ function convertToClientFormat(selectedConfig, esResponse) {
 
     //Change the source['message'] to highlighter text if available
     if (hits[i].highlight) {
-      var set = require('lodash.set');
-      var withHighlights = get(hits[i].highlight, [selectedConfig.fields.mapping.message,0]);
+      const set = require('lodash/set');
+      const withHighlights = get(hits[i].highlight, [selectedConfig.fields.mapping.message, 0]);
       set(source, selectedConfig.fields.mapping.message, withHighlights);
       source[selectedConfig.fields.mapping.message] = hits[i].highlight[selectedConfig.fields.mapping.message][0];
     }
-    var message = source[selectedConfig.fields.mapping.message];
+    let message = get(source, selectedConfig.fields.mapping.message);
     //sanitize html
-    var escape = require('lodash.escape');
+    const escape = require('lodash/escape');
     message = escape(message);
     //if highlight is present then replace pre and post tag with html
     if (hits[i].highlight) {
-      message = message.replace(/logtrail.highlight.pre_tag/g,'<span class="highlight">');
-      message = message.replace(/logtrail.highlight.post_tag/g,'</span>');
+      message = message.replace(/logtrail.highlight.pre_tag/g, '<span class="highlight">');
+      message = message.replace(/logtrail.highlight.post_tag/g, '</span>');
     }
     source[selectedConfig.fields.mapping.message] = message;
 
@@ -97,130 +111,63 @@ function convertToClientFormat(selectedConfig, esResponse) {
   return clientResponse;
 }
 
-//쿠키 sid 값 생성용
-let sidCnt = 0;
-
-//응답 코드
-const SUCC_CODE = '0000';//성공
-const FAIL_CODE = '9999';//실패
-
-/**
- * 세션 조회
- * @param server
- * @param request
- * @returns {*} 세션정보
- */
-function getSession(server, request) {
-  //쿠키 값 가져오기
-  let sid = request.state['sid'];
-
-  //쿠키 값 체크
-  let isMatch = server.auth.api.checkSession(sid);
-
-  if( isMatch ) {
-    //server.log (['info','status'],'session match');
-    return server.auth.api.cache.get(sid.sid);
-  } else {
-    //server.log (['info','status'],'session un match');
-    return false;
+function getDefaultTimeRangeToSearch(selectedConfig) {
+  let defaultTimeRangeToSearch = null;
+  const moment = require('moment');
+  if (selectedConfig.default_time_range_in_minutes &&
+      selectedConfig.default_time_range_in_minutes !== 0) {
+    defaultTimeRangeToSearch = moment().subtract(
+      selectedConfig.default_time_range_in_minutes, 'minutes').valueOf();
+  } else if (selectedConfig.default_time_range_in_days !== 0) {
+    defaultTimeRangeToSearch = moment().subtract(
+      selectedConfig.default_time_range_in_days, 'days').startOf('day').valueOf();
   }
+  return defaultTimeRangeToSearch;
 }
 
-/**
- * 쿠기 sid 생성
- * @returns {string} sid
- */
-function makeSid() {
-  sidCnt++;
-  if(sidCnt >= 100) sidCnt = 0;
+module.exports = function (server) {
 
-  return new Date().toISOString().split('T')[0] + '-' + sidCnt + '-' +Math.round(Math.random()*100000);
-}
-
-export default function (server) {
-
-  const login = async function (request, reply) {
-    server.log (['info','status'],'login');
-
-    let user = await require('../../user.json');
-    let list = user.list;
-
-    let loginId = request.payload.id;
-    let loginPw = request.payload.pw;
-
-    let targetUser;
-
-    targetUser = ( list.filter( i=> (i.id == loginId && i.pw == loginPw) ) )[0];
-
-    let resCode = { 'code' : FAIL_CODE };
-
-    if(targetUser){
-      resCode = { 'code' : SUCC_CODE} ;
-
-      //쿠키값 세팅
-      let sid = makeSid();
-      request.cookieAuth.set({sid});
-      server.auth.api.cache.set(sid, targetUser.id);
-    }
-
-    server.log (['info','status'],'login result => loginId => '+loginId+' / targetUser =>'+JSON.stringify(targetUser));
-
-    return reply(resCode);
-  };
-
-  //검색
-  const eSearch = function (request, reply) {
-    //세션 체크
-    let session = getSession(server,request);
-
-    if( !session ) {
-      request.cookieAuth.clear();
-      reply({
-        ok: false,
-        resp: {msg:'세션 만료'},
-        code:'999'
-      });
-    } else {
-      //요청시마다 세션 유지 시간 연장
-      server.auth.api.cache.set(session.sid, session.id);
-
-      //로그 조회
+  //Search
+  server.route({
+    method: ['POST'],
+    path: '/logtrail/search',
+    handler: async function (request, h) {
       const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
-      var selectedConfig = request.payload.config;
-      var searchText = request.payload.searchText;
+      const selectedConfig = request.payload.config;
+      let searchText = request.payload.searchText;
 
       if (searchText == null || searchText.length === 0) {
         searchText = '*';
       }
 
       //Search Request body
-      var searchRequest = {
+      const searchRequest = {
         index: selectedConfig.es.default_index,
         size: selectedConfig.max_buckets,
-        body : {
-          sort : [{}],
-          query : {
-            bool : {
-              must :{
-                query_string : {
+        body: {
+          sort: [{}],
+          query: {
+            bool: {
+              must: {
+                query_string: {
                   analyze_wildcard: true,
-                  default_field : selectedConfig.fields.mapping.message,
-                  query : searchText
+                  default_field: selectedConfig.fields.mapping.message,
+                  query: searchText
                 }
               },
               filter: {
-                bool : {
-                  must : [
+                bool: {
+                  must: [
                   ],
-	                  must_not:[],
+                  must_not: [],
                 }
               }
             }
           },
-          highlight : {
-            pre_tags : ['logtrail.highlight.pre_tag'],
-            post_tags : ['logtrail.highlight.post_tag'],
-            fields : {
+          highlight: {
+            pre_tags: ['logtrail.highlight.pre_tag'],
+            post_tags: ['logtrail.highlight.post_tag'],
+            fields: {
             }
           }
         }
@@ -231,23 +178,25 @@ export default function (server) {
       };
 
       //By default Set sorting column to timestamp
-      searchRequest.body.sort[0][selectedConfig.fields.mapping.timestamp] = {'order':request.payload.order ,'unmapped_type': 'boolean'};
+      searchRequest.body.sort[0][selectedConfig.fields.mapping.timestamp] = { 'order': request.payload.order, 'unmapped_type': 'boolean' };
 
-      var sercondSortFiled = selectedConfig.secondary_sort_field;
-
-      if(sercondSortFiled != undefined && sercondSortFiled.length > 0){
-        searchRequest.body.sort.push(sercondSortFiled);
+      // If secondary sorting field is present then set secondary sort.
+      const secondarySortField = selectedConfig.fields.secondary_sort_field;
+      if (secondarySortField !== undefined) {
+        if (secondarySortField.length > 0) {
+          searchRequest.body.sort[0][secondarySortField] = { 'order': request.payload.order };
+        }
       }
 
       //If hostname is present then term query.
       if (request.payload.hostname != null) {
-        var termQuery = {
-          term : {
+        const termQuery = {
+          term: {
           }
         };
-        var hostnameField = selectedConfig.fields.mapping.hostname;
-        let keywordSuffix = selectedConfig.fields.keyword_suffix;
-        if (keywordSuffix == undefined) {
+        let hostnameField = selectedConfig.fields.mapping.hostname;
+        const keywordSuffix = selectedConfig.fields.keyword_suffix;
+        if (keywordSuffix === undefined) {
           hostnameField += ('.keyword');
         } else if (keywordSuffix.length > 0) {
           hostnameField += ('.' + keywordSuffix);
@@ -257,202 +206,149 @@ export default function (server) {
       }
 
       //If no time range is present get events based on default selectedConfig
-      var timestamp = request.payload.timestamp;
-      var rangeType = request.payload.rangeType;
+      let timestamp = request.payload.timestamp;
+      let rangeType = request.payload.rangeType;
       if (timestamp == null) {
-        if (selectedConfig.default_time_range_in_days !== 0) {
-          var moment = require('moment');
-          timestamp = moment().subtract(
-              selectedConfig.default_time_range_in_days,'days').startOf('day').valueOf();
+        const defaultTimeRange = getDefaultTimeRangeToSearch(selectedConfig);
+        if (defaultTimeRange) {
+          timestamp = defaultTimeRange;
           rangeType = 'gte';
         }
       }
 
       //If timestamps are present set ranges
       if (timestamp != null) {
-        var rangeQuery = {
-          range : {
+        const rangeQuery = {
+          range: {
 
           }
         };
-        var range = rangeQuery.range;
+        const range = rangeQuery.range;
         range[selectedConfig.fields.mapping.timestamp] = {};
         range[selectedConfig.fields.mapping.timestamp][rangeType] = timestamp;
         range[selectedConfig.fields.mapping.timestamp].format = 'epoch_millis';
         searchRequest.body.query.bool.filter.bool.must.push(rangeQuery);
       }
       //console.log(JSON.stringify(searchRequest));
-
-      callWithRequest(request,'search',searchRequest).then(function (resp) {
-        reply({
+      try {
+        const resp = await callWithRequest(request, 'search', searchRequest);
+        return {
           ok: true,
           resp: convertToClientFormat(selectedConfig, resp)
-        });
-      }).catch(function (resp) {
-        if (resp.isBoom) {
-          reply(resp);
-        } else {
-          console.error('Error while executing search',resp);
-          reply({
-            ok: false,
-            resp: resp
-          });
-        }
-      });
-    }
-  };
-
-  //호스트 리스트 조회
-  const getHostList = function (request,reply) {
-    const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
-    var selectedConfig = request.payload.config;
-    var index = request.payload.index;
-
-    var hostnameField = selectedConfig.fields.mapping.hostname;
-    let keywordSuffix = selectedConfig.fields.keyword_suffix;
-    if (keywordSuffix == undefined) {
-      hostnameField += ('.keyword');
-    } else if (keywordSuffix.length > 0) {
-      hostnameField += ('.' + keywordSuffix);
-    }
-    var hostAggRequest = {
-      index: selectedConfig.es.default_index,
-      body : {
-        size: 0,
-        aggs: {
-          hosts: {
-            terms: {
-              field: hostnameField,
-              size: selectedConfig.max_hosts
-            }
-          }
-        }
-      }
-    };
-
-    callWithRequest(request,'search',hostAggRequest).then(function (resp) {
-      reply({
-        ok: true,
-        resp: resp.aggregations.hosts.buckets
-      });
-    }).catch(function (resp) {
-
-      if(resp.isBoom) {
-        reply(resp);
-      } else {
-        console.error('Error while fetching hosts',resp);
-        reply({
+        };
+      } catch(e) {
+        console.error('Error while executing search', e);
+        return {
           ok: false,
-          resp: resp
-        });
+          resp: e
+        };
       }
-    });
-  };
+    }
+  });
 
-  //로그 설정 파일 로드
-  async function loadConfig(server,request) {
-    server.log (['info','status'],'loadingConfig file from logtrail.json');
+  //Get All Systems
+  server.route({
+    method: ['POST'],
+    path: '/logtrail/hosts',
+    handler: async function (request, h) {
+      const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
+      const selectedConfig = request.payload.config;
+      const index = request.payload.index;
 
-    let logtrailConfig = await require('../../logtrail.json');//인덱스 정보
-
-    server.log (['info','status'],'loadingUser file from user.json');
-
-    let userConfig = await require('../../user.json');//계정 정보
-
-    server.log (['info','status'],'loading config success');
-
-    let curUser = getSession(server, request).id;
-
-    let indexList;
-    indexList = (userConfig.list.filter(user => user.id == curUser))[0].indexList;
-
-    if(indexList) {
-
-      let resultIndex = [];
-
-      if(indexList == '*') {
-        resultIndex = logtrailConfig.index_patterns;
-      } else {
-        //현재 로그인한 유저의 인덱스 리스트만 가져옴
-        for(var j=0; j<indexList.length; j++){
-
-          for(var i=0; i<logtrailConfig.index_patterns.length; i++) {
-
-            if(logtrailConfig.index_patterns[i].es.default_index == indexList[j]){
-              resultIndex.push(logtrailConfig.index_patterns[i]);
+      let hostnameField = selectedConfig.fields.mapping.hostname;
+      const keywordSuffix = selectedConfig.fields.keyword_suffix;
+      if (keywordSuffix === undefined) {
+        hostnameField += ('.keyword');
+      } else if (keywordSuffix.length > 0) {
+        hostnameField += ('.' + keywordSuffix);
+      }
+      const hostAggRequest = {
+        index: selectedConfig.es.default_index,
+        body: {
+          size: 0,
+          aggs: {
+            hosts: {
+              terms: {
+                field: hostnameField,
+                size: selectedConfig.max_hosts
+              }
             }
           }
         }
+      };
+      try {
+        const resp = await callWithRequest(request, 'search', hostAggRequest);
+        if (!resp.aggregations) {
+          return {
+            ok: false,
+            resp: {
+              msg: 'Check if the index pattern ' + selectedConfig.es.default_index + ' exists'
+            }
+          };
+        }
+        return {
+          ok: true,
+          resp: resp.aggregations.hosts.buckets
+        };
+      } catch(e) {
+        console.error('Error while fetching hosts', e);
+        return {
+          ok: false,
+          resp: e
+        };
       }
-
-      return { "version": logtrailConfig.version, "index_patterns": resultIndex};
-
-    } else {
-      server.log (['error','status'],'not found matched indexList, user => '+curUser);
-      return {};
-    }
-
-  }
-
-  //Check Login Session
-  server.route({
-    method: 'GET',
-    path: '/auth_logtrail/checkSession',
-    handler: function (request, reply) {
-      reply({
-        ok: true,
-        session: getSession(server, request)
-      });
     }
   });
 
-  //Search
-  server.route({
-    method: ['POST'],
-    path: '/auth_logtrail/search',
-    handler: eSearch
-  });
-
-  //Get Host List
-  server.route({
-    method: ['POST'],
-    path: '/auth_logtrail/hosts',
-    handler: getHostList
-  });
-
-  //Get Config
   server.route({
     method: 'GET',
-    path: '/auth_logtrail/config',
-    handler: async function (request, reply) {
-      let config = await loadConfig(server,request);
-      reply({
+    path: '/logtrail/config',
+    handler: async function (request) {
+      const config = await loadConfig(server, request);
+      return {
         ok: true,
         config: config
-      });
+      };
     }
   });
+};
 
-  //로그인
-  server.route({
-    path: '/auth_logtrail/login',
-    method: 'POST',
-    handler: login
-  });
+async function loadConfig(server, request) {
+  const curUser = await server.plugins.security.getUser(request);
 
-  //로그아웃
-  server.route({
-    method: 'GET',
-    path: '/auth_logtrail/logout',
-    handler: function (request, reply) {
-      let sid = request.state['sid'];
-      if(sid.sid) server.auth.api.cache.drop(sid.sid);
+  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
 
-      request.cookieAuth.clear();
+  const config = (await callWithInternalUser('get', {
+    index: '.logtrail',
+    type: 'config',
+    id: 1
+  }))._source;
 
-      reply({
-        ok: true
-      });
+  const userConfig = (await callWithInternalUser('get', {
+    index: '.logtrail',
+    type: 'config',
+    id: 2
+  }))._source;
+
+  const userIndexList = (userConfig.list.filter(user => user.id === curUser.username))[0].indexList;
+
+  if(userIndexList === '*') {
+    console.log('userIndexList === *');
+    return config;
+  }
+
+  const newConfig = {
+    'version': config.version,
+    'index_patterns': []
+  };
+
+  for(let i = 0; userIndexList.length > i; i++) {
+    for(let j = 0; config.index_patterns.length > j; j++) {
+      if(userIndexList[i] === config.index_patterns[j].es.default_index) {
+        newConfig.index_patterns.push(config.index_patterns[j]);
+      }
     }
-  });
+  }
+
+  return newConfig;
 }

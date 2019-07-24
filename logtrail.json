@@ -12,7 +12,6 @@
       "max_hosts": 100,
       "max_events_to_keep_in_viewer": 5000,
       "default_search": "",
-      "secondary_sort_field": "offset",
       "fields" : {
         "mapping" : {	"timestamp" : "@timestamp",
           "hostname" : "beat.hostname",
@@ -23,6 +22,7 @@
           "offset": "offset"
         },
         "message_format": "{{{host_thread}}} {{{log_level}}} {{{message}}}",
+        "secondary_sort_field": "offset",
         "keyword_suffix" : "keyword"},
       "color_mapping" : { "field":"log_level","mapping": {"ERROR": "#FF0000","WARN": "#FFEF96","DEBUG": "#B5E7A0","TRACE": "#CFE0E8"} }
     }
@@ -37,7 +37,6 @@
       "max_hosts": 100,
       "max_events_to_keep_in_viewer": 5000,
       "default_search": "",
-      "secondary_sort_field": "offset",
       "fields" : {
         "mapping" : {	"timestamp" : "@timestamp",
           "hostname" : "beat.hostname",
@@ -48,6 +47,7 @@
           "offset": "offset"
         },
         "message_format": "{{{host_thread}}} {{{log_level}}} {{{message}}}",
+        "secondary_sort_field": "offset",
         "keyword_suffix" : "keyword"},
       "color_mapping" : { "field":"log_level","mapping": {"ERROR": "#FF0000","WARN": "#FFEF96","DEBUG": "#B5E7A0","TRACE": "#CFE0E8"} }
     }

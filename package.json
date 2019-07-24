@@ -1,5 +1,5 @@
 {
-  "name": "auth_logtrail",
+  "name": "logtrail",
   "version": "1.0.1",
   "description": "logtrail with login",
   "main": "index.js",
