@@ -6,6 +6,9 @@ import sugarDate from 'sugar-date';
 import moment from 'moment-timezone';
 import AnsiToHtml from 'ansi-to-html';
 
+import { toastNotifications } from 'ui/notify';
+
+
 import 'ui/autoload/modules';
 import 'ui/autoload/styles';
 import 'plugins/logtrail/css/main.css';
@@ -24,9 +27,8 @@ uiRoutes
 document.title = 'LogTrail - Kibana';
 
 app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
-  $window, $interval, $http, $document, $timeout, $location, $sce, Notifier) {
+  $window, $interval, $http, $document, $timeout, $location, $sce) {
   
-  const notify = new Notifier();  
   $scope.title = 'LogTrail';
   $scope.description = 'Plugin to view, search & tail logs in Kibana';
   $scope.userSearchText = null;
@@ -137,7 +139,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         updateEventView(resp.data.resp,actions,order);
       } else {
         console.error('Error while fetching events ' , resp);
-        notify.error('Exception while executing search query :' + resp.data.resp.msg);
+        toastNotifications.addDanger('Exception while executing search query :' + resp.data.resp.msg);
       }
     });
   };
@@ -537,7 +539,7 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
         } else {
           var message = resp.data.resp.msg ? resp.data.resp.msg : JSON.stringify(resp.data.resp);
           console.error('Error while fetching hosts : ' + message);
-          notify.error('Cannot fetch hosts : ' + message);
+          toastNotifications.addDanger('Cannot fetch hosts : ' + message);
           reject(false);
         }
       });

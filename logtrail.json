@@ -3,7 +3,7 @@
   "index_patterns" : [
     {      
       "es": {
-        "default_index": "filebeat-*"
+        "default_index": "kibana_sample_data_logs"
       },
       "tail_interval_in_seconds": 10,
       "es_index_time_offset_in_seconds": 0,
@@ -17,8 +17,8 @@
       "fields" : {
         "mapping" : {
             "timestamp" : "@timestamp",
-            "hostname" : "beat.hostname",
-            "program": "source",
+            "hostname" : "host",
+            "program": "machine.os",
             "message": "message"
         },
         "message_format": "{{{message}}}",
