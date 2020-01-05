@@ -4,7 +4,7 @@
   "description": "Plugin to view, search & tail logs in Kibana",
   "main": "index.js",
   "kibana": {
-    "version": "7.4.1"
+    "version": "7.5.1"
   },
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
     "lodash": "4.17.13",
     "moment": "2.22.2",
     "sugar-date": "1.5.1",
-    "yarn": "^1.17.3"
+    "yarn": "^1.21.1"
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "link:../../packages/eslint-config-kibana",
