@@ -29,7 +29,7 @@
     "lodash": "4.17.13",
     "moment": "2.22.2",
     "sugar-date": "1.5.1",
-    "yarn": "^1.21.1"
+    "yarn": "^1.22.0"
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "link:../../packages/eslint-config-kibana",
