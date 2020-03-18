@@ -45,4 +45,4 @@ For the above configuration the event console display will be like:
 
 On clicking additional field, logtrail will automatically search for log messages matching the value of the field. For example on clicking the pid `16545` in above message, logtrail will search for all message whose pid is `16545` in this index.
 
-Logtrail uses Handlerbar templates to replace the fields in `message_format` with actual values. `{{{field_name}}}` will add field with hyperlink. `{{field_name}}` will add field without hyperlink. `{{[nested.field]}}` should be used to add nested fields.
+Logtrail uses Handlebar templates to replace the fields in `message_format` with actual values. `{{{field_name}}}` will add field with hyperlink. `{{field_name}}` will add field without hyperlink. `{{[nested.field]}}` should be used to add nested fields.
