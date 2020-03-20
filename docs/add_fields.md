@@ -6,7 +6,9 @@ By default logtrail shows following fields for each log event:
  - program
  - message
  
-These fields can be mapped to respective Elasticsearch documents using `fields.mapping` parameter in `logtrail.json`. Logtrail provides option to add additional fields to the log event. This can be done using the `fields.message_format` parameter in `logtrail.json`. By default this parameter is mapped to `syslog_message`. **NOTE** : Using `fields.message_format` will replace whatever is defined in `fields.mapping.message`.
+These fields can be mapped to respective Elasticsearch documents using `fields.mapping` parameter in `logtrail.json`. Logtrail provides option to add additional fields to the log event. This can be done using the `fields.message_format` parameter in `logtrail.json`. By default this parameter is mapped to `syslog_message`. 
+
+**NOTE** : Using `fields.message_format` will replace whatever is defined in `fields.mapping.message`.
 
 Let us consider following source document present in Elasticsearch :
 ```ruby
