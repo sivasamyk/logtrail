@@ -19,10 +19,6 @@
       <div class="flex-container-search">
         <input type="text" ng-model="userSearchText" class="search-box form-control" ng-class="userSearchText !== null && userSearchText.length > 0 ? '' : hint"
           placeholder='"access denied" 1.2.3.4 -sshd' title='Default search field : message'></input>
-        <div ng-hide="userSearchText !== null && userSearchText.length > 0" class="lucene-hint">
-          <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-query-string-query.html#query-string-syntax"
-            target="_blank">Uses lucene query syntax</a>
-        </div>
         <button class="submit btn search-btn flex-item-search">Search</button>
         <button type="button" id="host-picker-btn" class="btn host-option-select-btn flex-item-search">
           {{selectedHost == null ? 'All Systems' : selectedHost}}</button>
@@ -72,7 +68,7 @@
     </div>
 
     <div class="pull-right live-tail-button">
-      <i ng-click="toggleLiveTail()" class="fa fa-3x" ng-class="getLiveTailIcon()"></i>
+      <i ng-click="toggleLiveTail()" class="fas fa-5x" ng-class="getLiveTailIcon()"></i>
     </div>
   </div>
 </div>

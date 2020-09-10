@@ -8,9 +8,7 @@ import AnsiToHtml from 'ansi-to-html';
 
 import { toastNotifications } from 'ui/notify';
 
-
 import 'ui/autoload/modules';
-import 'ui/autoload/styles';
 import 'plugins/logtrail/css/main.css';
 
 import template from './templates/index.html';
