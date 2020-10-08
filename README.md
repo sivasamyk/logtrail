@@ -1,6 +1,6 @@
 # LogTrail - Log Viewer plugin for Kibana
 
-[![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 7.9.1](https://img.shields.io/badge/Kibana-v7.9.1-blue.svg)](https://www.elastic.co/guide/en/kibana/7.5/release-notes-7.9.1.html)
+[![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 7.9.2](https://img.shields.io/badge/Kibana-v7.9.2-blue.svg)](https://www.elastic.co/guide/en/kibana/7.5/release-notes-7.9.2.html)
 [![License](https://img.shields.io/github/license/sivasamyk/logtrail.svg)](https://github.com/sivasamyk/logtrail) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sivasamyk)
 
 LogTrail is a plugin for Kibana to view, analyze, search, and tail log events from multiple hosts in realtime with DevOps friendly interface inspired by [Papertrail](https://papertrailapp.com/).
@@ -26,8 +26,8 @@ Installation
   - Download and install Elasticsearch and Kibana
   - Logtrail is supported and tested with Kibana 6.x and 5.x
 - Install logtrail plugin (requires a restart of Kibana after install)
-  - Kibana 7.9.1 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.31/logtrail-7.9.1-0.1.31.zip`
-  - Kibana 5.6.5 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.23/logtrail-5.7.9.1.1.23.zip`
+  - Kibana 7.9.2 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.31/logtrail-7.9.2-0.1.31.zip`
+  - Kibana 5.6.5 : `./bin/kibana-plugin install https://github.com/sivasamyk/logtrail/releases/download/v0.1.23/logtrail-5.7.9.2.1.23.zip`
   - Other versions : [https://github.com/sivasamyk/logtrail/releases](https://github.com/sivasamyk/logtrail/releases)
 - Kibana requires an exact match of the plugin version to the Kibana version. If you can't find the logtrail plugin release for a Kibana release, follow the instructions [here](docs/how_to.md#2-update-kibanaversion-in-logtrail-plugin-archive) to update the Kibana version in your logtrail plugin archive.
 - Refer [Logtrail Config Examples Repo](https://github.com/sivasamyk/logtrail-config-examples) for sample configurations for syslog, Java app, Kubernetes logs.
