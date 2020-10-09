@@ -154,9 +154,8 @@ app.controller('logtrail', function ($scope, kbnUrl, $route, $routeParams,
   //formats event based on logtrail.json config
   function formatEvent(event) {
     // displayTimestamp based on configured timezone and format
-    var displayTimestamp = moment(event.timestamp);
+    var displayTimestamp = moment(event.timestamp, selectedIndexConfig.moment_format);
     if (selectedIndexConfig.display_timestamp_format != null) {
-      displayTimestamp = moment(event.timestamp);
       if (selectedIndexConfig.display_timezone !== 'local') {
         displayTimestamp = displayTimestamp.tz(selectedIndexConfig.display_timezone);
       }
