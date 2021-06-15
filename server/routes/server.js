@@ -285,7 +285,7 @@ module.exports = function (server) {
       var seek = (request.payload && request.payload.seek) ? request.payload.seek : null;
       if (seek) {
           // shrink down the number of indexes we will look at
-          start = new Date(request.query.seek - Math.floor((DAY * selectedConfig.default_time_range_in_days) / 2 ));
+          start = new Date(seek - Math.floor((DAY * selectedConfig.default_time_range_in_days) / 2 ));
           indexes = toDatedIndexPattern(index, start, selectedConfig.default_time_range_in_days+1, 'string');
       } else {
           // shrink down the number of indexes we will look at
