@@ -3,6 +3,8 @@
 [![Github All Releases](https://img.shields.io/github/downloads/sivasamyk/logtrail/total.svg)](https://github.com/sivasamyk/logtrail/releases) [![Kibana 7.9.2](https://img.shields.io/badge/Kibana-v7.9.2-blue.svg)](https://www.elastic.co/guide/en/kibana/7.5/release-notes-7.9.2.html)
 [![License](https://img.shields.io/github/license/sivasamyk/logtrail.svg)](https://github.com/sivasamyk/logtrail) ![maintenance-status](https://img.shields.io/badge/maintenance-deprecated-red.svg)
 
+**This plugin is no longer maintained. Please use the built-in [tail logs](https://www.elastic.co/guide/en/observability/current/tail-logs.html) feature in Kibana.**
+
 LogTrail is a plugin for Kibana to view, analyze, search, and tail log events from multiple hosts in realtime with DevOps friendly interface inspired by [Papertrail](https://papertrailapp.com/).
 
 ![Events](screenshot.png)
